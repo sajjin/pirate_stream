@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDb Video Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        #video-frame { margin-top: 20px; width: 80%; height: 500px; border: none; }
+    </style>
+</head>
+<body>
+    <h1>IMDb Video Search</h1>
+    <input type="text" id="searchInput" placeholder="Enter movie or show name" />
+    <button onclick="searchIMDb()">Search</button>
+
+    <div id="result"></div>
+    <iframe id="video-frame" style="display: none;" allowfullscreen></iframe>
+
+    <script>
+        async function searchIMDb() {
+            const searchQuery = document.getElementById("searchInput").value.trim();
+            if (!searchQuery) {
+                alert("Please enter a movie or show name.");
+                return;
+            }
+
+            // Fetch IMDb search results
+            try {
+                const response = await fetch(`https://www.omdbapi.com/?apikey=775f5bf1&s=${encodeURIComponent(searchQuery)}`);
+                const data = await response.json();
+
+                if (data.Response === "True" && data.Search && data.Search.length > 0) {
+                    const firstResult = data.Search[0];
+                    const imdbID = firstResult.imdbID;
+                    const type = firstResult.Type;
+
+                    let embedUrl;
+                    if (type === "movie") {
+                        embedUrl = `https://vidsrc.xyz/embed/movie?imdb=${imdbID}`;
+                    } else if (type === "series") {
+                        embedUrl = `https://vidsrc.xyz/embed/tv?imdb=${imdbID}`;
+                    } else {
+                        document.getElementById("result").innerText = "Only movies and series are supported.";
+                        return;
+                    }
+
+                    // Embed video link with the IMDb ID
+                    document.getElementById("video-frame").src = embedUrl;
+                    document.getElementById("video-frame").style.display = "block";
+                    document.getElementById("result").innerText = `Displaying ${type === "movie" ? "Movie" : "TV Show"}: ${firstResult.Title}`;
+                } else {
+                    document.getElementById("result").innerText = "No results found.";
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                document.getElementById("result").innerText = "Error fetching data.";
+            }
+        }
+    </script>
+</body>
+</html>
