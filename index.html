@@ -15,8 +15,8 @@
     <button onclick="searchIMDb()">Search</button>
 
     <div id="result"></div>
-    <!-- Add allowfullscreen attribute to enable fullscreen mode -->
-    <iframe id="video-frame" style="display: none;" allowfullscreen></iframe>
+    <!-- Restrict the iframe with sandbox to disable new tab/window opening -->
+    <iframe id="video-frame" style="display: none;" allowfullscreen sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
 
     <script>
         async function searchIMDb() {
