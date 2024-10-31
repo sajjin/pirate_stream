@@ -6,7 +6,7 @@
     <title>IMDb Video Search</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        #video-frame { margin-top: 20px; width: 80%; height: 500px; border: none; }
+        #video-link { margin-top: 20px; font-size: 1.2em; }
     </style>
 </head>
 <body>
@@ -15,7 +15,6 @@
     <button onclick="searchIMDb()">Search</button>
 
     <div id="result"></div>
-    <iframe id="video-frame" style="display: none;" allowfullscreen></iframe>
 
     <script>
         async function searchIMDb() {
@@ -45,10 +44,11 @@
                         return;
                     }
 
-                    // Embed video link with the IMDb ID
-                    document.getElementById("video-frame").src = embedUrl;
-                    document.getElementById("video-frame").style.display = "block";
-                    document.getElementById("result").innerText = `Displaying ${type === "movie" ? "Movie" : "TV Show"}: ${firstResult.Title}`;
+                    // Display link to the video instead of iframe
+                    document.getElementById("result").innerHTML = `
+                        <p>Displaying ${type === "movie" ? "Movie" : "TV Show"}: ${firstResult.Title}</p>
+                        <a id="video-link" href="${embedUrl}" target="_blank">Watch here</a>
+                    `;
                 } else {
                     document.getElementById("result").innerText = "No results found.";
                 }
