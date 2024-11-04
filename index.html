@@ -16,7 +16,7 @@
             margin-left: auto;
             margin-right: auto;
             position: relative;
-            padding-bottom: 50%; /* 16:9 aspect ratio */ 
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
             height: 0;
         }
         #video-frame {
@@ -36,7 +36,7 @@
 
     <div id="result"></div>
     <div id="video-container">
-        <iframe id="video-frame" style="display: none;" allowfullscreen></iframe>
+        <iframe id="video-frame" style="display: none;" allowfullscreen sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
     </div>
 
     <script>
