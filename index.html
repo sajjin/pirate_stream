@@ -33,10 +33,11 @@
     <h1>IMDb Video Search</h1>
     <input type="text" id="searchInput" placeholder="Enter movie or show name" />
     <button onclick="searchIMDb()">Search</button>
+    <button onclick="toggleCast()">Toggle Cast</button>
 
     <div id="result"></div>
     <div id="video-container">
-        <iframe id="video-frame" style="display: none;" allowfullscreen sandbox="allow-same-origin allow-scripts allow-forms" allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+        <iframe id="video-frame" style="display: none;" allowfullscreen sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
     </div>
 
     <script>
@@ -77,6 +78,19 @@
             } catch (error) {
                 console.error("Error fetching data:", error);
                 document.getElementById("result").innerText = "Error fetching data.";
+            }
+        }
+
+        function toggleCast() {
+            const iframe = document.getElementById("video-frame");
+            const currentSandbox = iframe.getAttribute("sandbox");
+
+            if (confirm("Warning: Disabling sandbox may allow the iframe to open new tabs. Do you want to proceed?")) {
+                if (currentSandbox) {
+                    iframe.removeAttribute("sandbox");
+                } else {
+                    iframe.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms");
+                }
             }
         }
     </script>
