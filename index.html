@@ -27,12 +27,18 @@
             height: 100%;
             border: none;
         }
+        .result-item {
+            cursor: pointer;
+            margin: 5px 0;
+            color: blue;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <h1>IMDb Video Search</h1>
     <input type="text" id="searchInput" placeholder="Enter movie or show name" />
-    <button onclick="searchIMDb()">Search</button>
+    <button id="Searchbtn" onclick="searchIMDb()">Search</button>
     <button onclick="toggleCast()">Toggle Cast</button>
 
     <div id="result"></div>
@@ -41,6 +47,14 @@
     </div>
 
     <script>
+        var input = document.getElementById("searchInput");
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("Searchbtn").click();
+            }
+        });
+
         async function searchIMDb() {
             const searchQuery = document.getElementById("searchInput").value.trim();
             if (!searchQuery) {
@@ -48,30 +62,20 @@
                 return;
             }
 
-            // Fetch IMDb search results
             try {
                 const response = await fetch(`https://www.omdbapi.com/?apikey=775f5bf1&s=${encodeURIComponent(searchQuery)}`);
                 const data = await response.json();
 
                 if (data.Response === "True" && data.Search && data.Search.length > 0) {
-                    const firstResult = data.Search[0];
-                    const imdbID = firstResult.imdbID;
-                    const type = firstResult.Type;
-
-                    let embedUrl;
-                    if (type === "movie") {
-                        embedUrl = `https://vidsrc.xyz/embed/movie?imdb=${imdbID}`;
-                    } else if (type === "series") {
-                        embedUrl = `https://vidsrc.xyz/embed/tv?imdb=${imdbID}`;
-                    } else {
-                        document.getElementById("result").innerText = "Only movies and series are supported.";
-                        return;
-                    }
-
-                    // Embed video link with the IMDb ID and enable fullscreen
-                    document.getElementById("video-frame").src = embedUrl;
-                    document.getElementById("video-frame").style.display = "block";
-                    document.getElementById("result").innerText = `Displaying ${type === "movie" ? "Movie" : "TV Show"}: ${firstResult.Title}`;
+                    // Clear previous results and show all possible matches
+                    document.getElementById("result").innerHTML = "<h3>Select a title:</h3>";
+                    data.Search.forEach((result) => {
+                        const resultItem = document.createElement("div");
+                        resultItem.classList.add("result-item");
+                        resultItem.innerText = `${result.Title} (${result.Year}) - ${result.Type}`;
+                        resultItem.onclick = () => loadVideo(result.imdbID, result.Title, result.Type);
+                        document.getElementById("result").appendChild(resultItem);
+                    });
                 } else {
                     document.getElementById("result").innerText = "No results found.";
                 }
@@ -81,11 +85,28 @@
             }
         }
 
+        function loadVideo(imdbID, title, type) {
+            let embedUrl;
+            if (type === "movie") {
+                embedUrl = `https://vidsrc.xyz/embed/movie?imdb=${imdbID}`;
+            } else if (type === "series") {
+                embedUrl = `https://vidsrc.xyz/embed/tv?imdb=${imdbID}`;
+            } else {
+                document.getElementById("result").innerText = "Only movies and series are supported.";
+                return;
+            }
+
+            // Set the iframe source to the selected video and display it
+            document.getElementById("video-frame").src = embedUrl;
+            document.getElementById("video-frame").style.display = "block";
+            document.getElementById("result").innerText = `Displaying ${type === "movie" ? "Movie" : "TV Show"}: ${title}`;
+        }
+
         function toggleCast() {
             const iframe = document.getElementById("video-frame");
             const currentSandbox = iframe.getAttribute("sandbox");
 
-            if (confirm("Warning: Disabling sandbox may allow the iframe to open new tabs. Do you want to proceed?")) {
+            if (confirm("Warning: By pressing this you will allow the player to open tabs to POTENTIALLY DANGEROUS WEBSITES. Do you want to proceed?")) {
                 if (currentSandbox) {
                     iframe.removeAttribute("sandbox");
                 } else {
