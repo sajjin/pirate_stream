@@ -27,7 +27,7 @@ body { font-family: Arial, sans-serif;
 /* Position the toggle button in the top-right corner */
 #toggleButton {
     position: absolute;
-    right: 50px;
+    left: 0px;
     top: 20px;
 }
 
@@ -57,6 +57,8 @@ h1 { margin-top: 70px; }
     color: #e6e6e6;
     transition: color 0.2s;
 }
+
+
 
 .poster {
     width: 151px;
