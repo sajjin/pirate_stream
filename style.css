@@ -49,6 +49,15 @@ h1 { margin-top: 70px; }
     background-color: #f0f0f0;
 }
 
+.result-item:hover span {
+    color: #161616;
+}
+
+.result-item span {
+    color: #e6e6e6;
+    transition: color 0.2s;
+}
+
 .poster {
     width: 151px;
     height: 221px;
