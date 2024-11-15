@@ -70,6 +70,20 @@
             document.getElementById("header").style.transform = "translateY(-100%)";
         }
 
+        // Toggle cast function
+        function toggleCast() {
+            const iframe = document.getElementById("video-frame");
+            const currentSandbox = iframe.getAttribute("sandbox");
+
+            if (confirm("Warning: By pressing this you will allow the player to open tabs to POTENTIALLY DANGEROUS WEBSITES. Do you want to proceed?")) {
+                if (currentSandbox) {
+                    iframe.removeAttribute("sandbox");
+                } else {
+                    iframe.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms");
+                }
+            }
+        }
+
         // Show header when scrolling up
         let lastScrollY = window.scrollY;
         window.addEventListener("scroll", function() {
