@@ -73,12 +73,6 @@ function Search() {
     }
   };
 
-  const handleNewSearch = () => {
-    setCurrentVideo(null);
-    setSearchQuery('');
-    setError('');
-  };
-
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* Fixed header */}
@@ -99,14 +93,6 @@ function Search() {
             >
               Search
             </button>
-            {currentVideo && (
-              <button
-                onClick={handleNewSearch}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
-              >
-                New Search
-              </button>
-            )}
             <button 
               onClick={toggleCast}
               className="px-4 py-2 bg-transparent border border-white text-white rounded-lg hover:bg-white hover:text-black transition-colors whitespace-nowrap"

@@ -1,0 +1,74 @@
+{
+  "api": {
+    "videosearchapi": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "videosearch9ebf8616"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "function": {
+    "videosearch9ebf8616": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "hosting": {
+    "amplifyhosting": {
+      "providerPlugin": "awscloudformation",
+      "service": "amplifyhosting",
+      "type": "manual"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_videosearch9ebf8616_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "videosearch9ebf8616"
+        }
+      ]
+    },
+    "AMPLIFY_function_videosearch9ebf8616_omdbApiKey": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "videosearch9ebf8616"
+        }
+      ]
+    },
+    "AMPLIFY_function_videosearch9ebf8616_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "videosearch9ebf8616"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_appId": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_type": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface MediaItem {
   imdb_id: string;
@@ -19,6 +19,12 @@ interface OmdbResponse {
   Response: string;
 }
 
+interface VideoInfo {
+  url: string;
+  title: string;
+  type: string;
+}
+
 function Browse() {
   const [movies, setMovies] = useState<MediaItem[]>([]);
   const [tvShows, setTvShows] = useState<MediaItem[]>([]);
@@ -27,6 +33,8 @@ function Browse() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'movies' | 'tv'>('movies');
+  const [currentVideo, setCurrentVideo] = useState<VideoInfo | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const fetchOmdbDetails = async (imdbId: string): Promise<OmdbResponse | null> => {
     try {
@@ -106,18 +114,76 @@ function Browse() {
     }
   };
 
-  const handlePlayMedia = (imdbId: string, mediaType: 'movies' | 'tv') => {
-    const url = mediaType === 'movies'
+  const handlePlayMedia = (imdbId: string, title: string, mediaType: 'movies' | 'tv') => {
+    const embedUrl = mediaType === 'movies'
       ? `https://vidsrc.xyz/embed/movie?imdb=${imdbId}`
       : `https://vidsrc.xyz/embed/tv?imdb=${imdbId}`;
-      
-    window.open(url, '_blank');
+
+    setCurrentVideo({
+      url: embedUrl,
+      title: title,
+      type: mediaType === 'movies' ? 'movie' : 'series'
+    });
+
+    // Scroll to video
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const toggleCast = () => {
+    if (window.confirm("Warning: By pressing this you will allow the player to open tabs to POTENTIALLY DANGEROUS WEBSITES. Do you want to proceed?")) {
+      if (iframeRef.current) {
+        const currentSandbox = iframeRef.current.getAttribute("sandbox");
+        if (currentSandbox) {
+          iframeRef.current.removeAttribute("sandbox");
+        } else {
+          iframeRef.current.setAttribute("sandbox", "allow-same-origin allow-scripts allow-forms");
+        }
+      }
+    }
+  };
+
+  const handleNewSearch = () => {
+    setCurrentVideo(null);
   };
 
   const currentItems = activeTab === 'movies' ? movies : tvShows;
 
   return (
     <div className="max-w-6xl mx-auto p-4 pt-20">
+      {/* Video Player */}
+      {currentVideo && (
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">
+              Now Playing: {currentVideo.title} ({currentVideo.type})
+            </h2>
+            <div className="flex gap-2">
+              <button 
+                onClick={toggleCast}
+                className="px-4 py-2 bg-transparent border border-white text-white rounded-lg hover:bg-white hover:text-black transition-colors"
+              >
+                Toggle Cast
+              </button>
+              <button
+                onClick={handleNewSearch}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Close Video
+              </button>
+            </div>
+          </div>
+          <div className="relative w-full pt-[56.25%]">
+            <iframe
+              ref={iframeRef}
+              src={currentVideo.url}
+              className="absolute top-0 left-0 w-full h-full border-0"
+              allowFullScreen
+              sandbox="allow-same-origin allow-scripts allow-forms"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="flex gap-4 mb-6">
         <button
@@ -154,7 +220,7 @@ function Browse() {
           <div
             key={`${item.imdb_id}-${index}`}
             className="bg-zinc-900 rounded-lg overflow-hidden cursor-pointer hover:bg-zinc-800 transition-colors"
-            onClick={() => handlePlayMedia(item.imdb_id, activeTab)}
+            onClick={() => handlePlayMedia(item.imdb_id, item.title, activeTab)}
           >
             <div className="relative pb-[150%]">
               <img

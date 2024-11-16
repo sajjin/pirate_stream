@@ -1,0 +1,33 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-videosearch-dev-18304-authRole",
+      "UnauthRoleArn": "arn:aws:iam::243583015434:role/amplify-videosearch-dev-18304-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::243583015434:role/amplify-videosearch-dev-18304-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-videosearch-dev-18304-deployment",
+      "UnauthRoleName": "amplify-videosearch-dev-18304-unauthRole",
+      "StackName": "amplify-videosearch-dev-18304",
+      "StackId": "arn:aws:cloudformation:us-west-2:243583015434:stack/amplify-videosearch-dev-18304/d178ff50-a3e9-11ef-b469-0683babcf69b",
+      "AmplifyAppId": "d1spo9gn1p0n97"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d1spo9gn1p0n97",
+          "type": "manual"
+        }
+      },
+      "function": {
+        "videosearch9ebf8616": {
+          "omdbApiKey": "775f5bf1&s",
+          "deploymentBucketName": "amplify-videosearch-dev-18304-deployment",
+          "s3Key": "amplify-builds/videosearch9ebf8616-3341304c4b6f5a6a396f-build.zip"
+        }
+      },
+      "api": {
+        "videosearchapi": {}
+      }
+    }
+  }
+}

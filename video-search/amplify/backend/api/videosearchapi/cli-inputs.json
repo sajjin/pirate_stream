@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/search": {
+      "name": "/search",
+      "lambdaFunction": "videosearch9ebf8616",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}
