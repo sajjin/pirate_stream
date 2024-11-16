@@ -1,0 +1,65 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-videosearch-dev-18304-authRole",
+      "UnauthRoleArn": "arn:aws:iam::243583015434:role/amplify-videosearch-dev-18304-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::243583015434:role/amplify-videosearch-dev-18304-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-videosearch-dev-18304-deployment",
+      "UnauthRoleName": "amplify-videosearch-dev-18304-unauthRole",
+      "StackName": "amplify-videosearch-dev-18304",
+      "StackId": "arn:aws:cloudformation:us-west-2:243583015434:stack/amplify-videosearch-dev-18304/d178ff50-a3e9-11ef-b469-0683babcf69b",
+      "AmplifyAppId": "d1spo9gn1p0n97"
+    }
+  },
+  "api": {
+    "videosearchapi": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "videosearch9ebf8616"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway",
+      "output": {
+        "ApiName": "videosearchapi",
+        "RootUrl": "https://s70z8mmx0a.execute-api.us-west-2.amazonaws.com/dev",
+        "ApiId": "s70z8mmx0a"
+      },
+      "lastPushTimeStamp": "2024-11-16T08:40:25.353Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-videosearch-dev-18304-deployment/amplify-cfn-templates/api/videosearchapi-cloudformation-template.json",
+        "logicalId": "apivideosearchapi"
+      }
+    }
+  },
+  "function": {
+    "videosearch9ebf8616": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "output": {
+        "LambdaExecutionRoleArn": "arn:aws:iam::243583015434:role/videosearchLambdaRole301248a3-dev",
+        "Region": "us-west-2",
+        "Arn": "arn:aws:lambda:us-west-2:243583015434:function:videosearch9ebf8616-dev",
+        "Name": "videosearch9ebf8616-dev",
+        "LambdaExecutionRole": "videosearchLambdaRole301248a3-dev"
+      },
+      "lastPushTimeStamp": "2024-11-16T08:40:25.368Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-videosearch-dev-18304-deployment/amplify-cfn-templates/function/videosearch9ebf8616-cloudformation-template.json",
+        "logicalId": "functionvideosearch9ebf8616"
+      },
+      "s3Bucket": {
+        "deploymentBucketName": "amplify-videosearch-dev-18304-deployment",
+        "s3Key": "amplify-builds/videosearch9ebf8616-3341304c4b6f5a6a396f-build.zip"
+      }
+    }
+  },
+  "hosting": {}
+}
