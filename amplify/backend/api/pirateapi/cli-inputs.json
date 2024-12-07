@@ -3,7 +3,7 @@
   "paths": {
     "/search": {
       "name": "/search",
-      "lambdaFunction": "videosearch9ebf8616",
+      "lambdaFunction": "piratestream331a6521",
       "permissions": {
         "setting": "open"
       }

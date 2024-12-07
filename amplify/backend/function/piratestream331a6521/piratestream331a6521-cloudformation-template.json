@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"12.13.0\",\"stackType\":\"function-Lambda\",\"metadata\":{\"whyContinueWithGen1\":\"Gen 2 is missing features I need from Gen 1\"}}",
+  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"12.13.0\",\"stackType\":\"function-Lambda\",\"metadata\":{\"whyContinueWithGen1\":\"Prefer not to answer\"}}",
   "Parameters": {
     "CloudWatchRule": {
       "Type": "String",
@@ -50,12 +50,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "videosearch9ebf8616",
+            "piratestream331a6521",
             {
               "Fn::Join": [
                 "",
                 [
-                  "videosearch9ebf8616",
+                  "piratestream331a6521",
                   "-",
                   {
                     "Ref": "env"
@@ -95,12 +95,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "videosearchLambdaRole301248a3",
+            "piratestreamLambdaRole3809908b",
             {
               "Fn::Join": [
                 "",
                 [
-                  "videosearchLambdaRole301248a3",
+                  "piratestreamLambdaRole3809908b",
                   "-",
                   {
                     "Ref": "env"

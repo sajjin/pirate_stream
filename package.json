@@ -5,6 +5,9 @@
   "dependencies": {
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
+    "express": "^4.21.1",
+    "helmet": "^8.0.0",
+    "lucide-react": "^0.460.0",
     "pirate_stream": "file:",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -14,10 +17,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npm run cleanup",
+    "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "cleanup": "rimraf ./build/**/*.map && rimraf ./build/static/js/*.txt"
+    "eject": "react-scripts eject"
   },
   "devDependencies": {
     "rimraf": "^5.0.5"

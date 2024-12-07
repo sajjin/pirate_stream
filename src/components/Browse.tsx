@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Footer from './footer';
 
 interface MediaItem {
   imdb_id: string;
@@ -268,6 +269,7 @@ function Browse() {
           </button>
         </div>
       )}
+      <Footer />
     </div>
   );
 }
