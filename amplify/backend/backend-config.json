@@ -1,21 +1,55 @@
 {
   "api": {
-    "pirateapi": {
-      "dependsOn": [
-        {
-          "attributes": [
-            "Name",
-            "Arn"
+    "piratestreamers": {
+      "dependsOn": [],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authpiratestream5499fba1"
+              }
+            }
           ],
-          "category": "function",
-          "resourceName": "piratestream331a6521"
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 7
+            },
+            "authenticationType": "API_KEY"
+          }
         }
-      ],
+      },
       "providerPlugin": "awscloudformation",
-      "service": "API Gateway"
+      "service": "AppSync"
     }
   },
-  "auth": {},
+  "auth": {
+    "piratestream5499fba1": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyCharacters": [],
+          "passwordPolicyMinLength": 8
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [],
+        "usernameAttributes": [],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
   "function": {
     "piratestream331a6521": {
       "build": true,
@@ -28,48 +62,6 @@
       "providerPlugin": "awscloudformation",
       "service": "amplifyhosting",
       "type": "manual"
-    }
-  },
-  "parameters": {
-    "AMPLIFY_function_piratestream331a6521_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "piratestream331a6521"
-        }
-      ]
-    },
-    "AMPLIFY_function_piratestream331a6521_omdbApiKey": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "piratestream331a6521"
-        }
-      ]
-    },
-    "AMPLIFY_function_piratestream331a6521_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "piratestream331a6521"
-        }
-      ]
-    },
-    "AMPLIFY_hosting_amplifyhosting_appId": {
-      "usedBy": [
-        {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
-        }
-      ]
-    },
-    "AMPLIFY_hosting_amplifyhosting_type": {
-      "usedBy": [
-        {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
-        }
-      ]
     }
   }
 }

@@ -1,9 +1,20 @@
 export type AmplifyDependentResourcesAttributes = {
   "api": {
-    "pirateapi": {
-      "ApiId": "string",
-      "ApiName": "string",
-      "RootUrl": "string"
+    "piratestreamers": {
+      "GraphQLAPIEndpointOutput": "string",
+      "GraphQLAPIIdOutput": "string",
+      "GraphQLAPIKeyOutput": "string"
+    }
+  },
+  "auth": {
+    "piratestream5499fba1": {
+      "AppClientID": "string",
+      "AppClientIDWeb": "string",
+      "IdentityPoolId": "string",
+      "IdentityPoolName": "string",
+      "UserPoolArn": "string",
+      "UserPoolId": "string",
+      "UserPoolName": "string"
     }
   },
   "function": {

@@ -1,44 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { MoviePlayer } from './videoplayer/MoviePlayer';
-import { TVShowPlayer } from './videoplayer/TVShowPlayer';
-import { EpisodesGrid } from './EpisodesGrid';
-import Footer from './footer';
-import Header from './Header';
-import { Episode } from './types';
-import { GenreBrowser } from './GenreBrowser';
+import { ChevronLeft, ChevronRight, X, Trash2 } from 'lucide-react';
+import { MoviePlayer } from '../components/videoplayer/MoviePlayer';
+import { TVShowPlayer } from '../components/videoplayer/TVShowPlayer';
+import { EpisodesGrid } from '../components/EpisodesGrid';
+import Footer from '../components/footer';
+import Header from '../components/Header';
+import { VideoInfo, SearchResult, Season } from '../types';
+import { GenreBrowser } from '../components/GenreBrowser';
+import '../App.css';
+import { useEpisodeLoader } from '../components/EpisodeLoader';
+import { watchHistoryService } from '../services/watchHistoryService';
 
 
-
-
-interface VideoInfo {
-  url: string;
-  title: string;
-  type: 'movie' | 'series';
-  imdbID?: string;
-  season?: string;
-  episode?: string;
-  episodeTitle?: string;
-  timestamp?: number;
-  tmdbId?: number;
-  poster?: string;
-  runtime?: number;
-}
-
-interface Season {
-  seasonNumber: string;
-  episodes: Episode[];
-  poster: string;
-}
-
-interface SearchResult {
-  imdbID: string;
-  Title: string;
-  Year: string;
-  Type: string;
-  Poster: string;
-  tmdbId?: number;
-}
 
 interface GroupedContent {
   [key: string]: VideoInfo[];
@@ -49,6 +22,7 @@ interface ContentRowProps {
   items: VideoInfo[] | SearchResult[];
   type: 'history' | 'movie' | 'series';
   onItemClick: (item: VideoInfo | SearchResult, type: 'history' | 'movie' | 'series') => void;
+  onDeleteItem?: (item: VideoInfo) => void; // New prop for delete functionality
 }
 
 const Homepage = () => {
@@ -77,132 +51,133 @@ const Homepage = () => {
     }
   };
 
-  // Load watch history on component mount
-  useEffect(() => {
-    const loadWatchHistory = async () => {
-        try {
-            const watchHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
-            
-            if (watchHistory.length > 0) {
-                // Group content by show/movie
-                const groupedContent: GroupedContent = {};
-                
-                watchHistory.forEach((item: VideoInfo) => {
-                    const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-                    if (!groupedContent[key]) {
-                        groupedContent[key] = [];
-                    }
-                    groupedContent[key].push(item);
-                });
-
-                // Get latest episode/movie from each group
-                const latestWatched = Object.values(groupedContent).map(items => {
-                    items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    return items[0];
-                });
-
-                // Sort by timestamp
-                latestWatched.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-                // Process and add missing posters
-                const processedHistory = await Promise.all(
-                    latestWatched.map(async (item: VideoInfo) => {
-                        if (!item.poster && item.imdbID) {
-                            try {
-                                const response = await fetch(
-                                    `https://api.themoviedb.org/3/find/${item.imdbID}?api_key=${TMDB_API_KEY}&external_source=imdb_id`
-                                );
-                                const data = await response.json();
-                                
-                                let poster = null;
-                                if (item.type === 'movie' && data.movie_results[0]) {
-                                    poster = data.movie_results[0].poster_path;
-                                } else if (item.type === 'series' && data.tv_results[0]) {
-                                    poster = data.tv_results[0].poster_path;
-                                }
-                                
-                                if (poster) {
-                                    return {
-                                        ...item,
-                                        poster: `${TMDB_IMAGE_BASE}${poster}`
-                                    };
-                                }
-                            } catch (error) {
-                                console.error('Error fetching poster:', error);
-                            }
-                        }
-                        return item;
-                    })
-                );
-
-                setRecentlyWatched(processedHistory);
-            }
-        } catch (error) {
-            console.error('Error loading watch history:', error);
-        }
-    };
-
-    loadWatchHistory();
-}, []);
-
-
-// Function to update watch history
-const updateWatchHistory = (videoInfo: VideoInfo) => {
-  const maxHistoryItems = 50;
-  
-  try {
-      // Get existing history
-      const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
-      
-      // Remove any existing entries for this video/episode
-      let filteredHistory = existingHistory;
-      
-      if (videoInfo.type === 'movie') {
-          filteredHistory = existingHistory.filter(item => 
-              !(item.imdbID === videoInfo.imdbID && item.type === 'movie')
-          );
-      } else {
-          filteredHistory = existingHistory.filter(item =>
-              !(item.imdbID === videoInfo.imdbID && 
-                item.season === videoInfo.season && 
-                item.episode === videoInfo.episode)
-          );
-      }
-      
-      // Add new item to the beginning with current timestamp
-      const updatedHistory = [
-          {
-              ...videoInfo,
-              timestamp: Date.now()
-          },
-          ...filteredHistory
-      ].slice(0, maxHistoryItems);
-      
-      // Update localStorage
-      localStorage.setItem('watchHistory', JSON.stringify(updatedHistory));
-      
-      // Update state using the same grouping logic
-      const groupedContent: GroupedContent = {};
-      updatedHistory.forEach((item: VideoInfo) => {
-          const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-          if (!groupedContent[key]) {
-              groupedContent[key] = [];
-          }
-          groupedContent[key].push(item);
+    const {
+      loadEpisode,
+      loadNextEpisode,
+      loadPreviousEpisode,
+      getCurrentEpisodeIndex
+    } = useEpisodeLoader({
+      currentVideo,
+      seasons,
+      selectedSeason,
+      onVideoChange: (newVideo) => {
+        updateWatchHistory(newVideo);
+        setCurrentVideo(newVideo);
+      },
+      scrollToVideo
+    });
+    if (videoSectionRef.current) {
+      videoSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
       });
-      
-      const latestWatched = Object.values(groupedContent)
-          .map(items => {
+    }
+
+
+    useEffect(() => {
+      const loadWatchHistory = async () => {
+        try {
+          const watchHistory = await watchHistoryService.getHistory();
+          
+          if (watchHistory.length > 0) {
+            // Group content by show/movie
+            const groupedContent: GroupedContent = {};
+            
+            watchHistory.forEach((item: VideoInfo) => {
+              const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
+              if (!groupedContent[key]) {
+                groupedContent[key] = [];
+              }
+              groupedContent[key].push(item);
+            });
+  
+            // Get latest episode/movie from each group
+            const latestWatched = Object.values(groupedContent).map(items => {
               items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
               return items[0];
+            });
+  
+            // Sort by timestamp
+            latestWatched.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  
+            setRecentlyWatched(latestWatched);
+          }
+        } catch (error) {
+          console.error('Error loading watch history:', error);
+        }
+      };
+  
+      loadWatchHistory();
+    }, []);
+  
+    // Update the watch history update function
+    const updateWatchHistory = async (videoInfo: VideoInfo) => {
+      try {
+        await watchHistoryService.addToHistory(videoInfo);
+        
+        // Refresh the watch history
+        const updatedHistory = await watchHistoryService.getHistory();
+        
+        // Group and sort the updated history
+        const groupedContent: GroupedContent = {};
+        updatedHistory.forEach((item: VideoInfo) => {
+          const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
+          if (!groupedContent[key]) {
+            groupedContent[key] = [];
+          }
+          groupedContent[key].push(item);
+        });
+        
+        const latestWatched = Object.values(groupedContent)
+          .map(items => {
+            items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            return items[0];
           })
           .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      
-      setRecentlyWatched(latestWatched);
-  } catch (error) {
-      console.error('Error updating watch history:', error);
-  }
-};
+        
+        setRecentlyWatched(latestWatched);
+      } catch (error) {
+        console.error('Error updating watch history:', error);
+      }
+    };
+  
+    // Update the delete from history function
+    const handleDeleteFromHistory = async (itemToDelete: VideoInfo) => {
+      try {
+        await watchHistoryService.deleteFromHistory(itemToDelete);
+        
+        // Refresh the watch history
+        const updatedHistory = await watchHistoryService.getHistory();
+        
+        // Group and sort the updated history
+        const groupedContent: GroupedContent = {};
+        updatedHistory.forEach((item: VideoInfo) => {
+          const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
+          if (!groupedContent[key]) {
+            groupedContent[key] = [];
+          }
+          groupedContent[key].push(item);
+        });
+        
+        const latestWatched = Object.values(groupedContent)
+          .map(items => {
+            items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            return items[0];
+          })
+          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
+        setRecentlyWatched(latestWatched);
+  
+        // Close video player if needed
+        if (currentVideo && currentVideo.type === 'series' && currentVideo.imdbID === itemToDelete.imdbID) {
+          setCurrentVideo(null);
+          window.history.replaceState({ isHomepage: true }, "", window.location.pathname);
+        }
+      } catch (error) {
+        console.error('Error deleting from watch history:', error);
+      }
+    };
+  
 
   const handleSearch = (results: SearchResult[]) => {
     const movies = results.filter(item => item.Type === 'movie');
@@ -210,9 +185,45 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
     setMovies(movies);
     setShows(shows);
   };
+
+  useEffect(() => {
+    // Add initial history state for homepage
+    window.history.replaceState({ isHomepage: true }, "", window.location.pathname);
+
+    const handleBackButton = (event: PopStateEvent) => {
+      // Close video player when back button is pressed
+      if (currentVideo) {
+        event.preventDefault(); // Prevent default back behavior
+        setCurrentVideo(null);
+        // Replace current history state with homepage state
+        window.history.replaceState({ isHomepage: true }, "", window.location.pathname);
+      }
+    };
+
+    // If video is opened, add a new history entry
+    if (currentVideo) {
+        window.history.pushState({ isHomepage: false }, "", window.location.pathname);
+    }
+
+    window.addEventListener('popstate', handleBackButton);
+
+    return () => {
+        window.removeEventListener('popstate', handleBackButton);
+    };
+}, [currentVideo]);
+
+// Update the close button handler
+const handleCloseVideo = () => {
+    setCurrentVideo(null);
+    // Replace current history state with homepage state
+    window.history.replaceState({ isHomepage: true }, "", window.location.pathname);
+};
+
+
   
   const handleItemClick = async (item: VideoInfo | SearchResult, type: 'history' | 'movie' | 'series') => {
     try {
+
       let videoInfo: VideoInfo;
 
       if (type === 'history') {
@@ -259,7 +270,7 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
       } else if (type === 'movie') {
         const movieItem = item as SearchResult;
         videoInfo = {
-          url: `https://vidsrc.xyz/embed/movie?imdb=${movieItem.imdbID}`,
+          url: `https://vidsrc.xyz/embed/movie?imdb=${movieItem.imdbID}&ds_lang=en`,
           title: movieItem.Title,
           type: 'movie',
           imdbID: movieItem.imdbID,
@@ -346,8 +357,20 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
     }
   };
 
-  const ContentRow: React.FC<ContentRowProps> = ({ title, items, type, onItemClick }) => {
-    const [scrollPosition, setScrollPosition] = useState(0);
+// Add a message to show what will be deleted
+const handleDeleteClick = (item: VideoInfo, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (item.type === 'series') {
+        if (window.confirm(`Remove all watched episodes of "${item.title}" from Continue Watching?`)) {
+            handleDeleteFromHistory(item);
+        }
+    } else {
+        handleDeleteFromHistory(item);
+    }
+};
+
+  const ContentRow: React.FC<ContentRowProps> = ({ title, items, type, onItemClick, onDeleteItem  }) => {
     const [isScrolling, setIsScrolling] = useState(false);
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(true);
@@ -437,17 +460,18 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
     }, []);
   
     if (!items || items.length === 0) return null;
-  
+
+
     return (
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4 px-4">{title}</h2>
-        <div className="relative group">
+      <div className="mb-6 md:mb-8">
+      <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 px-4">{title}</h2>
+      <div className="relative group">
           {/* Left scroll button */}
           <button 
             onClick={() => scroll('left')}
             className={`
-              absolute left-0 top-1/2 -translate-y-1/2 z-10
-              w-12 h-12 flex items-center justify-center
+              hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10
+              w-12 h-12 items-center justify-center
               bg-black bg-opacity-50 rounded-full
               transform transition-all duration-300
               ${showLeftButton ? 'opacity-0 group-hover:opacity-100 translate-x-2' : 'opacity-0 -translate-x-full'}
@@ -461,10 +485,8 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
           {/* Content container */}
           <div 
             ref={rowRef}
-            className="flex overflow-x-auto overflow-y-hidden scrollbar-hide gap-4 px-4 pb-4"
+            className="flex overflow-x-auto overflow-y-hidden scrollbar-hide gap-3 md:gap-4 px-4 pb-4"
             style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
               scrollBehavior: 'smooth'
             }}
           >
@@ -473,11 +495,11 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
                 key={type === 'history' ? 
                   `${(item as VideoInfo).imdbID}-${(item as VideoInfo).season}-${(item as VideoInfo).episode}` : 
                   (item as SearchResult).imdbID}
-                className="flex-none w-48 transform transition-all duration-300 hover:scale-105 cursor-pointer"
-                onClick={() => onItemClick(item, type)}
+                  className="flex-none w-32 md:w-48 transform transition-all duration-300 hover:scale-105 cursor-pointer"
+                  onClick={() => onItemClick(item, type)}
               >
                 <div className="relative pb-[150%] bg-zinc-800 rounded-lg overflow-hidden group">
-                  {type === 'history' ? (
+                {type === 'history' ? (
                     <>
                       {(item as VideoInfo).poster ? (
                         <img 
@@ -507,12 +529,12 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
                         }} 
                       />
                       
-                      <div className="absolute inset-x-0 bottom-0 p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
-                        <h3 className="font-semibold text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">
-                          {(item as VideoInfo).title}
+                      <div className="absolute inset-x-0 bottom-0 p-2 md:p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
+                      <h3 className="font-semibold text-xs md:text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">
+                      {(item as VideoInfo).title}
                         </h3>
                         {(item as VideoInfo).season && (item as VideoInfo).episode && (
-                          <div className="text-sm text-zinc-300">
+                          <div className="text-xs md:text-sm text-zinc-300">
                             <div>S{(item as VideoInfo).season} E{(item as VideoInfo).episode}</div>
                             <p className="text-xs mt-1 line-clamp-2">{(item as VideoInfo).episodeTitle}</p>
                           </div>
@@ -548,8 +570,8 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
                         }} 
                       />
                       
-                      <div className="absolute inset-x-0 bottom-0 p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
-                        <h3 className="font-semibold text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">
+                      <div className="absolute inset-x-0 bottom-0 p-2 md:p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
+                        <h3 className="font-semibold text-xs md:text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">
                           {(item as SearchResult).Title}
                         </h3>
                         <p className="text-xs text-zinc-300">
@@ -559,7 +581,18 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
                     </>
                   )}
                 </div>
+                {/* Updated delete button with mobile visibility */}
+                {type === 'history' && onDeleteItem && (
+                  <button
+                      onClick={(e) => handleDeleteClick(item as VideoInfo, e)}
+                      className="absolute top-2 right-2 p-2 bg-black bg-opacity-75 rounded-full md:hidden md:group-hover:flex flex items-center justify-center hover:bg-red-600 transition-colors duration-200 z-20"
+                      aria-label={`Delete ${(item as VideoInfo).type === 'series' ? 'series' : 'movie'} from history`}
+                  >
+                      <Trash2 className="w-4 h-4" />
+                  </button>
+              )}
               </div>
+              
             ))}
           </div>
           
@@ -567,8 +600,8 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
           <button 
             onClick={() => scroll('right')}
             className={`
-              absolute right-0 top-1/2 -translate-y-1/2 z-10
-              w-12 h-12 flex items-center justify-center
+              hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10
+              w-12 h-12 items-center justify-center
               bg-black bg-opacity-50 rounded-full
               transform transition-all duration-300
               ${showRightButton ? 'opacity-0 group-hover:opacity-100 -translate-x-2' : 'opacity-0 translate-x-full'}
@@ -582,97 +615,6 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
       </div>
     );
   };
-
-  const loadNextEpisode = () => {
-    if (!currentVideo?.season) return;
-    
-    const currentSeasonEpisodes = seasons
-      .find(s => s.seasonNumber === currentVideo.season)
-      ?.episodes || [];
-    const currentIndex = currentSeasonEpisodes
-      .findIndex(ep => ep.Episode === currentVideo.episode);
-    
-    if (currentIndex < currentSeasonEpisodes.length - 1) {
-      // Load next episode in current season
-      loadEpisode(currentSeasonEpisodes[currentIndex + 1]);
-    } else {
-      // Load first episode of next season
-      const nextSeason = (parseInt(currentVideo.season) + 1).toString();
-      const nextSeasonEpisodes = seasons
-        .find(s => s.seasonNumber === nextSeason)
-        ?.episodes || [];
-      
-      if (nextSeasonEpisodes.length > 0) {
-        setSelectedSeason(nextSeason);
-        loadEpisode(nextSeasonEpisodes[0]);
-      }
-    }
-  };
-
-      // Update loadEpisode to use the new watch history function
-      const loadEpisode = async (episode: Episode) => {
-        if (currentVideo?.imdbID && currentVideo.tmdbId) {
-          if (timerRef.current) clearInterval(timerRef.current);
-  
-          try {
-            const runtime = await fetchEpisodeRuntime(
-              currentVideo.tmdbId,
-              selectedSeason,
-              episode.Episode
-            );
-            
-            const newVideo: VideoInfo = {
-              url: `https://vidsrc.xyz/embed/tv?imdb=${currentVideo.imdbID}&s=${selectedSeason}&e=${episode.Episode}`,
-              title: currentVideo.title,
-              type: 'series',
-              imdbID: currentVideo.imdbID,
-              season: selectedSeason,
-              episode: episode.Episode,
-              episodeTitle: episode.Title,
-              timestamp: Date.now(),
-              tmdbId: currentVideo.tmdbId,
-              runtime: runtime,
-              poster: currentVideo.poster
-            };
-  
-            updateWatchHistory(newVideo);
-            setCurrentVideo(newVideo);
-            scrollToVideo();
-          } catch (error) {
-            console.error('Error loading episode:', error);
-          }
-        }
-      };
-
-  const loadPreviousEpisode = () => {
-    if (!currentVideo?.season) return;
-    
-    const currentSeasonEpisodes = seasons
-      .find(s => s.seasonNumber === currentVideo.season)
-      ?.episodes || [];
-    const currentIndex = getCurrentEpisodeIndex();
-    
-    if (currentIndex > 0) {
-      loadEpisode(currentSeasonEpisodes[currentIndex - 1]);
-    } else if (parseInt(currentVideo.season) > 1) {
-      const previousSeason = (parseInt(currentVideo.season) - 1).toString();
-      const previousSeasonEpisodes = seasons
-        .find(s => s.seasonNumber === previousSeason)
-        ?.episodes || [];
-      
-      if (previousSeasonEpisodes.length > 0) {
-        loadEpisode(previousSeasonEpisodes[previousSeasonEpisodes.length - 1]);
-      }
-    }
-  };
-
-  const getCurrentEpisodeIndex = () => {
-    if (!currentVideo?.season || !currentVideo?.episode) return -1;
-    const currentSeasonEpisodes = seasons
-      .find(s => s.seasonNumber === currentVideo.season)
-      ?.episodes || [];
-    return currentSeasonEpisodes.findIndex(ep => ep.Episode === currentVideo.episode);
-  };
   
 
   return (
@@ -681,26 +623,26 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
       
       {/* Video Player Overlay */}
       {currentVideo && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 overflow-y-auto pt-24">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 overflow-y-auto pt-16 md:pt-24">
           {/* Close button */}
           <button 
-            onClick={() => setCurrentVideo(null)}
-            className="absolute top-28 right-4 p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
+            onClick={handleCloseVideo}
+            className="absolute top-20 md:top-28 right-4 p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
           >
             <X size={24} />
           </button>
   
-          <div ref={videoSectionRef} className="max-w-7xl mx-auto px-4">
+          <div ref={videoSectionRef} className="max-w-7xl mx-auto px-2 md:px-4">
             {currentVideo.type === 'movie' ? (
               <MoviePlayer
                 title={currentVideo.title}
-                url={currentVideo.url}
+                url={currentVideo.url || ''}
               />
             ) : (
               <>
                 <TVShowPlayer
                   title={currentVideo.title}
-                  url={currentVideo.url}
+                  url={currentVideo.url || ''}
                   season={currentVideo.season || ''}
                   episode={currentVideo.episode || ''}
                   episodeTitle={currentVideo.episodeTitle}
@@ -739,19 +681,22 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
       )}
   
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto pt-24">
+      <div className="max-w-7xl mx-auto pt-16 md:pt-24">
         <br>
         </br>
         <br>
         </br>
-        <h1 className="text-4xl font-bold mb-8 px-4">Home</h1>
+        <br>
+        </br>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8 px-4">Home</h1>
         
         <ContentRow 
-          title="Continue Watching" 
-          items={recentlyWatched} 
-          type="history" 
-          onItemClick={handleItemClick}
-        />
+                title="Continue Watching" 
+                items={recentlyWatched} 
+                type="history" 
+                onItemClick={handleItemClick}
+                onDeleteItem={handleDeleteFromHistory}
+          />
         
         <ContentRow 
           title="Movies" 
@@ -770,9 +715,9 @@ const updateWatchHistory = (videoInfo: VideoInfo) => {
         <GenreBrowser onItemClick={handleItemClick} />
         
         {!recentlyWatched.length && !movies.length && !shows.length && (
-          <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
-            <p className="text-xl mb-4">No content yet</p>
-            <p className="text-sm">Search for movies and TV shows to get started</p>
+          <div className="flex flex-col items-center justify-center h-48 md:h-64 text-zinc-500">
+            <p className="text-lg md:text-xl mb-3 md:mb-4">No content yet</p>
+            <p className="text-xs md:text-sm">Search for movies and TV shows to get started</p>
           </div>
         )}
       </div>
