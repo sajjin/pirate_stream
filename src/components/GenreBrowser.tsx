@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SearchResult, VideoInfo } from './types';
+import { SearchResult, VideoInfo } from '../types';
 
 interface Genre {
   id: number;
@@ -19,9 +19,19 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [sortBy, setSortBy] = useState<'popularity.desc' | 'release_date.desc'>('popularity.desc');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [allResults, setAllResults] = useState<SearchResult[]>([]); // Store all fetched results
+  const [displayedCount, setDisplayedCount] = useState(0); // Track number of displayed items
 
+
+  const ITEMS_PER_PAGE = 10;
   const TMDB_API_KEY = 'de28a40a87b4fb9624452bb0ad02b724';
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+
+  // Generate array of years from 1900 to current year
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => String(currentYear - i));
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -44,32 +54,72 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
     fetchGenres();
   }, []);
 
+  useEffect(() => {
+    if (selectedGenre) {
+      setPage(1);
+      setResults([]);
+      fetchByGenre(selectedGenre.id, selectedType);
+    }
+  }, [selectedYear]);
+
   const fetchByGenre = async (genreId: number, mediaType: 'movie' | 'tv', page: number = 1) => {
     setLoading(true);
     try {
+      const currentDate = new Date().toISOString().split('T')[0];
+      const releaseDateField = mediaType === 'movie' ? 'release_date' : 'first_air_date';
+      
+      let queryParams = new URLSearchParams({
+        api_key: TMDB_API_KEY,
+        with_genres: String(genreId),
+        page: String(page),
+        sort_by: sortBy,
+        include_null_first_air_dates: 'false'
+      });
+
+      if (selectedYear) {
+        queryParams.append(`${releaseDateField}.gte`, `${selectedYear}-01-01`);
+        queryParams.append(`${releaseDateField}.lte`, `${selectedYear}-12-31`);
+      } else {
+        queryParams.append(`${releaseDateField}.lte`, currentDate);
+      }
+
       const response = await fetch(
-        `https://api.themoviedb.org/3/discover/${mediaType}?api_key=${TMDB_API_KEY}&with_genres=${genreId}&page=${page}`
+        `https://api.themoviedb.org/3/discover/${mediaType}?${queryParams}`
       );
+
       const data = await response.json();
 
-      // Get external IDs (IMDB IDs) for all items
       const itemsWithImdbIds = await Promise.all(
         data.results.map(async (item: any) => {
           try {
+            const releaseDate = mediaType === 'movie' ? item.release_date : item.first_air_date;
+            
+            if (!releaseDate) return null;
+
+            const releaseYear = releaseDate.split('-')[0];
+            if (selectedYear && releaseYear !== selectedYear) {
+              return null;
+            }
+
+            if (!selectedYear && new Date(releaseDate) > new Date()) {
+              return null;
+            }
+
             const externalIdsResponse = await fetch(
               `https://api.themoviedb.org/3/${mediaType}/${item.id}/external_ids?api_key=${TMDB_API_KEY}`
             );
             const externalIds = await externalIdsResponse.json();
 
+            if (!externalIds.imdb_id) return null;
+
             return {
               imdbID: externalIds.imdb_id,
               Title: mediaType === 'movie' ? item.title : item.name,
-              Year: mediaType === 'movie' ? 
-                item.release_date?.split('-')[0] : 
-                item.first_air_date?.split('-')[0],
+              Year: releaseYear,
               Type: mediaType === 'movie' ? 'movie' : 'series',
               Poster: item.poster_path ? `${TMDB_IMAGE_BASE}${item.poster_path}` : 'N/A',
-              tmdbId: item.id
+              tmdbId: item.id,
+              popularity: item.popularity
             };
           } catch (error) {
             console.error(`Error fetching external IDs for ${mediaType} ${item.id}:`, error);
@@ -78,16 +128,21 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
         })
       );
 
-      // Filter out items without IMDB IDs
-      const validResults = itemsWithImdbIds.filter(item => item && item.imdbID);
+      const validResults = itemsWithImdbIds.filter(item => {
+        if (!item || !item.imdbID) return false;
+        if (selectedYear && item.Year !== selectedYear) return false;
+        return true;
+      });
 
       if (page === 1) {
-        setResults(validResults);
+        setAllResults(validResults);
+        setResults(validResults.slice(0, ITEMS_PER_PAGE));
+        setDisplayedCount(Math.min(ITEMS_PER_PAGE, validResults.length));
       } else {
-        setResults(prev => [...prev, ...validResults]);
+        setAllResults(prev => [...prev, ...validResults]);
       }
 
-      setHasMore(data.page < data.total_pages);
+      setHasMore(validResults.length > 0 && data.page < data.total_pages);
       setPage(data.page);
     } catch (error) {
       console.error('Error fetching by genre:', error);
@@ -96,9 +151,33 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
     }
   };
 
+  const loadMore = () => {
+    const nextCount = displayedCount + ITEMS_PER_PAGE;
+    
+    // If we need more results
+    if (nextCount > allResults.length && hasMore) {
+      if (selectedGenre) {
+        fetchByGenre(selectedGenre.id, selectedType, page + 1);
+      }
+    }
+    
+    // Update displayed results
+    setResults(allResults.slice(0, nextCount));
+    setDisplayedCount(nextCount);
+  };
+
+  useEffect(() => {
+    if (allResults.length > displayedCount) {
+      setResults(allResults.slice(0, displayedCount));
+    }
+  }, [allResults, displayedCount]);
+
   const handleGenreSelect = async (genre: Genre) => {
     setSelectedGenre(genre);
     setPage(1);
+    setResults([]);
+    setAllResults([]);
+    setDisplayedCount(0);
     await fetchByGenre(genre.id, selectedType);
   };
 
@@ -106,45 +185,88 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
     setSelectedType(type);
     setSelectedGenre(null);
     setResults([]);
+    setAllResults([]);
+    setDisplayedCount(0);
     setPage(1);
   };
 
-  const loadMore = () => {
+  const handleSortChange = async (newSortBy: 'popularity.desc' | 'release_date.desc') => {
+    setSortBy(newSortBy);
     if (selectedGenre) {
-      fetchByGenre(selectedGenre.id, selectedType, page + 1);
+      setPage(1);
+      setResults([]);
+      setAllResults([]);
+      setDisplayedCount(0);
+      await fetchByGenre(selectedGenre.id, selectedType);
     }
   };
 
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    setDisplayedCount(0);
+    setAllResults([]);
+  };
+
+  
   return (
     <div className="mb-8">
-      <div className="flex items-center gap-4 mb-6 px-4">
-        <h2 className="text-2xl font-bold">Browse by Genre</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleTypeChange('movie')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              selectedType === 'movie'
-                ? 'bg-blue-600 text-white'
-                : 'bg-zinc-800 hover:bg-zinc-700'
-            }`}
-          >
-            Movies
-          </button>
-          <button
-            onClick={() => handleTypeChange('tv')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              selectedType === 'tv'
-                ? 'bg-blue-600 text-white'
-                : 'bg-zinc-800 hover:bg-zinc-700'
-            }`}
-          >
-            TV Shows
-          </button>
+      <div className="flex flex-col gap-4 px-4">
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold">Browse by Genre</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleTypeChange('movie')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedType === 'movie'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-700'
+              }`}
+            >
+              Movies
+            </button>
+            <button
+              onClick={() => handleTypeChange('tv')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedType === 'tv'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-zinc-800 hover:bg-zinc-700'
+              }`}
+            >
+              TV Shows
+            </button>
+          </div>
+        </div>
+
+        <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <label className="text-sm">Sort by:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => handleSortChange(e.target.value as 'popularity.desc' | 'release_date.desc')}
+              className="bg-zinc-800 px-3 py-2 rounded-lg text-sm"
+            >
+              <option value="popularity.desc">Most Popular</option>
+              <option value="release_date.desc">Release Date</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm">Year:</label>
+            <select
+              value={selectedYear}
+              onChange={(e) => handleYearChange(e.target.value)}
+              className="bg-zinc-800 px-3 py-2 rounded-lg text-sm"
+            >
+              <option value="">All Years</option>
+              {years.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Genre Pills */}
-      <div className="flex flex-wrap gap-2 mb-6 px-4">
+      <div className="flex flex-wrap gap-2 mb-6 mt-4 px-4">
         {(selectedType === 'movie' ? movieGenres : tvGenres).map(genre => (
           <button
             key={genre.id}
@@ -160,7 +282,6 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
         ))}
       </div>
 
-      {/* Results Grid with Updated Styling */}
       {selectedGenre && (
         <div className="px-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -176,7 +297,6 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
                     alt={item.Title}
                     className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                   />
-                  {/* Vignette overlay */}
                   <div 
                     className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-80"
                     style={{
@@ -197,7 +317,6 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
                     }}
                   />
                   
-                  {/* Title and year overlay */}
                   <div className="absolute inset-x-0 bottom-0 p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
                     <h3 className="font-semibold text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">
                       {item.Title}

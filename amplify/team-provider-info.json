@@ -25,9 +25,22 @@
           "s3Key": "amplify-builds/piratestream331a6521-71465778393063384952-build.zip"
         }
       },
-      "api": {
-        "pirateapi": {}
+      "auth": {
+        "piratestream5499fba1": {}
       }
+    }
+  },
+  "pirate": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-piratestream-pirate-40ba8-authRole",
+      "UnauthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-pirate-40ba8-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-pirate-40ba8-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-piratestream-pirate-40ba8-deployment",
+      "UnauthRoleName": "amplify-piratestream-pirate-40ba8-unauthRole",
+      "StackName": "amplify-piratestream-pirate-40ba8",
+      "StackId": "arn:aws:cloudformation:us-west-2:243583015434:stack/amplify-piratestream-pirate-40ba8/39eb0f00-bb3d-11ef-87a4-0ab7ed69cd3b",
+      "AmplifyAppId": "d1v3nrutv2oa9s"
     }
   }
 }

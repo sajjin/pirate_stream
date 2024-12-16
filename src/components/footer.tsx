@@ -32,7 +32,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal
+          {/* Legal */}
           <div>
             <h3 className="text-white font-semibold mb-3">Legal</h3>
             <ul className="space-y-2">
@@ -53,9 +53,9 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
-          </div> */}
+          </div>
 
-          {/* Resources
+          {/* Resources */}
           <div>
             <h3 className="text-white font-semibold mb-3">Resources</h3>
             <ul className="space-y-2">
@@ -76,7 +76,7 @@ const Footer = () => {
                 </a>
               </li>
             </ul>
-          </div> */}
+          </div>
 
           {/* Attribution */}
           <div>

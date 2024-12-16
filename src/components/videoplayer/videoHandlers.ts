@@ -1,4 +1,4 @@
-import { VideoInfo, Episode, Season } from '../types';
+import { VideoInfo, Episode, Season } from '../../types';
 
 const TMDB_API_KEY = 'de28a40a87b4fb9624452bb0ad02b724';
 

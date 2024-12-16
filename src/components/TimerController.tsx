@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { VideoInfo } from './types';
+import { VideoInfo } from '../types';
 import { getEpisodeId } from './videoplayer/videoHandlers';
 
 interface TimerControllerProps {
