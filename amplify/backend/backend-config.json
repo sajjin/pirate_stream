@@ -63,5 +63,47 @@
       "service": "amplifyhosting",
       "type": "manual"
     }
+  },
+  "parameters": {
+    "AMPLIFY_function_piratestream331a6521_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "piratestream331a6521"
+        }
+      ]
+    },
+    "AMPLIFY_function_piratestream331a6521_omdbApiKey": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "piratestream331a6521"
+        }
+      ]
+    },
+    "AMPLIFY_function_piratestream331a6521_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "piratestream331a6521"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_appId": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    },
+    "AMPLIFY_hosting_amplifyhosting_type": {
+      "usedBy": [
+        {
+          "category": "hosting",
+          "resourceName": "amplifyhosting"
+        }
+      ]
+    }
   }
 }
