@@ -73,14 +73,6 @@
         }
       ]
     },
-    "AMPLIFY_function_piratestream331a6521_omdbApiKey": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "piratestream331a6521"
-        }
-      ]
-    },
     "AMPLIFY_function_piratestream331a6521_s3Key": {
       "usedBy": [
         {
