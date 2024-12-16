@@ -1,4 +1,6 @@
 import React from 'react';
+import EnhancedVideoPlayer from './EnhancedVideoPlayer';
+
 
 interface MoviePlayerProps {
   title: string;
@@ -6,18 +8,17 @@ interface MoviePlayerProps {
 }
 
 export const MoviePlayer: React.FC<MoviePlayerProps> = ({ title, url }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
   return (
-    <div className="w-full bg-zinc-900 rounded-lg overflow-hidden">
+    <div className="w-full bg-zinc-900 rounded-lg overflow-hidden" ref={containerRef}>
       <div className="p-4">
-        <h2 className="text-xl font-semibold">Now Playing: {title}</h2>
       </div>
-      <div className="relative w-full pt-[56.25%] mb-8">
-        <iframe
-          src={url}
-          className="absolute top-0 left-0 w-full h-full border-0"
-          allowFullScreen
+      <EnhancedVideoPlayer 
+          url={url} 
+          title={title}
+          containerRef={containerRef}
         />
-      </div>
     </div>
   );
 };

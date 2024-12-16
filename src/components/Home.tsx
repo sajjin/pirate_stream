@@ -3,42 +3,12 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { MoviePlayer } from './videoplayer/MoviePlayer';
 import { TVShowPlayer } from './videoplayer/TVShowPlayer';
 import { EpisodesGrid } from './EpisodesGrid';
+import { VideoInfo, SearchResult, Season } from './types';
 import Footer from './footer';
 import Header from './Header';
 import { Episode } from './types';
 import { GenreBrowser } from './GenreBrowser';
 
-
-
-
-interface VideoInfo {
-  url: string;
-  title: string;
-  type: 'movie' | 'series';
-  imdbID?: string;
-  season?: string;
-  episode?: string;
-  episodeTitle?: string;
-  timestamp?: number;
-  tmdbId?: number;
-  poster?: string;
-  runtime?: number;
-}
-
-interface Season {
-  seasonNumber: string;
-  episodes: Episode[];
-  poster: string;
-}
-
-interface SearchResult {
-  imdbID: string;
-  Title: string;
-  Year: string;
-  Type: string;
-  Poster: string;
-  tmdbId?: number;
-}
 
 interface GroupedContent {
   [key: string]: VideoInfo[];
