@@ -1,9 +1,0 @@
-{
-  "lambdaLayers": [],
-  "environmentVariableList": [
-    {
-      "cloudFormationParameterName": "omdbApiKey",
-      "environmentVariableName": "OMDB_API_KEY"
-    }
-  ]
-}
