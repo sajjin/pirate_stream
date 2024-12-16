@@ -1,28 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser, signOut } from 'aws-amplify/auth';
 
 interface HeaderProps {
   onSearch?: (results: any[]) => void;
-  castEnabled?: boolean;
-  onToggleCast?: () => void;
-  autoplayEnabled?: boolean;
-  onToggleAutoplay?: () => void;
-  onClearData?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
-  onSearch,
-  castEnabled = false,
-  onToggleCast,
-  autoplayEnabled = false,
-  onToggleAutoplay,
-  onClearData
+  onSearch
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const TMDB_API_KEY = 'de28a40a87b4fb9624452bb0ad02b724';
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+
+  useEffect(() => {
+    checkAuthState();
+  }, []);
+
+  const checkAuthState = async () => {
+    try {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    } catch (err) {
+      setUser(null);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      navigate('/');
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
+  };
 
   const searchIMDb = async () => {
     if (!searchQuery.trim()) return;
@@ -98,12 +113,10 @@ const Header: React.FC<HeaderProps> = ({
       storedState.searchResults = formattedResults;
       localStorage.setItem('videoAppState', JSON.stringify(storedState));
 
-      // Call onSearch callback if provided
       if (onSearch) {
         onSearch(formattedResults);
       }
 
-      // Navigate to home page to show results
       navigate('/');
     } catch (error) {
       console.error('Error searching:', error);
@@ -123,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({
           placeholder="Enter movie or show name"
           className="px-4 py-2 rounded-lg bg-white text-black flex-1 min-w-[200px]"
         />
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
           <button
             onClick={searchIMDb}
             disabled={loading}
@@ -131,38 +144,35 @@ const Header: React.FC<HeaderProps> = ({
           >
             {loading ? 'Loading...' : 'Search'}
           </button>
-          {onToggleCast && (
-            <button 
-              onClick={onToggleCast}
-              className={`px-4 py-2 border rounded-lg transition-colors whitespace-nowrap ${
-                castEnabled 
-                  ? 'bg-white text-black border-white' 
-                  : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
-              }`}
-            >
-              Cast: {castEnabled ? 'Enabled' : 'Disabled'}
-            </button>
-          )}
-          {onToggleAutoplay && (
-            <button 
-              onClick={onToggleAutoplay}
-              className={`px-4 py-2 border rounded-lg transition-colors whitespace-nowrap ${
-                autoplayEnabled 
-                  ? 'bg-white text-black border-white' 
-                  : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
-              }`}
-            >
-              Autoplay: {autoplayEnabled ? 'Enabled' : 'Disabled'}
-            </button>
-          )}
-          {onClearData && (
-            <button
-              onClick={onClearData}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
-            >
-              Clear Data
-            </button>
-          )}
+
+          {/* {user ? (
+            <>
+              <span className="text-white">
+                {user.username}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/auth')}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => navigate('/auth')}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Sign Up
+              </button>
+            </>
+          )} */}
         </div>
       </div>
     </div>

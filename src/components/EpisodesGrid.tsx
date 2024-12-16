@@ -1,18 +1,5 @@
 import React from 'react';
-
-interface Episode {
-    Title: string;
-    Episode: string;
-    imdbID: string;
-    Released: string;
-    Season: string;
-  }
-
-interface Season {
-  seasonNumber: string;
-  episodes: Episode[];
-  poster: string;
-}
+import { Episode, Season } from '../types';
 
 interface EpisodesGridProps {
   season: Season | undefined;

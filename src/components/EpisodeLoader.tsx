@@ -1,6 +1,11 @@
-import { useCallback } from 'react';
-import { VideoInfo, Episode, Season } from './types';
-
+import React, { useCallback } from 'react';
+import { VideoInfo, Episode, Season } from '../types';
+import { 
+  fetchEpisodeRuntime, 
+  fetchSeasonData, 
+  getEpisodeId, 
+  formatTimeRemaining 
+} from './videoplayer/videoHandlers';
 
 interface EpisodeLoaderProps {
   currentVideo: VideoInfo | null;
@@ -28,11 +33,11 @@ export const useEpisodeLoader = ({
   const loadEpisode = useCallback(async (episode: Episode, autoClick: boolean = false) => {
     if (currentVideo?.imdbID && currentVideo.tmdbId) {
       try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/tv/${currentVideo.tmdbId}/season/${selectedSeason}/episode/${episode.Episode}?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
+        const runtime = await fetchEpisodeRuntime(
+          currentVideo.tmdbId,
+          selectedSeason,
+          episode.Episode
         );
-        const data = await response.json();
-        const runtime = data.runtime || 0;
 
         const newVideo: VideoInfo = {
           url: `https://vidsrc.xyz/embed/tv?imdb=${currentVideo.imdbID}&s=${selectedSeason}&e=${episode.Episode}&ds_lang=en`,
@@ -44,7 +49,7 @@ export const useEpisodeLoader = ({
           episodeTitle: episode.Title,
           timestamp: Date.now(),
           tmdbId: currentVideo.tmdbId,
-          runtime: runtime,
+          runtime,
           poster: currentVideo.poster
         };
 
@@ -67,8 +72,10 @@ export const useEpisodeLoader = ({
     const currentIndex = getCurrentEpisodeIndex();
     
     if (currentIndex < currentSeasonEpisodes.length - 1) {
+      // Load next episode in current season
       loadEpisode(currentSeasonEpisodes[currentIndex + 1], true);
     } else {
+      // Load first episode of next season
       const nextSeason = (parseInt(currentVideo.season) + 1).toString();
       const nextSeasonEpisodes = seasons
         .find(s => s.seasonNumber === nextSeason)
@@ -89,8 +96,10 @@ export const useEpisodeLoader = ({
     const currentIndex = getCurrentEpisodeIndex();
     
     if (currentIndex > 0) {
+      // Load previous episode in current season
       loadEpisode(currentSeasonEpisodes[currentIndex - 1]);
     } else if (parseInt(currentVideo.season) > 1) {
+      // Load last episode of previous season
       const previousSeason = (parseInt(currentVideo.season) - 1).toString();
       const previousSeasonEpisodes = seasons
         .find(s => s.seasonNumber === previousSeason)
@@ -102,10 +111,21 @@ export const useEpisodeLoader = ({
     }
   }, [currentVideo?.season, seasons, getCurrentEpisodeIndex, loadEpisode]);
 
+  const getEpisodeDetails = useCallback((episodeId: string) => {
+    if (!currentVideo) return null;
+    const [, seasonNum, episodeNum] = episodeId.split('_');
+    const season = seasons.find(s => s.seasonNumber === seasonNum.replace('s', ''));
+    const episode = season?.episodes.find(e => e.Episode === episodeNum.replace('e', ''));
+    return episode || null;
+  }, [currentVideo, seasons]);
+
   return {
     loadEpisode,
     loadNextEpisode,
     loadPreviousEpisode,
-    getCurrentEpisodeIndex
+    getCurrentEpisodeIndex,
+    getEpisodeDetails,
+    formatTimeRemaining,
+    getEpisodeId: (video: VideoInfo) => getEpisodeId(video)
   };
 };

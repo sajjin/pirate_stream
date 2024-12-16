@@ -1,17 +1,24 @@
+// App.tsx
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import Homepage from './components/Home';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import AuthPage from './pages/AuthPages';
+import HomePage from './pages/Home';
 
-
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-black text-white">
-     
-      <Routes>
-        <Route path="/" element={<Homepage />} />
-      </Routes>
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-900">
+        <Header />
+        <div className="pt-[120px]"> {/* Added padding to account for fixed header */}
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/auth" element={<AuthPage />} />
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
