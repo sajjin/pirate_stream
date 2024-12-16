@@ -9,7 +9,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   onSearch
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');``
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();

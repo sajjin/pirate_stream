@@ -72,9 +72,6 @@
             },
             "REGION": {
               "Ref": "AWS::Region"
-            },
-            "OMDB_API_KEY": {
-              "Ref": "omdbApiKey"
             }
           }
         },
