@@ -8,33 +8,43 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getTodo = /* GraphQL */ `query GetTodo($id: ID!) {
-  getTodo(id: $id) {
+export const getUserCookies = /* GraphQL */ `query GetUserCookies($id: ID!) {
+  getUserCookies(id: $id) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetTodoQueryVariables, APITypes.GetTodoQuery>;
-export const listTodos = /* GraphQL */ `query ListTodos(
-  $filter: ModelTodoFilterInput
+` as GeneratedQuery<
+  APITypes.GetUserCookiesQueryVariables,
+  APITypes.GetUserCookiesQuery
+>;
+export const listUserCookies = /* GraphQL */ `query ListUserCookies(
+  $filter: ModelUserCookiesFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listTodos(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listUserCookies(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
-      name
-      description
+      userId
+      cookies
+      lastUpdated
       createdAt
       updatedAt
+      owner
       __typename
     }
     nextToken
     __typename
   }
 }
-` as GeneratedQuery<APITypes.ListTodosQueryVariables, APITypes.ListTodosQuery>;
+` as GeneratedQuery<
+  APITypes.ListUserCookiesQueryVariables,
+  APITypes.ListUserCookiesQuery
+>;

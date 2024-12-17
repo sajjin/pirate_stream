@@ -2,8 +2,7 @@ export type AmplifyDependentResourcesAttributes = {
   "api": {
     "piratestream": {
       "GraphQLAPIEndpointOutput": "string",
-      "GraphQLAPIIdOutput": "string",
-      "GraphQLAPIKeyOutput": "string"
+      "GraphQLAPIIdOutput": "string"
     }
   },
   "auth": {

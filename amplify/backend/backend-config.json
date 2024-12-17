@@ -1,15 +1,23 @@
 {
   "api": {
     "piratestream": {
-      "dependsOn": [],
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "piratestream3c88b6fa"
+        }
+      ],
       "output": {
         "authConfig": {
           "additionalAuthenticationProviders": [],
           "defaultAuthentication": {
-            "apiKeyConfig": {
-              "apiKeyExpirationDays": 7
-            },
-            "authenticationType": "API_KEY"
+            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "userPoolConfig": {
+              "userPoolId": "authpiratestream3c88b6fa"
+            }
           }
         }
       },

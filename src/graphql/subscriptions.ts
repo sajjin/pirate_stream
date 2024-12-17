@@ -8,45 +8,60 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
-export const onCreateTodo = /* GraphQL */ `subscription OnCreateTodo($filter: ModelSubscriptionTodoFilterInput) {
-  onCreateTodo(filter: $filter) {
+export const onCreateUserCookies = /* GraphQL */ `subscription OnCreateUserCookies(
+  $filter: ModelSubscriptionUserCookiesFilterInput
+  $owner: String
+) {
+  onCreateUserCookies(filter: $filter, owner: $owner) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnCreateTodoSubscriptionVariables,
-  APITypes.OnCreateTodoSubscription
+  APITypes.OnCreateUserCookiesSubscriptionVariables,
+  APITypes.OnCreateUserCookiesSubscription
 >;
-export const onUpdateTodo = /* GraphQL */ `subscription OnUpdateTodo($filter: ModelSubscriptionTodoFilterInput) {
-  onUpdateTodo(filter: $filter) {
+export const onUpdateUserCookies = /* GraphQL */ `subscription OnUpdateUserCookies(
+  $filter: ModelSubscriptionUserCookiesFilterInput
+  $owner: String
+) {
+  onUpdateUserCookies(filter: $filter, owner: $owner) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnUpdateTodoSubscriptionVariables,
-  APITypes.OnUpdateTodoSubscription
+  APITypes.OnUpdateUserCookiesSubscriptionVariables,
+  APITypes.OnUpdateUserCookiesSubscription
 >;
-export const onDeleteTodo = /* GraphQL */ `subscription OnDeleteTodo($filter: ModelSubscriptionTodoFilterInput) {
-  onDeleteTodo(filter: $filter) {
+export const onDeleteUserCookies = /* GraphQL */ `subscription OnDeleteUserCookies(
+  $filter: ModelSubscriptionUserCookiesFilterInput
+  $owner: String
+) {
+  onDeleteUserCookies(filter: $filter, owner: $owner) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnDeleteTodoSubscriptionVariables,
-  APITypes.OnDeleteTodoSubscription
+  APITypes.OnDeleteUserCookiesSubscriptionVariables,
+  APITypes.OnDeleteUserCookiesSubscription
 >;

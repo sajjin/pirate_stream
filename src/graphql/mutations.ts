@@ -8,54 +8,60 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const createTodo = /* GraphQL */ `mutation CreateTodo(
-  $input: CreateTodoInput!
-  $condition: ModelTodoConditionInput
+export const createUserCookies = /* GraphQL */ `mutation CreateUserCookies(
+  $input: CreateUserCookiesInput!
+  $condition: ModelUserCookiesConditionInput
 ) {
-  createTodo(input: $input, condition: $condition) {
+  createUserCookies(input: $input, condition: $condition) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateTodoMutationVariables,
-  APITypes.CreateTodoMutation
+  APITypes.CreateUserCookiesMutationVariables,
+  APITypes.CreateUserCookiesMutation
 >;
-export const updateTodo = /* GraphQL */ `mutation UpdateTodo(
-  $input: UpdateTodoInput!
-  $condition: ModelTodoConditionInput
+export const updateUserCookies = /* GraphQL */ `mutation UpdateUserCookies(
+  $input: UpdateUserCookiesInput!
+  $condition: ModelUserCookiesConditionInput
 ) {
-  updateTodo(input: $input, condition: $condition) {
+  updateUserCookies(input: $input, condition: $condition) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateTodoMutationVariables,
-  APITypes.UpdateTodoMutation
+  APITypes.UpdateUserCookiesMutationVariables,
+  APITypes.UpdateUserCookiesMutation
 >;
-export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
-  $input: DeleteTodoInput!
-  $condition: ModelTodoConditionInput
+export const deleteUserCookies = /* GraphQL */ `mutation DeleteUserCookies(
+  $input: DeleteUserCookiesInput!
+  $condition: ModelUserCookiesConditionInput
 ) {
-  deleteTodo(input: $input, condition: $condition) {
+  deleteUserCookies(input: $input, condition: $condition) {
     id
-    name
-    description
+    userId
+    cookies
+    lastUpdated
     createdAt
     updatedAt
+    owner
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteTodoMutationVariables,
-  APITypes.DeleteTodoMutation
+  APITypes.DeleteUserCookiesMutationVariables,
+  APITypes.DeleteUserCookiesMutation
 >;
