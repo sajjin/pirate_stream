@@ -173,6 +173,22 @@ const Homepage = () => {
     }
   };
 
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // Close video when back button is pressed
+      setCurrentVideo(null);
+    };
+
+    // Add popstate event listener
+    window.addEventListener('popstate', handlePopState);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+
   const handleItemClick = async (item: VideoInfo | SearchResult, type: 'history' | 'movie' | 'series') => {
     try {
       let videoInfo: VideoInfo;
@@ -240,6 +256,7 @@ const Homepage = () => {
         setSelectedSeason('1');
       }
 
+      window.history.pushState({ videoOpen: true }, '');
       setCurrentVideo(videoInfo);
       if (videoSectionRef.current) {
         videoSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -247,6 +264,14 @@ const Homepage = () => {
     } catch (error) {
       console.error('Error handling item click:', error);
     }
+  };
+
+  const handleCloseVideo = () => {
+    // If there's a state in the history, go back
+    if (window.history.state?.videoOpen) {
+      window.history.back();
+    }
+    setCurrentVideo(null);
   };
 
   const handleSearch = (results: SearchResult[]) => {
@@ -311,42 +336,6 @@ const Homepage = () => {
         const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
         setShowLeftButton(scrollLeft > 0);
         setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
-      }
-    };
-
-    const deleteFromHistory = (videoInfo: VideoInfo) => {
-      try {
-        const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
-        
-        let filteredHistory = existingHistory.filter(item => {
-          if (videoInfo.type === 'movie') {
-            return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
-          } else {
-            return item.imdbID !== videoInfo.imdbID;
-          }
-        });
-        
-        localStorage.setItem('watchHistory', JSON.stringify(filteredHistory));
-        
-        const groupedContent: GroupedContent = {};
-        filteredHistory.forEach((item: VideoInfo) => {
-          const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-          if (!groupedContent[key]) {
-            groupedContent[key] = [];
-          }
-          groupedContent[key].push(item);
-        });
-        
-        const latestWatched = Object.values(groupedContent)
-          .map(items => {
-            items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            return items[0];
-          })
-          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        
-        setRecentlyWatched(latestWatched);
-      } catch (error) {
-        console.error('Error deleting from watch history:', error);
       }
     };
 
@@ -595,7 +584,7 @@ const Homepage = () => {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-90 overflow-y-auto pt-24">
           {/* Close button */}
           <button 
-            onClick={() => setCurrentVideo(null)}
+            onClick={handleCloseVideo}
             className="absolute top-28 right-4 p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
           >
             <X size={24} />

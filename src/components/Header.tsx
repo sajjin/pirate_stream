@@ -145,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({
             {loading ? 'Loading...' : 'Search'}
           </button>
 
-          {/* {user ? (
+           {user ? (
             <>
               <span className="text-white">
                 {user.username}
@@ -172,7 +172,7 @@ const Header: React.FC<HeaderProps> = ({
                 Sign Up
               </button>
             </>
-          )} */}
+          )} 
         </div>
       </div>
     </div>

@@ -1,0 +1,6 @@
+type UserCookies @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userId: String!
+  cookies: String!
+  lastUpdated: AWSTimestamp!
+}
