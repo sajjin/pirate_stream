@@ -1,46 +1,15 @@
 {
-  "dev": {
+  "main": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-piratestream-dev-a642e-authRole",
-      "UnauthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-dev-a642e-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-dev-a642e-authRole",
+      "AuthRoleName": "amplify-piratestream-main-c9155-authRole",
+      "UnauthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-main-c9155-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-main-c9155-authRole",
       "Region": "us-west-2",
-      "DeploymentBucketName": "amplify-piratestream-dev-a642e-deployment",
-      "UnauthRoleName": "amplify-piratestream-dev-a642e-unauthRole",
-      "StackName": "amplify-piratestream-dev-a642e",
-      "StackId": "arn:aws:cloudformation:us-west-2:243583015434:stack/amplify-piratestream-dev-a642e/c89825d0-a409-11ef-9127-0a938d8676c9",
-      "AmplifyAppId": "d1v3nrutv2oa9s"
-    },
-    "categories": {
-      "hosting": {
-        "amplifyhosting": {
-          "appId": "d1v3nrutv2oa9s",
-          "type": "manual"
-        }
-      },
-      "function": {
-        "piratestream331a6521": {
-          "omdbApiKey": "775f5bf1&s",
-          "deploymentBucketName": "amplify-piratestream-dev-a642e-deployment",
-          "s3Key": "amplify-builds/piratestream331a6521-71465778393063384952-build.zip"
-        }
-      },
-      "auth": {
-        "piratestream5499fba1": {}
-      }
-    }
-  },
-  "pirate": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-piratestream-pirate-40ba8-authRole",
-      "UnauthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-pirate-40ba8-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::243583015434:role/amplify-piratestream-pirate-40ba8-authRole",
-      "Region": "us-west-2",
-      "DeploymentBucketName": "amplify-piratestream-pirate-40ba8-deployment",
-      "UnauthRoleName": "amplify-piratestream-pirate-40ba8-unauthRole",
-      "StackName": "amplify-piratestream-pirate-40ba8",
-      "StackId": "arn:aws:cloudformation:us-west-2:243583015434:stack/amplify-piratestream-pirate-40ba8/39eb0f00-bb3d-11ef-87a4-0ab7ed69cd3b",
-      "AmplifyAppId": "d1v3nrutv2oa9s"
+      "DeploymentBucketName": "amplify-piratestream-main-c9155-deployment",
+      "UnauthRoleName": "amplify-piratestream-main-c9155-unauthRole",
+      "StackName": "amplify-piratestream-main-c9155",
+      "StackId": "arn:aws:cloudformation:us-west-2:243583015434:stack/amplify-piratestream-main-c9155/68875b90-bb4a-11ef-8bb5-0a73e70abebd",
+      "AmplifyAppId": "d2dy21eg9rix50"
     }
   }
 }
