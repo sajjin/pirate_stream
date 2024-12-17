@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import AuthPage from './pages/AuthPages';
 import HomePage from './pages/Home';
+import './config';
 
 const App: React.FC = () => {
   return (
