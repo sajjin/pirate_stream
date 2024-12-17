@@ -1,6 +1,0 @@
-type UserCookies @model @auth(rules: [{ allow: owner }]) {
-  id: ID!
-  userId: String! @index(name: "byUserId", queryField: "getUserCookiesByUserId")
-  cookies: String!
-  lastUpdated: AWSTimestamp!
-}
