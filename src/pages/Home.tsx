@@ -89,7 +89,7 @@ const Homepage = () => {
               if (!item.poster && item.imdbID) {
                 try {
                   const response = await fetch(
-                    `https://api.themoviedb.org/3/find/${item.imdbID}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&external_source=imdb_id`
+                    `https://api.themoviedb.org/3/find/${item.imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
                   );
                   const data = await response.json();
                   
@@ -200,7 +200,7 @@ const Homepage = () => {
           let tmdbId = historyItem.tmdbId;
           if (!tmdbId) {
             const response = await fetch(
-              `https://api.themoviedb.org/3/find/${historyItem.imdbID}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&external_source=imdb_id`
+              `https://api.themoviedb.org/3/find/${historyItem.imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
             );
             const data = await response.json();
             tmdbId = data.tv_results[0]?.id;
