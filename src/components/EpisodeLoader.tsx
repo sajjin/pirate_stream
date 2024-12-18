@@ -40,7 +40,7 @@ export const useEpisodeLoader = ({
         );
 
         const newVideo: VideoInfo = {
-          url: `https://vidsrc.xyz/embed/tv?imdb=${currentVideo.imdbID}&s=${selectedSeason}&e=${episode.Episode}&ds_lang=en`,
+          url: `https://multiembed.mov/directstream.php?video_id=${currentVideo.imdbID}&tmdb=1&s=${selectedSeason}&e=${episode.Episode}`,
           title: currentVideo.title,
           type: 'series',
           imdbID: currentVideo.imdbID,
