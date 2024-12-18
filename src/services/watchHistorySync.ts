@@ -1,21 +1,14 @@
 import { generateClient } from 'aws-amplify/api';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { GraphQLResult } from '@aws-amplify/api-graphql';
 import { VideoInfo } from '../types';
-
-declare global {
-  interface Window {
-    watchHistorySyncInterval?: NodeJS.Timer;
-  }
-}
-
 
 const client = generateClient();
 
+// First, let's define our GraphQL operations
 const queries = {
-  getWatchHistoryByUserId: /* GraphQL */ `
-    query GetWatchHistoryByUserId($userId: String!) {
-      getWatchHistoryByUserId(userId: $userId) {
+  listContinueWatching: /* GraphQL */ `
+    query ListContinueWatching {
+      listContinueWatchings(limit: 50) {
         items {
           id
           userId
@@ -29,6 +22,9 @@ const queries = {
           timestamp
           poster
           tmdbId
+          owner
+          createdAt
+          updatedAt
         }
       }
     }
@@ -36,9 +32,11 @@ const queries = {
 };
 
 const mutations = {
-  createWatchHistory: /* GraphQL */ `
-    mutation CreateWatchHistory($input: CreateWatchHistoryInput!) {
-      createWatchHistory(input: $input) {
+  createContinueWatching: /* GraphQL */ `
+    mutation CreateContinueWatching(
+      $input: CreateContinueWatchingInput!
+    ) {
+      createContinueWatching(input: $input) {
         id
         userId
         imdbID
@@ -51,115 +49,69 @@ const mutations = {
         timestamp
         poster
         tmdbId
-      }
-    }
-  `,
-  updateWatchHistory: /* GraphQL */ `
-    mutation UpdateWatchHistory($input: UpdateWatchHistoryInput!) {
-      updateWatchHistory(input: $input) {
-        id
-        userId
-        imdbID
-        title
-        type
-        season
-        episode
-        episodeTitle
-        progress
-        timestamp
-        poster
-        tmdbId
+        owner
+        createdAt
+        updatedAt
       }
     }
   `
 };
 
-const watchHistorySync: {
-  syncInterval?: NodeJS.Timer;
-  saveWatchHistory(videoInfo: VideoInfo): Promise<void>;
-  loadWatchHistory(): Promise<VideoInfo[]>;
-  startAutoSync(videoInfo: VideoInfo, intervalMinutes?: number): NodeJS.Timer;
-} = {
-  syncInterval: undefined,
-  async saveWatchHistory(videoInfo: VideoInfo): Promise<void> {
+export const watchHistorySync = {
+  async saveProgress(videoInfo: VideoInfo): Promise<void> {
     try {
       const user = await getCurrentUser();
-      
-      // Try to get existing watch history for this video
-      const existingResult = await client.graphql({
-        query: queries.getWatchHistoryByUserId,
-        variables: {
-          userId: user.userId
-        }
-      }) as GraphQLResult<any>;
+      console.log('Current user:', user);
+      console.log('Saving video info:', videoInfo);
 
-      const existingHistory = existingResult.data?.getWatchHistoryByUserId?.items?.find(
-        (item: any) => {
-          if (videoInfo.type === 'movie') {
-            return item.imdbID === videoInfo.imdbID && item.type === 'movie';
-          } else {
-            return (
-              item.imdbID === videoInfo.imdbID &&
-              item.season === videoInfo.season &&
-              item.episode === videoInfo.episode
-            );
-          }
-        }
-      );
-
-      const watchHistoryInput = {
+      // Prepare the input data
+      const input = {
         userId: user.userId,
         imdbID: videoInfo.imdbID,
         title: videoInfo.title,
-        type: videoInfo.type,
-        season: videoInfo.season,
-        episode: videoInfo.episode,
-        episodeTitle: videoInfo.episodeTitle,
+        type: videoInfo.type || 'movie',
+        season: videoInfo.season || null,
+        episode: videoInfo.episode || null,
+        episodeTitle: videoInfo.episodeTitle || null,
         progress: videoInfo.progress || 0,
         timestamp: Date.now(),
-        poster: videoInfo.poster,
-        tmdbId: videoInfo.tmdbId
+        poster: videoInfo.poster || null,
+        tmdbId: videoInfo.tmdbId || null
       };
 
-      if (existingHistory) {
-        // Update existing history
-        await client.graphql({
-          query: mutations.updateWatchHistory,
-          variables: {
-            input: {
-              id: existingHistory.id,
-              ...watchHistoryInput
-            }
-          }
-        });
-      } else {
-        // Create new history entry
-        await client.graphql({
-          query: mutations.createWatchHistory,
-          variables: {
-            input: watchHistoryInput
-          }
-        });
-      }
+      console.log('Mutation input:', input);
+
+      const result = await client.graphql({
+        query: mutations.createContinueWatching,
+        variables: { input }
+      });
+
+      console.log('Save result:', result);
     } catch (error) {
       console.error('Error saving watch history:', error);
+      // Log the full error details
+      if ((error as any).errors) {
+        if ((error as any).errors) {
+          console.error('GraphQL Errors:', (error as any).errors);
+        }
+      }
+      throw error;
     }
   },
 
   async loadWatchHistory(): Promise<VideoInfo[]> {
     try {
-      const user = await getCurrentUser();
+      console.log('Loading watch history...');
       const result = await client.graphql({
-        query: queries.getWatchHistoryByUserId,
-        variables: {
-          userId: user.userId
-        }
-      }) as GraphQLResult<any>;
+        query: queries.listContinueWatching
+      });
 
-      const watchHistory = result.data?.getWatchHistoryByUserId?.items || [];
+      console.log('Load result:', result);
+
+      const watchHistory = (result as any).data?.listContinueWatchings?.items || [];
       
-      // Sort by most recent first
-      return watchHistory
+      // Transform and sort the data
+      const transformedHistory = watchHistory
         .map((item: any) => ({
           imdbID: item.imdbID,
           title: item.title,
@@ -176,23 +128,16 @@ const watchHistorySync: {
           (b.timestamp || 0) - (a.timestamp || 0)
         );
 
+      console.log('Transformed history:', transformedHistory);
+      return transformedHistory;
     } catch (error) {
       console.error('Error loading watch history:', error);
+      if ((error as any).errors) {
+        if ((error as any).errors) {
+          console.error('GraphQL Errors:', (error as any).errors);
+        }
+      }
       return [];
     }
-  },
-
-  startAutoSync(videoInfo: VideoInfo, intervalMinutes: number = 5): NodeJS.Timer {
-    if (this.syncInterval) {
-      clearInterval(this.syncInterval);
-    }
-    
-    this.syncInterval = setInterval(() => {
-      this.saveWatchHistory(videoInfo);
-    }, intervalMinutes * 60 * 1000);
-    
-    return this.syncInterval;
   }
-}
-
-export { watchHistorySync };
+};
