@@ -13,6 +13,7 @@ import {
   fetchEpisodeRuntime, 
   fetchSeasonData
 } from '../components/videoplayer/videoHandlers';
+import { watchHistorySync } from '../services/watchHistorySync';
 
 interface GroupedContent {
   [key: string]: VideoInfo[];
@@ -60,6 +61,49 @@ const Homepage = () => {
     }
   });
 
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const history = await watchHistorySync.loadWatchHistory();
+        console.log('Raw history:', history); // Debug log
+        
+        // Filter out any invalid entries
+        const validHistory = history.filter(item => 
+          item && item.imdbID && item.title && item.type
+        );
+        
+        console.log('Filtered history:', validHistory); // Debug log
+        
+        if (validHistory.length > 0) {
+          setRecentlyWatched(validHistory);
+        } else {
+          console.log('No valid watch history entries found');
+        }
+      } catch (error) {
+        console.error('Error loading history:', error);
+      }
+    };
+  
+    loadHistory();
+  }, []);
+  
+  
+
+  
+  const updateWatchHistory = async (videoInfo: VideoInfo) => {
+    try {
+      console.log('Updating watch history with:', videoInfo);
+      await watchHistorySync.saveProgress(videoInfo);
+      // Reload the watch history after saving
+      const updatedHistory = await watchHistorySync.loadWatchHistory();
+      console.log('Updated history:', updatedHistory);
+      setRecentlyWatched(updatedHistory);
+    } catch (error) {
+      console.error('Error updating watch history:', error);
+    }
+  };
+  
+
   // Load watch history on component mount
   useEffect(() => {
     const loadWatchHistory = async () => {
@@ -89,7 +133,7 @@ const Homepage = () => {
               if (!item.poster && item.imdbID) {
                 try {
                   const response = await fetch(
-                    `https://api.themoviedb.org/3/find/${item.imdbID}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&external_source=imdb_id`
+                    `https://api.themoviedb.org/3/find/${item.imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
                   );
                   const data = await response.json();
                   
@@ -124,54 +168,21 @@ const Homepage = () => {
     loadWatchHistory();
   }, []);
 
-  const updateWatchHistory = (videoInfo: VideoInfo) => {
-    const maxHistoryItems = 50;
-    
-    try {
-      const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
-      
-      let filteredHistory = existingHistory.filter(item => {
-        if (videoInfo.type === 'movie') {
-          return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
-        }
-        return !(
-          item.imdbID === videoInfo.imdbID && 
-          item.season === videoInfo.season && 
-          item.episode === videoInfo.episode
-        );
-      });
-      
-      const updatedHistory = [
-        {
-          ...videoInfo,
-          timestamp: Date.now()
-        },
-        ...filteredHistory
-      ].slice(0, maxHistoryItems);
-      
-      localStorage.setItem('watchHistory', JSON.stringify(updatedHistory));
-      
-      const groupedContent: GroupedContent = {};
-      updatedHistory.forEach((item: VideoInfo) => {
-        const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-        if (!groupedContent[key]) {
-          groupedContent[key] = [];
-        }
-        groupedContent[key].push(item);
-      });
-      
-      const latestWatched = Object.values(groupedContent)
-        .map(items => {
-          items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-          return items[0];
-        })
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      
-      setRecentlyWatched(latestWatched);
-    } catch (error) {
-      console.error('Error updating watch history:', error);
-    }
-  };
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // Close video when back button is pressed
+      setCurrentVideo(null);
+    };
+
+    // Add popstate event listener
+    window.addEventListener('popstate', handlePopState);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
 
   const handleItemClick = async (item: VideoInfo | SearchResult, type: 'history' | 'movie' | 'series') => {
     try {
@@ -184,7 +195,7 @@ const Homepage = () => {
           let tmdbId = historyItem.tmdbId;
           if (!tmdbId) {
             const response = await fetch(
-              `https://api.themoviedb.org/3/find/${historyItem.imdbID}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}&external_source=imdb_id`
+              `https://api.themoviedb.org/3/find/${historyItem.imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
             );
             const data = await response.json();
             tmdbId = data.tv_results[0]?.id;
@@ -240,6 +251,7 @@ const Homepage = () => {
         setSelectedSeason('1');
       }
 
+      window.history.pushState({ videoOpen: true }, '');
       setCurrentVideo(videoInfo);
       if (videoSectionRef.current) {
         videoSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -249,54 +261,46 @@ const Homepage = () => {
     }
   };
 
+  const handleCloseVideo = () => {
+    // If there's a state in the history, go back
+    if (window.history.state?.videoOpen) {
+      window.history.back();
+    }
+    setCurrentVideo(null);
+  };
+
   const handleSearch = (results: SearchResult[]) => {
     setMovies(results.filter(item => item.Type === 'movie'));
     setShows(results.filter(item => item.Type === 'series'));
   };
 
-  const deleteFromHistory = (videoInfo: VideoInfo) => {
+  const deleteFromHistory = async (videoInfo: VideoInfo) => {
     try {
-      // Get existing history
-      const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
+      console.log('Deleting from history:', videoInfo);
       
-      // If it's a series, remove all episodes of the series
-      // If it's a movie, remove just that movie
-      let filteredHistory = existingHistory.filter(item => {
-        if (videoInfo.type === 'movie') {
-          return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
-        } else {
-          // For series, remove all episodes of the same show
-          return item.imdbID !== videoInfo.imdbID;
-        }
-      });
-      
-      // Update localStorage
-      localStorage.setItem('watchHistory', JSON.stringify(filteredHistory));
-      
-      // Update state using the same grouping logic
-      const groupedContent: GroupedContent = {};
-      filteredHistory.forEach((item: VideoInfo) => {
-        const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-        if (!groupedContent[key]) {
-          groupedContent[key] = [];
-        }
-        groupedContent[key].push(item);
-      });
-      
-      const latestWatched = Object.values(groupedContent)
-        .map(items => {
-          items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-          return items[0];
+      // Delete all entries for this series/movie from database
+      await watchHistorySync.deleteFromHistory(videoInfo.imdbID, videoInfo.type);
+  
+      // Update local state by removing all episodes of the series or the specific movie
+      setRecentlyWatched(prev => 
+        prev.filter(item => {
+          if (videoInfo.type === 'movie') {
+            return item.imdbID !== videoInfo.imdbID;
+          } else {
+            // For series, remove all episodes of the same show
+            return item.imdbID !== videoInfo.imdbID;
+          }
         })
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      
-      setRecentlyWatched(latestWatched);
+      );
     } catch (error) {
       console.error('Error deleting from watch history:', error);
     }
-  };
+  };  
+  
 
   const ContentRow: React.FC<ContentRowProps> = ({ title, items, type, onItemClick, onDeleteItem }) => {
+    console.log(`ContentRow "${title}" items:`, items); // Debug log
+
     const [scrollPosition, setScrollPosition] = useState(0);
     const [isScrolling, setIsScrolling] = useState(false);
     const [showLeftButton, setShowLeftButton] = useState(false);
@@ -311,42 +315,6 @@ const Homepage = () => {
         const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
         setShowLeftButton(scrollLeft > 0);
         setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
-      }
-    };
-
-    const deleteFromHistory = (videoInfo: VideoInfo) => {
-      try {
-        const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
-        
-        let filteredHistory = existingHistory.filter(item => {
-          if (videoInfo.type === 'movie') {
-            return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
-          } else {
-            return item.imdbID !== videoInfo.imdbID;
-          }
-        });
-        
-        localStorage.setItem('watchHistory', JSON.stringify(filteredHistory));
-        
-        const groupedContent: GroupedContent = {};
-        filteredHistory.forEach((item: VideoInfo) => {
-          const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-          if (!groupedContent[key]) {
-            groupedContent[key] = [];
-          }
-          groupedContent[key].push(item);
-        });
-        
-        const latestWatched = Object.values(groupedContent)
-          .map(items => {
-            items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            return items[0];
-          })
-          .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        
-        setRecentlyWatched(latestWatched);
-      } catch (error) {
-        console.error('Error deleting from watch history:', error);
       }
     };
 
@@ -430,7 +398,10 @@ const Homepage = () => {
       };
     }, []);
   
-    if (!items || items.length === 0) return null;
+    if (!items || items.length === 0) {
+      console.log(`No items for "${title}"`); // Debug log
+      return null;
+    }
   
     return (
       <div className="mb-6 md:mb-8 scrollbar-hide">
@@ -470,34 +441,55 @@ const Homepage = () => {
               >
                 <div className="relative pb-[150%] bg-zinc-800 rounded-lg overflow-hidden group">
                 {type === 'history' ? (
-                    <>
-                      {(item as VideoInfo).poster ? (
-                        <img 
-                          src={(item as VideoInfo).poster}
-                          alt={(item as VideoInfo).title}
-                          className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-zinc-900" />
-                      )}
-                      <div className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-80" 
-                        style={{
-                          background: `
-                            radial-gradient(circle at center, 
-                              transparent 0%, 
-                              rgba(0,0,0,0.4) 60%,
-                              rgba(0,0,0,0.8) 100%
-                            ),
-                            linear-gradient(
-                              0deg,
-                              rgba(0,0,0,0.9) 0%,
-                              rgba(0,0,0,0.6) 30%,
-                              rgba(0,0,0,0.3) 60%,
-                              rgba(0,0,0,0.1) 100%
-                            )
-                          `
-                        }} 
-                      />
+                <>
+                  <img 
+                    src={(item as VideoInfo).poster || `/api/placeholder/192/288`}
+                    alt={(item as VideoInfo).title}
+                    className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
+                    onError={async (e) => {
+                      try {
+                        // Try to fetch from TMDB if poster load fails
+                        const response = await fetch(
+                          `https://api.themoviedb.org/3/find/${(item as VideoInfo).imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
+                        );
+                        const data = await response.json();
+                        
+                        let poster = null;
+                        if ((item as VideoInfo).type === 'movie' && data.movie_results[0]) {
+                          poster = data.movie_results[0].poster_path;
+                        } else if ((item as VideoInfo).type === 'series' && data.tv_results[0]) {
+                          poster = data.tv_results[0].poster_path;
+                        }
+                        
+                        if (poster) {
+                          (e.target as HTMLImageElement).src = `https://image.tmdb.org/t/p/w500${poster}`;
+                        } else {
+                          (e.target as HTMLImageElement).src = "/api/placeholder/192/288";
+                        }
+                      } catch (error) {
+                        console.error('Error loading poster:', error);
+                        (e.target as HTMLImageElement).src = "/api/placeholder/192/288";
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-80" 
+                    style={{
+                      background: `
+                        radial-gradient(circle at center, 
+                          transparent 0%, 
+                          rgba(0,0,0,0.4) 60%,
+                          rgba(0,0,0,0.8) 100%
+                        ),
+                        linear-gradient(
+                          0deg,
+                          rgba(0,0,0,0.9) 0%,
+                          rgba(0,0,0,0.6) 30%,
+                          rgba(0,0,0,0.3) 60%,
+                          rgba(0,0,0,0.1) 100%
+                        )
+                      `
+                    }} 
+                  />
                       
                       <div className="absolute inset-x-0 bottom-0 p-2 md:p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
                       <h3 className="font-semibold text-xs md:text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">
@@ -595,7 +587,7 @@ const Homepage = () => {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-90 overflow-y-auto pt-24">
           {/* Close button */}
           <button 
-            onClick={() => setCurrentVideo(null)}
+            onClick={handleCloseVideo}
             className="absolute top-28 right-4 p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
           >
             <X size={24} />
@@ -656,6 +648,13 @@ const Homepage = () => {
         <br>
         </br>
         <h1 className="text-4xl font-bold mb-8 px-4">Home</h1>
+
+        {!recentlyWatched.length && !movies.length && !shows.length && (
+          <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
+            <p className="text-xl mb-4">No content yet</p>
+            <p className="text-sm">Search for movies and TV shows to get started</p>
+          </div>
+        )}
         
         <ContentRow 
           title="Continue Watching" 
@@ -681,12 +680,6 @@ const Homepage = () => {
 
         <GenreBrowser onItemClick={handleItemClick} />
         
-        {!recentlyWatched.length && !movies.length && !shows.length && (
-          <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
-            <p className="text-xl mb-4">No content yet</p>
-            <p className="text-sm">Search for movies and TV shows to get started</p>
-          </div>
-        )}
       </div>
       <Footer />
     </div>

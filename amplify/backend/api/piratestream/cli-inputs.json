@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "piratestream",
+    "serviceName": "AppSync",
+    "defaultAuthType": {
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authpiratestream3c88b6fa"
+    },
+    "conflictResolution": {},
+    "additionalAuthTypes": []
+  }
+}

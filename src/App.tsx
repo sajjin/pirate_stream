@@ -4,6 +4,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import AuthPage from './pages/AuthPages';
 import HomePage from './pages/Home';
+import { Amplify } from 'aws-amplify';
+import './config';
+
+import config from './amplifyconfiguration.json';
+
+Amplify.configure(config);
 
 const App: React.FC = () => {
   return (

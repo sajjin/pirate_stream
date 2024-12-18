@@ -1,0 +1,13 @@
+{
+  "AppSyncApiName": "piratestream",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "REACT_APP_TMDB_API_KEY": "de28a40a87b4fb9624452bb0ad02b724",
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authpiratestream3c88b6fa",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2024-12-17T22:30:03.336Z"
+}
