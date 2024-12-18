@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import EnhancedVideoPlayer from './EnhancedVideoPlayer';
 
 interface TVShowPlayerProps {
@@ -10,6 +10,7 @@ interface TVShowPlayerProps {
   episodeTitle?: string;
   onLoadPreviousEpisode: () => void;
   onLoadNextEpisode: () => void;
+  currentSource: number;
 }
 
 export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
@@ -20,8 +21,10 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   episodeTitle,
   onLoadPreviousEpisode,
   onLoadNextEpisode,
+  currentSource,
 }) => {
   const playerContainerRef = useRef<HTMLDivElement>(null);
+  const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const overlayTimeoutRef = useRef<NodeJS.Timeout>();
@@ -58,6 +61,32 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   const handleMouseMove = () => {
     setShowOverlay(true);
     resetOverlayTimer();
+  };
+
+  const handleFullscreen = async () => {
+    if (!iframeContainerRef.current) return;
+
+    try {
+      if (!isFullscreen) {
+        if (iframeContainerRef.current.requestFullscreen) {
+          await iframeContainerRef.current.requestFullscreen();
+        } else if ((iframeContainerRef.current as any).webkitRequestFullscreen) {
+          await (iframeContainerRef.current as any).webkitRequestFullscreen();
+        } else if ((iframeContainerRef.current as any).mozRequestFullScreen) {
+          await (iframeContainerRef.current as any).mozRequestFullScreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen();
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling fullscreen:', error);
+    }
   };
 
   useEffect(() => {
@@ -97,7 +126,7 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         </>
       )}
 
-      <div className="relative w-full">
+      <div className="relative w-full" ref={iframeContainerRef}>
         {/* Video Player */}
         <div className="relative w-full">
           <EnhancedVideoPlayer 
@@ -107,20 +136,10 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
           />
         </div>
 
-        {/* Separated Overlays */}
+        {/* Overlays */}
         {showOverlay && (
           <>
-            {/* Title Bar Overlay */}
-            <div 
-              className="absolute top-0 left-0 right-0 pointer-events-none"
-              style={{ zIndex: 2147483647 }}
-            >
-              <div className="bg-gradient-to-b from-black/50 to-transparent h-24" />
-              <div className="absolute top-0 left-0 right-0 p-4">
-              </div>
-            </div>
-
-            {/* Navigation Buttons - Separated from main overlay */}
+            {/* Navigation Buttons */}
             <div 
               className="absolute left-4 top-1/2 -translate-y-1/2"
               style={{ zIndex: 2147483647 }}
@@ -150,6 +169,24 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                 <ChevronRight size={32} className="text-white" />
               </button>
             </div>
+
+            {/* Fullscreen Button - Only show for Source 1 */}
+            {currentSource === 0 && (
+              <div 
+                className="absolute bottom-4 right-4"
+                style={{ zIndex: 2147483647 }}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFullscreen();
+                  }}
+                  className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
+                >
+                  <Maximize2 size={24} className="text-white" />
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

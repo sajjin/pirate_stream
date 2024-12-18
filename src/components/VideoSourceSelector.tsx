@@ -10,8 +10,8 @@ export const VIDEO_SOURCES: VideoSource[] = [
     name: 'Source 1 (better quality but may hitch)',
     getUrl: (imdbId, season, episode) => 
       season && episode 
-        ? `https://multiembed.mov/directstream.php?video_id=${imdbId}&s=${season}&e=${episode}`
-        : `https://multiembed.mov/?video_id=${imdbId}`
+        ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}&fs=1`
+        : `https://multiembed.mov/?video_id=${imdbId}&fs=1`
   },
   {
     name: 'Source 2 (faster but lower quality)',
@@ -22,14 +22,12 @@ export const VIDEO_SOURCES: VideoSource[] = [
   }
 ];
 
-interface VideoSourceSelectorProps {
+const VideoSourceSelector = ({
+  currentSource,
+  onSourceChange
+}: {
   currentSource: number;
   onSourceChange: (index: number) => void;
-}
-
-const VideoSourceSelector: React.FC<VideoSourceSelectorProps> = ({ 
-  currentSource, 
-  onSourceChange 
 }) => {
   return (
     <select
