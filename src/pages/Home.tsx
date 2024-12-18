@@ -70,14 +70,12 @@ const Homepage = () => {
     const loadHistory = async () => {
       try {
         const history = await watchHistorySync.loadWatchHistory();
-        console.log('Raw history:', history); // Debug log
         
         // Filter out any invalid entries
         const validHistory = history.filter(item => 
           item && item.imdbID && item.title && item.type
         );
         
-        console.log('Filtered history:', validHistory); // Debug log
         
         if (validHistory.length > 0) {
           setRecentlyWatched(validHistory);
@@ -97,11 +95,9 @@ const Homepage = () => {
   
   const updateWatchHistory = async (videoInfo: VideoInfo) => {
     try {
-      console.log('Updating watch history with:', videoInfo);
       await watchHistorySync.saveProgress(videoInfo);
       // Reload the watch history after saving
       const updatedHistory = await watchHistorySync.loadWatchHistory();
-      console.log('Updated history:', updatedHistory);
       setRecentlyWatched(updatedHistory);
     } catch (error) {
       console.error('Error updating watch history:', error);
@@ -285,7 +281,6 @@ const Homepage = () => {
 
   const deleteFromHistory = async (videoInfo: VideoInfo) => {
     try {
-      console.log('Deleting from history:', videoInfo);
       
       // Delete all entries for this series/movie from database
       await watchHistorySync.deleteFromHistory(videoInfo.imdbID, videoInfo.type);
@@ -308,7 +303,6 @@ const Homepage = () => {
   
 
   const ContentRow: React.FC<ContentRowProps> = ({ title, items, type, onItemClick, onDeleteItem }) => {
-    console.log(`ContentRow "${title}" items:`, items); // Debug log
 
     const [scrollPosition, setScrollPosition] = useState(0);
     const [isScrolling, setIsScrolling] = useState(false);
@@ -408,7 +402,6 @@ const Homepage = () => {
     }, []);
   
     if (!items || items.length === 0) {
-      console.log(`No items for "${title}"`); // Debug log
       return null;
     }
   
