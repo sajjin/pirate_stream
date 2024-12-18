@@ -63,12 +63,32 @@ const Homepage = () => {
 
   useEffect(() => {
     const loadHistory = async () => {
-      const history = await watchHistorySync.loadWatchHistory();
-      setRecentlyWatched(history);
+      try {
+        const history = await watchHistorySync.loadWatchHistory();
+        console.log('Raw history:', history); // Debug log
+        
+        // Filter out any invalid entries
+        const validHistory = history.filter(item => 
+          item && item.imdbID && item.title && item.type
+        );
+        
+        console.log('Filtered history:', validHistory); // Debug log
+        
+        if (validHistory.length > 0) {
+          setRecentlyWatched(validHistory);
+        } else {
+          console.log('No valid watch history entries found');
+        }
+      } catch (error) {
+        console.error('Error loading history:', error);
+      }
     };
-    
+  
     loadHistory();
   }, []);
+  
+  
+
   
   const updateWatchHistory = async (videoInfo: VideoInfo) => {
     await watchHistorySync.saveWatchHistory(videoInfo);
@@ -253,7 +273,6 @@ const Homepage = () => {
       const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
       
       // If it's a series, remove all episodes of the series
-      // If it's a movie, remove just that movie
       let filteredHistory = existingHistory.filter(item => {
         if (videoInfo.type === 'movie') {
           return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
@@ -290,6 +309,8 @@ const Homepage = () => {
   };
 
   const ContentRow: React.FC<ContentRowProps> = ({ title, items, type, onItemClick, onDeleteItem }) => {
+    console.log(`ContentRow "${title}" items:`, items); // Debug log
+
     const [scrollPosition, setScrollPosition] = useState(0);
     const [isScrolling, setIsScrolling] = useState(false);
     const [showLeftButton, setShowLeftButton] = useState(false);
@@ -387,7 +408,10 @@ const Homepage = () => {
       };
     }, []);
   
-    if (!items || items.length === 0) return null;
+    if (!items || items.length === 0) {
+      console.log(`No items for "${title}"`); // Debug log
+      return null;
+    }
   
     return (
       <div className="mb-6 md:mb-8 scrollbar-hide">
