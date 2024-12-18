@@ -637,6 +637,7 @@ const Homepage = () => {
                   episodeTitle={currentVideo.episodeTitle}
                   onLoadPreviousEpisode={loadPreviousEpisode}
                   onLoadNextEpisode={loadNextEpisode}
+                  currentSource={currentSource}
                 />
 
                 {/* Season selector and episode grid */}
