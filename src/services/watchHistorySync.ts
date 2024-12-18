@@ -3,6 +3,8 @@ import { getCurrentUser } from 'aws-amplify/auth';
 import { VideoInfo } from '../types';
 
 const client = generateClient();
+const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+
 
 // First, let's define our GraphQL operations
 const queries = {
@@ -54,10 +56,55 @@ const mutations = {
         updatedAt
       }
     }
+  `,
+  updateContinueWatching: /* GraphQL */ `
+    mutation UpdateContinueWatching(
+      $input: UpdateContinueWatchingInput!
+    ) {
+      updateContinueWatching(input: $input) {
+        id
+        userId
+        imdbID
+        title
+        type
+        season
+        episode
+        episodeTitle
+        progress
+        timestamp
+        poster
+        tmdbId
+        owner
+        createdAt
+        updatedAt
+      }
+    }
   `
 };
 
+
 export const watchHistorySync = {
+  async fetchPosterFromTMDB(imdbID: string, type: string): Promise<string | null> {
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/find/${imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
+      );
+      const data = await response.json();
+      
+      let poster = null;
+      if (type === 'movie' && data.movie_results[0]) {
+        poster = data.movie_results[0].poster_path;
+      } else if (type === 'series' && data.tv_results[0]) {
+        poster = data.tv_results[0].poster_path;
+      }
+      
+      return poster ? `${TMDB_IMAGE_BASE}${poster}` : null;
+    } catch (error) {
+      console.error('Error fetching poster:', error);
+      return null;
+    }
+  },
+
   async saveProgress(videoInfo: VideoInfo): Promise<void> {
     try {
       const user = await getCurrentUser();
@@ -106,36 +153,54 @@ export const watchHistorySync = {
         query: queries.listContinueWatching
       });
 
-      console.log('Load result:', result);
-
       const watchHistory = (result as any).data?.listContinueWatchings?.items || [];
       
-      // Transform and sort the data
-      const transformedHistory = watchHistory
-        .map((item: any) => ({
-          imdbID: item.imdbID,
-          title: item.title,
-          type: item.type,
-          season: item.season,
-          episode: item.episode,
-          episodeTitle: item.episodeTitle,
-          progress: item.progress,
-          timestamp: item.timestamp,
-          poster: item.poster,
-          tmdbId: item.tmdbId
-        }))
-        .sort((a: VideoInfo, b: VideoInfo) => 
-          (b.timestamp || 0) - (a.timestamp || 0)
-        );
+      // Fetch posters for items without them
+      const updatedHistory = await Promise.all(
+        watchHistory.map(async (item: any) => {
+          let posterUrl = item.poster;
+          
+          if (!posterUrl && item.imdbID) {
+            posterUrl = await this.fetchPosterFromTMDB(item.imdbID, item.type);
+            
+            // If we got a new poster, update the database
+            if (posterUrl) {
+              try {
+                await client.graphql({
+                  query: mutations.updateContinueWatching,
+                  variables: {
+                    input: {
+                      id: item.id,
+                      poster: posterUrl
+                    }
+                  }
+                });
+              } catch (error) {
+                console.error('Error updating poster in database:', error);
+              }
+            }
+          }
 
-      console.log('Transformed history:', transformedHistory);
-      return transformedHistory;
+          return {
+            imdbID: item.imdbID,
+            title: item.title,
+            type: item.type,
+            season: item.season,
+            episode: item.episode,
+            episodeTitle: item.episodeTitle,
+            progress: item.progress,
+            timestamp: item.timestamp,
+            poster: posterUrl,
+            tmdbId: item.tmdbId
+          };
+        })
+      );
+
+      return updatedHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
     } catch (error) {
       console.error('Error loading watch history:', error);
       if ((error as any).errors) {
-        if ((error as any).errors) {
-          console.error('GraphQL Errors:', (error as any).errors);
-        }
+        console.error('GraphQL Errors:', (error as any).errors);
       }
       return [];
     }

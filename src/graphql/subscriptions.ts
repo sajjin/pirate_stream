@@ -8,11 +8,11 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
-export const onCreateWatchHistory = /* GraphQL */ `subscription OnCreateWatchHistory(
-  $filter: ModelSubscriptionWatchHistoryFilterInput
+export const onCreateContinueWatching = /* GraphQL */ `subscription OnCreateContinueWatching(
+  $filter: ModelSubscriptionContinueWatchingFilterInput
   $owner: String
 ) {
-  onCreateWatchHistory(filter: $filter, owner: $owner) {
+  onCreateContinueWatching(filter: $filter, owner: $owner) {
     id
     userId
     imdbID
@@ -32,14 +32,14 @@ export const onCreateWatchHistory = /* GraphQL */ `subscription OnCreateWatchHis
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnCreateWatchHistorySubscriptionVariables,
-  APITypes.OnCreateWatchHistorySubscription
+  APITypes.OnCreateContinueWatchingSubscriptionVariables,
+  APITypes.OnCreateContinueWatchingSubscription
 >;
-export const onUpdateWatchHistory = /* GraphQL */ `subscription OnUpdateWatchHistory(
-  $filter: ModelSubscriptionWatchHistoryFilterInput
+export const onUpdateContinueWatching = /* GraphQL */ `subscription OnUpdateContinueWatching(
+  $filter: ModelSubscriptionContinueWatchingFilterInput
   $owner: String
 ) {
-  onUpdateWatchHistory(filter: $filter, owner: $owner) {
+  onUpdateContinueWatching(filter: $filter, owner: $owner) {
     id
     userId
     imdbID
@@ -59,14 +59,14 @@ export const onUpdateWatchHistory = /* GraphQL */ `subscription OnUpdateWatchHis
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnUpdateWatchHistorySubscriptionVariables,
-  APITypes.OnUpdateWatchHistorySubscription
+  APITypes.OnUpdateContinueWatchingSubscriptionVariables,
+  APITypes.OnUpdateContinueWatchingSubscription
 >;
-export const onDeleteWatchHistory = /* GraphQL */ `subscription OnDeleteWatchHistory(
-  $filter: ModelSubscriptionWatchHistoryFilterInput
+export const onDeleteContinueWatching = /* GraphQL */ `subscription OnDeleteContinueWatching(
+  $filter: ModelSubscriptionContinueWatchingFilterInput
   $owner: String
 ) {
-  onDeleteWatchHistory(filter: $filter, owner: $owner) {
+  onDeleteContinueWatching(filter: $filter, owner: $owner) {
     id
     userId
     imdbID
@@ -86,6 +86,6 @@ export const onDeleteWatchHistory = /* GraphQL */ `subscription OnDeleteWatchHis
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnDeleteWatchHistorySubscriptionVariables,
-  APITypes.OnDeleteWatchHistorySubscription
+  APITypes.OnDeleteContinueWatchingSubscriptionVariables,
+  APITypes.OnDeleteContinueWatchingSubscription
 >;

@@ -458,34 +458,55 @@ const Homepage = () => {
               >
                 <div className="relative pb-[150%] bg-zinc-800 rounded-lg overflow-hidden group">
                 {type === 'history' ? (
-                    <>
-                      {(item as VideoInfo).poster ? (
-                        <img 
-                          src={(item as VideoInfo).poster}
-                          alt={(item as VideoInfo).title}
-                          className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-zinc-900" />
-                      )}
-                      <div className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-80" 
-                        style={{
-                          background: `
-                            radial-gradient(circle at center, 
-                              transparent 0%, 
-                              rgba(0,0,0,0.4) 60%,
-                              rgba(0,0,0,0.8) 100%
-                            ),
-                            linear-gradient(
-                              0deg,
-                              rgba(0,0,0,0.9) 0%,
-                              rgba(0,0,0,0.6) 30%,
-                              rgba(0,0,0,0.3) 60%,
-                              rgba(0,0,0,0.1) 100%
-                            )
-                          `
-                        }} 
-                      />
+                <>
+                  <img 
+                    src={(item as VideoInfo).poster || `/api/placeholder/192/288`}
+                    alt={(item as VideoInfo).title}
+                    className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
+                    onError={async (e) => {
+                      try {
+                        // Try to fetch from TMDB if poster load fails
+                        const response = await fetch(
+                          `https://api.themoviedb.org/3/find/${(item as VideoInfo).imdbID}?api_key=${process.env.REACT_APP_TMDB_API_KEY}&external_source=imdb_id`
+                        );
+                        const data = await response.json();
+                        
+                        let poster = null;
+                        if ((item as VideoInfo).type === 'movie' && data.movie_results[0]) {
+                          poster = data.movie_results[0].poster_path;
+                        } else if ((item as VideoInfo).type === 'series' && data.tv_results[0]) {
+                          poster = data.tv_results[0].poster_path;
+                        }
+                        
+                        if (poster) {
+                          (e.target as HTMLImageElement).src = `https://image.tmdb.org/t/p/w500${poster}`;
+                        } else {
+                          (e.target as HTMLImageElement).src = "/api/placeholder/192/288";
+                        }
+                      } catch (error) {
+                        console.error('Error loading poster:', error);
+                        (e.target as HTMLImageElement).src = "/api/placeholder/192/288";
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 transition-opacity duration-300 group-hover:opacity-80" 
+                    style={{
+                      background: `
+                        radial-gradient(circle at center, 
+                          transparent 0%, 
+                          rgba(0,0,0,0.4) 60%,
+                          rgba(0,0,0,0.8) 100%
+                        ),
+                        linear-gradient(
+                          0deg,
+                          rgba(0,0,0,0.9) 0%,
+                          rgba(0,0,0,0.6) 30%,
+                          rgba(0,0,0,0.3) 60%,
+                          rgba(0,0,0,0.1) 100%
+                        )
+                      `
+                    }} 
+                  />
                       
                       <div className="absolute inset-x-0 bottom-0 p-2 md:p-4 transform transition-all duration-300 translate-y-0 group-hover:-translate-y-1">
                       <h3 className="font-semibold text-xs md:text-sm mb-1 transition-colors duration-300 group-hover:text-blue-400">

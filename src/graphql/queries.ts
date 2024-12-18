@@ -8,8 +8,8 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getWatchHistory = /* GraphQL */ `query GetWatchHistory($id: ID!) {
-  getWatchHistory(id: $id) {
+export const getContinueWatching = /* GraphQL */ `query GetContinueWatching($id: ID!) {
+  getContinueWatching(id: $id) {
     id
     userId
     imdbID
@@ -29,15 +29,15 @@ export const getWatchHistory = /* GraphQL */ `query GetWatchHistory($id: ID!) {
   }
 }
 ` as GeneratedQuery<
-  APITypes.GetWatchHistoryQueryVariables,
-  APITypes.GetWatchHistoryQuery
+  APITypes.GetContinueWatchingQueryVariables,
+  APITypes.GetContinueWatchingQuery
 >;
-export const listWatchHistories = /* GraphQL */ `query ListWatchHistories(
-  $filter: ModelWatchHistoryFilterInput
+export const listContinueWatchings = /* GraphQL */ `query ListContinueWatchings(
+  $filter: ModelContinueWatchingFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listWatchHistories(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listContinueWatchings(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
       userId
@@ -61,6 +61,6 @@ export const listWatchHistories = /* GraphQL */ `query ListWatchHistories(
   }
 }
 ` as GeneratedQuery<
-  APITypes.ListWatchHistoriesQueryVariables,
-  APITypes.ListWatchHistoriesQuery
+  APITypes.ListContinueWatchingsQueryVariables,
+  APITypes.ListContinueWatchingsQuery
 >;

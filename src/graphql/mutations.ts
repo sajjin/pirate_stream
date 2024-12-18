@@ -8,11 +8,11 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const createWatchHistory = /* GraphQL */ `mutation CreateWatchHistory(
-  $input: CreateWatchHistoryInput!
-  $condition: ModelWatchHistoryConditionInput
+export const createContinueWatching = /* GraphQL */ `mutation CreateContinueWatching(
+  $input: CreateContinueWatchingInput!
+  $condition: ModelContinueWatchingConditionInput
 ) {
-  createWatchHistory(input: $input, condition: $condition) {
+  createContinueWatching(input: $input, condition: $condition) {
     id
     userId
     imdbID
@@ -32,14 +32,14 @@ export const createWatchHistory = /* GraphQL */ `mutation CreateWatchHistory(
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateWatchHistoryMutationVariables,
-  APITypes.CreateWatchHistoryMutation
+  APITypes.CreateContinueWatchingMutationVariables,
+  APITypes.CreateContinueWatchingMutation
 >;
-export const updateWatchHistory = /* GraphQL */ `mutation UpdateWatchHistory(
-  $input: UpdateWatchHistoryInput!
-  $condition: ModelWatchHistoryConditionInput
+export const updateContinueWatching = /* GraphQL */ `mutation UpdateContinueWatching(
+  $input: UpdateContinueWatchingInput!
+  $condition: ModelContinueWatchingConditionInput
 ) {
-  updateWatchHistory(input: $input, condition: $condition) {
+  updateContinueWatching(input: $input, condition: $condition) {
     id
     userId
     imdbID
@@ -59,14 +59,14 @@ export const updateWatchHistory = /* GraphQL */ `mutation UpdateWatchHistory(
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateWatchHistoryMutationVariables,
-  APITypes.UpdateWatchHistoryMutation
+  APITypes.UpdateContinueWatchingMutationVariables,
+  APITypes.UpdateContinueWatchingMutation
 >;
-export const deleteWatchHistory = /* GraphQL */ `mutation DeleteWatchHistory(
-  $input: DeleteWatchHistoryInput!
-  $condition: ModelWatchHistoryConditionInput
+export const deleteContinueWatching = /* GraphQL */ `mutation DeleteContinueWatching(
+  $input: DeleteContinueWatchingInput!
+  $condition: ModelContinueWatchingConditionInput
 ) {
-  deleteWatchHistory(input: $input, condition: $condition) {
+  deleteContinueWatching(input: $input, condition: $condition) {
     id
     userId
     imdbID
@@ -86,6 +86,6 @@ export const deleteWatchHistory = /* GraphQL */ `mutation DeleteWatchHistory(
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteWatchHistoryMutationVariables,
-  APITypes.DeleteWatchHistoryMutation
+  APITypes.DeleteContinueWatchingMutationVariables,
+  APITypes.DeleteContinueWatchingMutation
 >;
