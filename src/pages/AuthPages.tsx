@@ -4,6 +4,8 @@ import { signUp, confirmSignUp, signIn } from 'aws-amplify/auth';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { watchHistorySync } from '../services/watchHistorySync';
+import { startSessionRefresh } from '../auth/authHelper';
+
 
 
 type AuthMode = 'signin' | 'signup' | 'verify';
@@ -82,6 +84,8 @@ const AuthPage: React.FC = () => {
           username: formData.email.toLowerCase().trim(),
           password: formData.password,
         });
+        
+        startSessionRefresh();
         
         // Load watch history after successful sign in
         try {
