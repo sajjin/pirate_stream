@@ -14,6 +14,8 @@ import {
   fetchSeasonData
 } from '../components/videoplayer/videoHandlers';
 import { watchHistorySync } from '../services/watchHistorySync';
+import VideoSourceSelector, { VIDEO_SOURCES } from '../components/VideoSourceSelector';
+
 
 interface GroupedContent {
   [key: string]: VideoInfo[];
@@ -35,6 +37,8 @@ const Homepage = () => {
   const [currentVideo, setCurrentVideo] = useState<VideoInfo | null>(null);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [selectedSeason, setSelectedSeason] = useState('');
+  const [currentSource, setCurrentSource] = useState(0);
+
 
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -47,6 +51,7 @@ const Homepage = () => {
     currentVideo,
     seasons,
     selectedSeason,
+    currentSource,
     onVideoChange: (video: VideoInfo) => {
       updateWatchHistory(video);
       setCurrentVideo(video);
@@ -212,7 +217,11 @@ const Homepage = () => {
               ...historyItem,
               tmdbId,
               runtime,
-              url: `https://multiembed.mov/directstream.php?video_id=${historyItem.imdbID}&s=${historyItem.season}&e=${historyItem.episode}`
+              url: VIDEO_SOURCES[currentSource].getUrl(
+                historyItem.imdbID,
+                historyItem.season,
+                historyItem.episode
+              )
             };
 
             const seasonData = await fetchSeasonData(tmdbId);
@@ -223,7 +232,7 @@ const Homepage = () => {
         } else {
           videoInfo = {
             ...historyItem,
-            url: `https://multiembed.mov/?video_id=${historyItem.imdbID}`
+            url: VIDEO_SOURCES[currentSource].getUrl(historyItem.imdbID)
           };
           updateWatchHistory(videoInfo);
         }
@@ -585,14 +594,33 @@ const Homepage = () => {
       {/* Video Player Overlay */}
       {currentVideo && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-90 overflow-y-auto pt-24">
-          {/* Close button */}
-          <button 
-            onClick={handleCloseVideo}
-            className="absolute top-28 right-4 p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
-          >
-            <X size={24} />
-          </button>
-  
+          {/* Controls bar with source selector and close button */}
+          <div className="absolute top-28 right-4 flex items-center gap-4">
+            <VideoSourceSelector
+              currentSource={currentSource}
+              onSourceChange={(index) => {
+                setCurrentSource(index);
+                // Update the video URL when source changes
+                if (currentVideo) {
+                  setCurrentVideo({
+                    ...currentVideo,
+                    url: VIDEO_SOURCES[index].getUrl(
+                      currentVideo.imdbID,
+                      currentVideo.season,
+                      currentVideo.episode
+                    )
+                  });
+                }
+              }}
+            />
+            <button 
+              onClick={handleCloseVideo}
+              className="p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
           <div ref={videoSectionRef} className="max-w-7xl mx-auto px-4">
             {currentVideo.type === 'movie' ? (
               <MoviePlayer
@@ -610,7 +638,7 @@ const Homepage = () => {
                   onLoadPreviousEpisode={loadPreviousEpisode}
                   onLoadNextEpisode={loadNextEpisode}
                 />
-  
+
                 {/* Season selector and episode grid */}
                 {seasons.length > 0 && (
                   <div className="mt-4">
@@ -625,7 +653,7 @@ const Homepage = () => {
                         </option>
                       ))}
                     </select>
-  
+
                     <EpisodesGrid
                       season={seasons.find(s => s.seasonNumber === selectedSeason)}
                       selectedSeason={selectedSeason}
