@@ -648,6 +648,13 @@ const Homepage = () => {
         <br>
         </br>
         <h1 className="text-4xl font-bold mb-8 px-4">Home</h1>
+
+        {!recentlyWatched.length && !movies.length && !shows.length && (
+          <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
+            <p className="text-xl mb-4">No content yet</p>
+            <p className="text-sm">Search for movies and TV shows to get started</p>
+          </div>
+        )}
         
         <ContentRow 
           title="Continue Watching" 
@@ -673,12 +680,6 @@ const Homepage = () => {
 
         <GenreBrowser onItemClick={handleItemClick} />
         
-        {!recentlyWatched.length && !movies.length && !shows.length && (
-          <div className="flex flex-col items-center justify-center h-64 text-zinc-500">
-            <p className="text-xl mb-4">No content yet</p>
-            <p className="text-sm">Search for movies and TV shows to get started</p>
-          </div>
-        )}
       </div>
       <Footer />
     </div>
