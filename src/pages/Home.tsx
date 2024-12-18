@@ -13,6 +13,7 @@ import {
   fetchEpisodeRuntime, 
   fetchSeasonData
 } from '../components/videoplayer/videoHandlers';
+import { watchHistorySync } from '../services/watchHistorySync';
 
 interface GroupedContent {
   [key: string]: VideoInfo[];
@@ -59,6 +60,22 @@ const Homepage = () => {
       }
     }
   });
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      const history = await watchHistorySync.loadWatchHistory();
+      setRecentlyWatched(history);
+    };
+    
+    loadHistory();
+  }, []);
+  
+  const updateWatchHistory = async (videoInfo: VideoInfo) => {
+    await watchHistorySync.saveWatchHistory(videoInfo);
+    const updatedHistory = await watchHistorySync.loadWatchHistory();
+    setRecentlyWatched(updatedHistory);
+  };
+  
 
   // Load watch history on component mount
   useEffect(() => {
@@ -123,55 +140,6 @@ const Homepage = () => {
 
     loadWatchHistory();
   }, []);
-
-  const updateWatchHistory = (videoInfo: VideoInfo) => {
-    const maxHistoryItems = 50;
-    
-    try {
-      const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
-      
-      let filteredHistory = existingHistory.filter(item => {
-        if (videoInfo.type === 'movie') {
-          return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
-        }
-        return !(
-          item.imdbID === videoInfo.imdbID && 
-          item.season === videoInfo.season && 
-          item.episode === videoInfo.episode
-        );
-      });
-      
-      const updatedHistory = [
-        {
-          ...videoInfo,
-          timestamp: Date.now()
-        },
-        ...filteredHistory
-      ].slice(0, maxHistoryItems);
-      
-      localStorage.setItem('watchHistory', JSON.stringify(updatedHistory));
-      
-      const groupedContent: GroupedContent = {};
-      updatedHistory.forEach((item: VideoInfo) => {
-        const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-        if (!groupedContent[key]) {
-          groupedContent[key] = [];
-        }
-        groupedContent[key].push(item);
-      });
-      
-      const latestWatched = Object.values(groupedContent)
-        .map(items => {
-          items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-          return items[0];
-        })
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      
-      setRecentlyWatched(latestWatched);
-    } catch (error) {
-      console.error('Error updating watch history:', error);
-    }
-  };
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {

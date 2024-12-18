@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Hub } from 'aws-amplify/utils';
-import { cookieSync } from '../services/cookieSync';
+import { cookieSync } from '../services/watchHistorySync';
 
 export const CookieProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {

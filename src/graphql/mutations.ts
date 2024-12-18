@@ -8,15 +8,23 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const createUserCookies = /* GraphQL */ `mutation CreateUserCookies(
-  $input: CreateUserCookiesInput!
-  $condition: ModelUserCookiesConditionInput
+export const createWatchHistory = /* GraphQL */ `mutation CreateWatchHistory(
+  $input: CreateWatchHistoryInput!
+  $condition: ModelWatchHistoryConditionInput
 ) {
-  createUserCookies(input: $input, condition: $condition) {
+  createWatchHistory(input: $input, condition: $condition) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -24,18 +32,26 @@ export const createUserCookies = /* GraphQL */ `mutation CreateUserCookies(
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateUserCookiesMutationVariables,
-  APITypes.CreateUserCookiesMutation
+  APITypes.CreateWatchHistoryMutationVariables,
+  APITypes.CreateWatchHistoryMutation
 >;
-export const updateUserCookies = /* GraphQL */ `mutation UpdateUserCookies(
-  $input: UpdateUserCookiesInput!
-  $condition: ModelUserCookiesConditionInput
+export const updateWatchHistory = /* GraphQL */ `mutation UpdateWatchHistory(
+  $input: UpdateWatchHistoryInput!
+  $condition: ModelWatchHistoryConditionInput
 ) {
-  updateUserCookies(input: $input, condition: $condition) {
+  updateWatchHistory(input: $input, condition: $condition) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -43,18 +59,26 @@ export const updateUserCookies = /* GraphQL */ `mutation UpdateUserCookies(
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateUserCookiesMutationVariables,
-  APITypes.UpdateUserCookiesMutation
+  APITypes.UpdateWatchHistoryMutationVariables,
+  APITypes.UpdateWatchHistoryMutation
 >;
-export const deleteUserCookies = /* GraphQL */ `mutation DeleteUserCookies(
-  $input: DeleteUserCookiesInput!
-  $condition: ModelUserCookiesConditionInput
+export const deleteWatchHistory = /* GraphQL */ `mutation DeleteWatchHistory(
+  $input: DeleteWatchHistoryInput!
+  $condition: ModelWatchHistoryConditionInput
 ) {
-  deleteUserCookies(input: $input, condition: $condition) {
+  deleteWatchHistory(input: $input, condition: $condition) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -62,6 +86,6 @@ export const deleteUserCookies = /* GraphQL */ `mutation DeleteUserCookies(
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteUserCookiesMutationVariables,
-  APITypes.DeleteUserCookiesMutation
+  APITypes.DeleteWatchHistoryMutationVariables,
+  APITypes.DeleteWatchHistoryMutation
 >;

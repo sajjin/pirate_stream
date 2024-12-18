@@ -8,15 +8,23 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
-export const onCreateUserCookies = /* GraphQL */ `subscription OnCreateUserCookies(
-  $filter: ModelSubscriptionUserCookiesFilterInput
+export const onCreateWatchHistory = /* GraphQL */ `subscription OnCreateWatchHistory(
+  $filter: ModelSubscriptionWatchHistoryFilterInput
   $owner: String
 ) {
-  onCreateUserCookies(filter: $filter, owner: $owner) {
+  onCreateWatchHistory(filter: $filter, owner: $owner) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -24,18 +32,26 @@ export const onCreateUserCookies = /* GraphQL */ `subscription OnCreateUserCooki
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnCreateUserCookiesSubscriptionVariables,
-  APITypes.OnCreateUserCookiesSubscription
+  APITypes.OnCreateWatchHistorySubscriptionVariables,
+  APITypes.OnCreateWatchHistorySubscription
 >;
-export const onUpdateUserCookies = /* GraphQL */ `subscription OnUpdateUserCookies(
-  $filter: ModelSubscriptionUserCookiesFilterInput
+export const onUpdateWatchHistory = /* GraphQL */ `subscription OnUpdateWatchHistory(
+  $filter: ModelSubscriptionWatchHistoryFilterInput
   $owner: String
 ) {
-  onUpdateUserCookies(filter: $filter, owner: $owner) {
+  onUpdateWatchHistory(filter: $filter, owner: $owner) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -43,18 +59,26 @@ export const onUpdateUserCookies = /* GraphQL */ `subscription OnUpdateUserCooki
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnUpdateUserCookiesSubscriptionVariables,
-  APITypes.OnUpdateUserCookiesSubscription
+  APITypes.OnUpdateWatchHistorySubscriptionVariables,
+  APITypes.OnUpdateWatchHistorySubscription
 >;
-export const onDeleteUserCookies = /* GraphQL */ `subscription OnDeleteUserCookies(
-  $filter: ModelSubscriptionUserCookiesFilterInput
+export const onDeleteWatchHistory = /* GraphQL */ `subscription OnDeleteWatchHistory(
+  $filter: ModelSubscriptionWatchHistoryFilterInput
   $owner: String
 ) {
-  onDeleteUserCookies(filter: $filter, owner: $owner) {
+  onDeleteWatchHistory(filter: $filter, owner: $owner) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -62,6 +86,6 @@ export const onDeleteUserCookies = /* GraphQL */ `subscription OnDeleteUserCooki
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnDeleteUserCookiesSubscriptionVariables,
-  APITypes.OnDeleteUserCookiesSubscription
+  APITypes.OnDeleteWatchHistorySubscriptionVariables,
+  APITypes.OnDeleteWatchHistorySubscription
 >;

@@ -8,12 +8,20 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getUserCookies = /* GraphQL */ `query GetUserCookies($id: ID!) {
-  getUserCookies(id: $id) {
+export const getWatchHistory = /* GraphQL */ `query GetWatchHistory($id: ID!) {
+  getWatchHistory(id: $id) {
     id
     userId
-    cookies
-    lastUpdated
+    imdbID
+    title
+    type
+    season
+    episode
+    episodeTitle
+    progress
+    timestamp
+    poster
+    tmdbId
     createdAt
     updatedAt
     owner
@@ -21,20 +29,28 @@ export const getUserCookies = /* GraphQL */ `query GetUserCookies($id: ID!) {
   }
 }
 ` as GeneratedQuery<
-  APITypes.GetUserCookiesQueryVariables,
-  APITypes.GetUserCookiesQuery
+  APITypes.GetWatchHistoryQueryVariables,
+  APITypes.GetWatchHistoryQuery
 >;
-export const listUserCookies = /* GraphQL */ `query ListUserCookies(
-  $filter: ModelUserCookiesFilterInput
+export const listWatchHistories = /* GraphQL */ `query ListWatchHistories(
+  $filter: ModelWatchHistoryFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listUserCookies(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listWatchHistories(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
       userId
-      cookies
-      lastUpdated
+      imdbID
+      title
+      type
+      season
+      episode
+      episodeTitle
+      progress
+      timestamp
+      poster
+      tmdbId
       createdAt
       updatedAt
       owner
@@ -45,6 +61,6 @@ export const listUserCookies = /* GraphQL */ `query ListUserCookies(
   }
 }
 ` as GeneratedQuery<
-  APITypes.ListUserCookiesQueryVariables,
-  APITypes.ListUserCookiesQuery
+  APITypes.ListWatchHistoriesQueryVariables,
+  APITypes.ListWatchHistoriesQuery
 >;

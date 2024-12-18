@@ -2,20 +2,36 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type CreateUserCookiesInput = {
+export type CreateWatchHistoryInput = {
   id?: string | null,
   userId: string,
-  cookies: string,
-  lastUpdated: number,
+  imdbID: string,
+  title: string,
+  type: string,
+  season?: string | null,
+  episode?: string | null,
+  episodeTitle?: string | null,
+  progress?: number | null,
+  timestamp: number,
+  poster?: string | null,
+  tmdbId?: string | null,
 };
 
-export type ModelUserCookiesConditionInput = {
+export type ModelWatchHistoryConditionInput = {
   userId?: ModelStringInput | null,
-  cookies?: ModelStringInput | null,
-  lastUpdated?: ModelIntInput | null,
-  and?: Array< ModelUserCookiesConditionInput | null > | null,
-  or?: Array< ModelUserCookiesConditionInput | null > | null,
-  not?: ModelUserCookiesConditionInput | null,
+  imdbID?: ModelStringInput | null,
+  title?: ModelStringInput | null,
+  type?: ModelStringInput | null,
+  season?: ModelStringInput | null,
+  episode?: ModelStringInput | null,
+  episodeTitle?: ModelStringInput | null,
+  progress?: ModelFloatInput | null,
+  timestamp?: ModelIntInput | null,
+  poster?: ModelStringInput | null,
+  tmdbId?: ModelStringInput | null,
+  and?: Array< ModelWatchHistoryConditionInput | null > | null,
+  or?: Array< ModelWatchHistoryConditionInput | null > | null,
+  not?: ModelWatchHistoryConditionInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
   owner?: ModelStringInput | null,
@@ -61,6 +77,18 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
+export type ModelFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+};
+
 export type ModelIntInput = {
   ne?: number | null,
   eq?: number | null,
@@ -73,38 +101,62 @@ export type ModelIntInput = {
   attributeType?: ModelAttributeTypes | null,
 };
 
-export type UserCookies = {
-  __typename: "UserCookies",
+export type WatchHistory = {
+  __typename: "WatchHistory",
   id: string,
   userId: string,
-  cookies: string,
-  lastUpdated: number,
+  imdbID: string,
+  title: string,
+  type: string,
+  season?: string | null,
+  episode?: string | null,
+  episodeTitle?: string | null,
+  progress?: number | null,
+  timestamp: number,
+  poster?: string | null,
+  tmdbId?: string | null,
   createdAt: string,
   updatedAt: string,
   owner?: string | null,
 };
 
-export type UpdateUserCookiesInput = {
+export type UpdateWatchHistoryInput = {
   id: string,
   userId?: string | null,
-  cookies?: string | null,
-  lastUpdated?: number | null,
+  imdbID?: string | null,
+  title?: string | null,
+  type?: string | null,
+  season?: string | null,
+  episode?: string | null,
+  episodeTitle?: string | null,
+  progress?: number | null,
+  timestamp?: number | null,
+  poster?: string | null,
+  tmdbId?: string | null,
 };
 
-export type DeleteUserCookiesInput = {
+export type DeleteWatchHistoryInput = {
   id: string,
 };
 
-export type ModelUserCookiesFilterInput = {
+export type ModelWatchHistoryFilterInput = {
   id?: ModelIDInput | null,
   userId?: ModelStringInput | null,
-  cookies?: ModelStringInput | null,
-  lastUpdated?: ModelIntInput | null,
+  imdbID?: ModelStringInput | null,
+  title?: ModelStringInput | null,
+  type?: ModelStringInput | null,
+  season?: ModelStringInput | null,
+  episode?: ModelStringInput | null,
+  episodeTitle?: ModelStringInput | null,
+  progress?: ModelFloatInput | null,
+  timestamp?: ModelIntInput | null,
+  poster?: ModelStringInput | null,
+  tmdbId?: ModelStringInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
-  and?: Array< ModelUserCookiesFilterInput | null > | null,
-  or?: Array< ModelUserCookiesFilterInput | null > | null,
-  not?: ModelUserCookiesFilterInput | null,
+  and?: Array< ModelWatchHistoryFilterInput | null > | null,
+  or?: Array< ModelWatchHistoryFilterInput | null > | null,
+  not?: ModelWatchHistoryFilterInput | null,
   owner?: ModelStringInput | null,
 };
 
@@ -124,21 +176,29 @@ export type ModelIDInput = {
   size?: ModelSizeInput | null,
 };
 
-export type ModelUserCookiesConnection = {
-  __typename: "ModelUserCookiesConnection",
-  items:  Array<UserCookies | null >,
+export type ModelWatchHistoryConnection = {
+  __typename: "ModelWatchHistoryConnection",
+  items:  Array<WatchHistory | null >,
   nextToken?: string | null,
 };
 
-export type ModelSubscriptionUserCookiesFilterInput = {
+export type ModelSubscriptionWatchHistoryFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   userId?: ModelSubscriptionStringInput | null,
-  cookies?: ModelSubscriptionStringInput | null,
-  lastUpdated?: ModelSubscriptionIntInput | null,
+  imdbID?: ModelSubscriptionStringInput | null,
+  title?: ModelSubscriptionStringInput | null,
+  type?: ModelSubscriptionStringInput | null,
+  season?: ModelSubscriptionStringInput | null,
+  episode?: ModelSubscriptionStringInput | null,
+  episodeTitle?: ModelSubscriptionStringInput | null,
+  progress?: ModelSubscriptionFloatInput | null,
+  timestamp?: ModelSubscriptionIntInput | null,
+  poster?: ModelSubscriptionStringInput | null,
+  tmdbId?: ModelSubscriptionStringInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionUserCookiesFilterInput | null > | null,
-  or?: Array< ModelSubscriptionUserCookiesFilterInput | null > | null,
+  and?: Array< ModelSubscriptionWatchHistoryFilterInput | null > | null,
+  or?: Array< ModelSubscriptionWatchHistoryFilterInput | null > | null,
   owner?: ModelStringInput | null,
 };
 
@@ -172,6 +232,18 @@ export type ModelSubscriptionStringInput = {
   notIn?: Array< string | null > | null,
 };
 
+export type ModelSubscriptionFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  in?: Array< number | null > | null,
+  notIn?: Array< number | null > | null,
+};
+
 export type ModelSubscriptionIntInput = {
   ne?: number | null,
   eq?: number | null,
@@ -184,92 +256,132 @@ export type ModelSubscriptionIntInput = {
   notIn?: Array< number | null > | null,
 };
 
-export type CreateUserCookiesMutationVariables = {
-  input: CreateUserCookiesInput,
-  condition?: ModelUserCookiesConditionInput | null,
+export type CreateWatchHistoryMutationVariables = {
+  input: CreateWatchHistoryInput,
+  condition?: ModelWatchHistoryConditionInput | null,
 };
 
-export type CreateUserCookiesMutation = {
-  createUserCookies?:  {
-    __typename: "UserCookies",
+export type CreateWatchHistoryMutation = {
+  createWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
-export type UpdateUserCookiesMutationVariables = {
-  input: UpdateUserCookiesInput,
-  condition?: ModelUserCookiesConditionInput | null,
+export type UpdateWatchHistoryMutationVariables = {
+  input: UpdateWatchHistoryInput,
+  condition?: ModelWatchHistoryConditionInput | null,
 };
 
-export type UpdateUserCookiesMutation = {
-  updateUserCookies?:  {
-    __typename: "UserCookies",
+export type UpdateWatchHistoryMutation = {
+  updateWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
-export type DeleteUserCookiesMutationVariables = {
-  input: DeleteUserCookiesInput,
-  condition?: ModelUserCookiesConditionInput | null,
+export type DeleteWatchHistoryMutationVariables = {
+  input: DeleteWatchHistoryInput,
+  condition?: ModelWatchHistoryConditionInput | null,
 };
 
-export type DeleteUserCookiesMutation = {
-  deleteUserCookies?:  {
-    __typename: "UserCookies",
+export type DeleteWatchHistoryMutation = {
+  deleteWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
-export type GetUserCookiesQueryVariables = {
+export type GetWatchHistoryQueryVariables = {
   id: string,
 };
 
-export type GetUserCookiesQuery = {
-  getUserCookies?:  {
-    __typename: "UserCookies",
+export type GetWatchHistoryQuery = {
+  getWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
-export type ListUserCookiesQueryVariables = {
-  filter?: ModelUserCookiesFilterInput | null,
+export type ListWatchHistoriesQueryVariables = {
+  filter?: ModelWatchHistoryFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
 };
 
-export type ListUserCookiesQuery = {
-  listUserCookies?:  {
-    __typename: "ModelUserCookiesConnection",
+export type ListWatchHistoriesQuery = {
+  listWatchHistories?:  {
+    __typename: "ModelWatchHistoryConnection",
     items:  Array< {
-      __typename: "UserCookies",
+      __typename: "WatchHistory",
       id: string,
       userId: string,
-      cookies: string,
-      lastUpdated: number,
+      imdbID: string,
+      title: string,
+      type: string,
+      season?: string | null,
+      episode?: string | null,
+      episodeTitle?: string | null,
+      progress?: number | null,
+      timestamp: number,
+      poster?: string | null,
+      tmdbId?: string | null,
       createdAt: string,
       updatedAt: string,
       owner?: string | null,
@@ -278,54 +390,78 @@ export type ListUserCookiesQuery = {
   } | null,
 };
 
-export type OnCreateUserCookiesSubscriptionVariables = {
-  filter?: ModelSubscriptionUserCookiesFilterInput | null,
+export type OnCreateWatchHistorySubscriptionVariables = {
+  filter?: ModelSubscriptionWatchHistoryFilterInput | null,
   owner?: string | null,
 };
 
-export type OnCreateUserCookiesSubscription = {
-  onCreateUserCookies?:  {
-    __typename: "UserCookies",
+export type OnCreateWatchHistorySubscription = {
+  onCreateWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
-export type OnUpdateUserCookiesSubscriptionVariables = {
-  filter?: ModelSubscriptionUserCookiesFilterInput | null,
+export type OnUpdateWatchHistorySubscriptionVariables = {
+  filter?: ModelSubscriptionWatchHistoryFilterInput | null,
   owner?: string | null,
 };
 
-export type OnUpdateUserCookiesSubscription = {
-  onUpdateUserCookies?:  {
-    __typename: "UserCookies",
+export type OnUpdateWatchHistorySubscription = {
+  onUpdateWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
   } | null,
 };
 
-export type OnDeleteUserCookiesSubscriptionVariables = {
-  filter?: ModelSubscriptionUserCookiesFilterInput | null,
+export type OnDeleteWatchHistorySubscriptionVariables = {
+  filter?: ModelSubscriptionWatchHistoryFilterInput | null,
   owner?: string | null,
 };
 
-export type OnDeleteUserCookiesSubscription = {
-  onDeleteUserCookies?:  {
-    __typename: "UserCookies",
+export type OnDeleteWatchHistorySubscription = {
+  onDeleteWatchHistory?:  {
+    __typename: "WatchHistory",
     id: string,
     userId: string,
-    cookies: string,
-    lastUpdated: number,
+    imdbID: string,
+    title: string,
+    type: string,
+    season?: string | null,
+    episode?: string | null,
+    episodeTitle?: string | null,
+    progress?: number | null,
+    timestamp: number,
+    poster?: string | null,
+    tmdbId?: string | null,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,

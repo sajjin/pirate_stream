@@ -26,7 +26,6 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
 
 
   const ITEMS_PER_PAGE = 10;
-  const TMDB_API_KEY = 'de28a40a87b4fb9624452bb0ad02b724';
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
   // Generate array of years from 1900 to current year
@@ -37,8 +36,8 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
     const fetchGenres = async () => {
       try {
         const [movieResponse, tvResponse] = await Promise.all([
-          fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}`),
-          fetch(`https://api.themoviedb.org/3/genre/tv/list?api_key=${TMDB_API_KEY}`)
+          fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.REACT_APP_TMDB_API_KEY}`),
+          fetch(`https://api.themoviedb.org/3/genre/tv/list?api_key=${process.env.REACT_APP_TMDB_API_KEY}`)
         ]);
 
         const movieData = await movieResponse.json();
@@ -68,13 +67,12 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
       const currentDate = new Date().toISOString().split('T')[0];
       const releaseDateField = mediaType === 'movie' ? 'release_date' : 'first_air_date';
       
-      let queryParams = new URLSearchParams({
-        api_key: TMDB_API_KEY,
-        with_genres: String(genreId),
-        page: String(page),
-        sort_by: sortBy,
-        include_null_first_air_dates: 'false'
-      });
+      let queryParams = new URLSearchParams();
+      queryParams.append('api_key', process.env.REACT_APP_TMDB_API_KEY || '');
+      queryParams.append('with_genres', String(genreId));
+      queryParams.append('page', String(page));
+      queryParams.append('sort_by', sortBy);
+      queryParams.append('include_null_first_air_dates', 'false');
 
       if (selectedYear) {
         queryParams.append(`${releaseDateField}.gte`, `${selectedYear}-01-01`);
@@ -106,7 +104,7 @@ export const GenreBrowser: React.FC<GenreBrowserProps> = ({ onItemClick }) => {
             }
 
             const externalIdsResponse = await fetch(
-              `https://api.themoviedb.org/3/${mediaType}/${item.id}/external_ids?api_key=${TMDB_API_KEY}`
+              `https://api.themoviedb.org/3/${mediaType}/${item.id}/external_ids?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
             );
             const externalIds = await externalIdsResponse.json();
 

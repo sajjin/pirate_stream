@@ -1,9 +1,10 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signUp, confirmSignUp, signIn } from 'aws-amplify/auth';
-import { cookieSync } from '../services/cookieSync';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import { watchHistorySync } from '../services/watchHistorySync';
+
 
 type AuthMode = 'signin' | 'signup' | 'verify';
 
@@ -66,14 +67,13 @@ const AuthPage: React.FC = () => {
     setError('');
     setLoading(true);
 
-    // Rate limiting check
     const attemptKey = `auth_attempt_${mode}_${formData.email}`;
     const now = Date.now();
     try {
       const attempts = parseInt(localStorage.getItem(attemptKey) || '0');
       const lastAttemptTime = parseInt(localStorage.getItem(`${attemptKey}_time`) || '0');
 
-      if (attempts >= 5 && now - lastAttemptTime < 300000) { // 5 minutes lockout
+      if (attempts >= 5 && now - lastAttemptTime < 300000) {
         throw new Error('Too many attempts. Please try again in a few minutes.');
       }
 
@@ -83,8 +83,13 @@ const AuthPage: React.FC = () => {
           password: formData.password,
         });
         
-        await cookieSync.loadCookies();
-        cookieSync.startAutoSync(5);
+        // Load watch history after successful sign in
+        try {
+          const watchHistory = await watchHistorySync.loadWatchHistory();
+          console.log('Watch history loaded:', watchHistory);
+        } catch (error) {
+          console.error('Error loading watch history:', error);
+        }
         
         // Clear attempt counter on success
         localStorage.removeItem(attemptKey);
@@ -127,6 +132,7 @@ const AuthPage: React.FC = () => {
     }
   };
 
+  
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
       <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md">

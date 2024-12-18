@@ -1,6 +1,14 @@
-type UserCookies @model @auth(rules: [{ allow: owner }]) {
+type WatchHistory @model @auth(rules: [{allow: owner}]) {
   id: ID!
   userId: String!
-  cookies: String!
-  lastUpdated: AWSTimestamp!
+  imdbID: String!
+  title: String!
+  type: String!
+  season: String
+  episode: String
+  episodeTitle: String
+  progress: Float
+  timestamp: AWSTimestamp!
+  poster: String
+  tmdbId: String
 }
