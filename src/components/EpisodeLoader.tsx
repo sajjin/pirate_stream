@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react';
 import { VideoInfo, Episode, Season } from '../types';
+import VideoSourceSelector, { VIDEO_SOURCES } from '../components/VideoSourceSelector';
+
 import { 
   fetchEpisodeRuntime, 
   fetchSeasonData, 
@@ -7,10 +9,12 @@ import {
   formatTimeRemaining 
 } from './videoplayer/videoHandlers';
 
+
 interface EpisodeLoaderProps {
   currentVideo: VideoInfo | null;
   seasons: Season[];
   selectedSeason: string;
+  currentSource: number;
   onVideoChange: (video: VideoInfo) => void;
   scrollToVideo?: () => void;
 }
@@ -19,6 +23,7 @@ export const useEpisodeLoader = ({
   currentVideo,
   seasons,
   selectedSeason,
+  currentSource,
   onVideoChange,
   scrollToVideo
 }: EpisodeLoaderProps) => {
@@ -31,6 +36,7 @@ export const useEpisodeLoader = ({
   }, [currentVideo?.season, currentVideo?.episode, seasons]);
 
   const loadEpisode = useCallback(async (episode: Episode, autoClick: boolean = false) => {
+
     if (currentVideo?.imdbID && currentVideo.tmdbId) {
       try {
         const runtime = await fetchEpisodeRuntime(
@@ -38,21 +44,21 @@ export const useEpisodeLoader = ({
           selectedSeason,
           episode.Episode
         );
-
+  
         const newVideo: VideoInfo = {
-          url: `https://vidsrc.xyz/embed/tv?imdb=${currentVideo.imdbID}&s=${selectedSeason}&e=${episode.Episode}&ds_lang=en`,
-          title: currentVideo.title,
-          type: 'series',
-          imdbID: currentVideo.imdbID,
+          ...currentVideo,
+          url: VIDEO_SOURCES[currentSource].getUrl(
+            currentVideo.imdbID,
+            selectedSeason,
+            episode.Episode
+          ),
           season: selectedSeason,
           episode: episode.Episode,
           episodeTitle: episode.Title,
           timestamp: Date.now(),
-          tmdbId: currentVideo.tmdbId,
           runtime,
-          poster: currentVideo.poster
         };
-
+  
         onVideoChange(newVideo);
         if (scrollToVideo && !autoClick) {
           scrollToVideo();
@@ -61,7 +67,7 @@ export const useEpisodeLoader = ({
         console.error('Error loading episode:', error);
       }
     }
-  }, [currentVideo, selectedSeason, onVideoChange, scrollToVideo]);
+  }, [currentVideo, selectedSeason, currentSource, onVideoChange, scrollToVideo]);  
 
   const loadNextEpisode = useCallback(() => {
     if (!currentVideo?.season) return;
