@@ -1,20 +1,16 @@
-// App.tsx
 import React, { useEffect } from 'react';
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import AuthPage from './pages/AuthPages';
 import HomePage from './pages/Home';
 import { Amplify } from 'aws-amplify';
 import './config';
-
 import config from './amplifyconfiguration.json';
 import { startSessionRefresh, refreshSession } from './auth/authHelper';
 
-
 Amplify.configure(config);
 
-function App() {
+const App: React.FC = () => {
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -30,22 +26,19 @@ function App() {
     initAuth();
   }, []);
 
-
-  const App: React.FC = () => {
-    return (
-      <BrowserRouter>
-        <div className="min-h-screen bg-gray-900">
-          <Header />
-          <div className="pt-[120px]"> {/* Added padding to account for fixed header */}
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/auth" element={<AuthPage />} />
-            </Routes>
-          </div>
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-900">
+        <Header />
+        <div className="pt-[120px]">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/auth" element={<AuthPage />} />
+          </Routes>
         </div>
-      </BrowserRouter>
-    );
-  };
-}
+      </div>
+    </BrowserRouter>
+  );
+};
 
 export default App;
