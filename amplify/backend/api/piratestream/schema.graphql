@@ -1,4 +1,4 @@
-type WatchHistory @model @auth(rules: [{allow: owner}]) {
+type ContinueWatching @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   userId: String!
   imdbID: String!

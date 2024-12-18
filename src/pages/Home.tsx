@@ -91,9 +91,16 @@ const Homepage = () => {
 
   
   const updateWatchHistory = async (videoInfo: VideoInfo) => {
-    await watchHistorySync.saveWatchHistory(videoInfo);
-    const updatedHistory = await watchHistorySync.loadWatchHistory();
-    setRecentlyWatched(updatedHistory);
+    try {
+      console.log('Updating watch history with:', videoInfo);
+      await watchHistorySync.saveProgress(videoInfo);
+      // Reload the watch history after saving
+      const updatedHistory = await watchHistorySync.loadWatchHistory();
+      console.log('Updated history:', updatedHistory);
+      setRecentlyWatched(updatedHistory);
+    } catch (error) {
+      console.error('Error updating watch history:', error);
+    }
   };
   
 
