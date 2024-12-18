@@ -18,19 +18,19 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
     const handleOrientation = () => {
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       
-      if (isMobile && iframeRef.current) {
+      if (isMobile && containerRef.current) {
         if (Math.abs(window.orientation) === 90) {
-          // Request fullscreen on the iframe directly
-          if (iframeRef.current.requestFullscreen) {
-            iframeRef.current.requestFullscreen()
+          // Request fullscreen on the container instead of iframe
+          if (containerRef.current.requestFullscreen) {
+            containerRef.current.requestFullscreen()
               .then(() => {
                 setAutoEnteredFullscreen(true);
               })
               .catch((err: Error) => {
                 console.log('Error attempting to enable fullscreen:', err);
               });
-          } else if ((iframeRef.current as any).webkitRequestFullscreen) {
-            (iframeRef.current as any).webkitRequestFullscreen()
+          } else if ((containerRef.current as any).webkitRequestFullscreen) {
+            (containerRef.current as any).webkitRequestFullscreen()
               .then(() => {
                 setAutoEnteredFullscreen(true);
               })
@@ -79,7 +79,7 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
     };
-  }, [autoEnteredFullscreen]);
+  }, [autoEnteredFullscreen, containerRef]);
 
   return (
     <div 
@@ -94,7 +94,8 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
         title={title}
         className="absolute top-0 left-0 w-full h-full"
         allowFullScreen
-        allow="fullscreen"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+        style={{ border: 'none' }}
       />
     </div>
   );

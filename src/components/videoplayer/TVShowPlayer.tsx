@@ -110,15 +110,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         {/* Separated Overlays */}
         {showOverlay && (
           <>
-            {/* Title Bar Overlay */}
-            <div 
-              className="absolute top-0 left-0 right-0 pointer-events-none"
-              style={{ zIndex: 2147483647 }}
-            >
-              <div className="bg-gradient-to-b from-black/50 to-transparent h-24" />
-              <div className="absolute top-0 left-0 right-0 p-4">
-              </div>
-            </div>
 
             {/* Navigation Buttons - Separated from main overlay */}
             <div 
