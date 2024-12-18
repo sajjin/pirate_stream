@@ -10,15 +10,15 @@ export const VIDEO_SOURCES: VideoSource[] = [
     name: 'Source 1 (better quality but may hitch)',
     getUrl: (imdbId, season, episode) => 
       season && episode 
-        ? `https://multiembed.mov/directstream.php?video_id=${imdbId}&s=${season}&e=${episode}&full`
-        : `https://multiembed.mov/?video_id=${imdbId}`
+        ? `https://vidsrc.xyz/embed/tv?imdb=${imdbId}&s=${season}&e=${episode}`
+        : `https://vidsrc.xyz/embed/movie?imdb=${imdbId}`
   },
   {
     name: 'Source 2 (faster but lower quality)',
     getUrl: (imdbId, season, episode) => 
       season && episode 
-        ? `https://vidsrc.xyz/embed/tv?imdb=${imdbId}&s=${season}&e=${episode}&full`
-        : `https://vidsrc.xyz/embed/movie?imdb=${imdbId}`
+        ? `https://multiembed.mov/directstream.php?video_id=${imdbId}&s=${season}&e=${episode}&full`
+        : `https://multiembed.mov/?video_id=${imdbId}`
   }
 ];
 
