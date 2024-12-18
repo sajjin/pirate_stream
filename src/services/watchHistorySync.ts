@@ -158,59 +158,54 @@ export const watchHistorySync = {
       const result = await client.graphql({
         query: queries.listContinueWatching
       });
-
+  
       const watchHistory = (result as any).data?.listContinueWatchings?.items || [];
       
-      // Fetch posters for items without them
-      const updatedHistory = await Promise.all(
-        watchHistory.map(async (item: any) => {
-          let posterUrl = item.poster;
-          
-          if (!posterUrl && item.imdbID) {
-            posterUrl = await this.fetchPosterFromTMDB(item.imdbID, item.type);
-            
-            // If we got a new poster, update the database
-            if (posterUrl) {
-              try {
-                await client.graphql({
-                  query: mutations.updateContinueWatching,
-                  variables: {
-                    input: {
-                      id: item.id,
-                      poster: posterUrl
-                    }
-                  }
-                });
-              } catch (error) {
-                console.error('Error updating poster in database:', error);
-              }
-            }
+      // Group by imdbID to handle series episodes
+      const groupedHistory = watchHistory.reduce((acc: { [key: string]: any }, item: any) => {
+        if (!acc[item.imdbID]) {
+          acc[item.imdbID] = item;
+        } else {
+          // For series, keep the most recent episode
+          if (item.timestamp > acc[item.imdbID].timestamp) {
+            acc[item.imdbID] = item;
           }
-
-          return {
-            imdbID: item.imdbID,
-            title: item.title,
-            type: item.type,
-            season: item.season,
-            episode: item.episode,
-            episodeTitle: item.episodeTitle,
-            progress: item.progress,
-            timestamp: item.timestamp,
-            poster: posterUrl,
-            tmdbId: item.tmdbId
-          };
-        })
-      );
-
-      return updatedHistory.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        }
+        return acc;
+      }, {});
+  
+      // Convert back to array and transform
+      const transformedHistory = Object.values(groupedHistory)
+        .map((item: any) => ({
+          imdbID: item.imdbID,
+          title: item.title,
+          type: item.type,
+          season: item.season,
+          episode: item.episode,
+          episodeTitle: item.episodeTitle,
+          progress: item.progress,
+          timestamp: item.timestamp,
+          poster: item.poster,
+          tmdbId: item.tmdbId
+        }))
+        .sort((a: VideoInfo, b: VideoInfo) => 
+          (b.timestamp || 0) - (a.timestamp || 0)
+        );
+  
+      console.log('Transformed history:', transformedHistory);
+      return transformedHistory;
     } catch (error) {
       console.error('Error loading watch history:', error);
       if ((error as any).errors) {
-        console.error('GraphQL Errors:', (error as any).errors);
+        if (error instanceof Error) {
+          console.error('GraphQL Errors:', (error as any).errors);
+        }
       }
       return [];
     }
   },
+
+
   async deleteFromHistory(imdbID: string, type: string): Promise<void> {
     try {
       // Get all items for this imdbID
