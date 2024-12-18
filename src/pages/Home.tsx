@@ -212,7 +212,7 @@ const Homepage = () => {
               ...historyItem,
               tmdbId,
               runtime,
-              url: `https://multiembed.mov/directstream.php?video_id=${historyItem.imdbID}&tmdb=1&s=${historyItem.season}&e=${historyItem.episode}`
+              url: `https://multiembed.mov/directstream.php?video_id=${historyItem.imdbID}&s=${historyItem.season}&e=${historyItem.episode}`
             };
 
             const seasonData = await fetchSeasonData(tmdbId);
@@ -223,14 +223,14 @@ const Homepage = () => {
         } else {
           videoInfo = {
             ...historyItem,
-            url: `https://multiembed.mov/?video_id=${historyItem.imdbID}&tmdb=1`
+            url: `https://multiembed.mov/?video_id=${historyItem.imdbID}`
           };
           updateWatchHistory(videoInfo);
         }
       } else if (type === 'movie') {
         const movieItem = item as SearchResult;
         videoInfo = {
-          url: `https://multiembed.mov/?video_id=${movieItem.imdbID}&tmdb=1`,
+          url: `https://multiembed.mov/?video_id=${movieItem.imdbID}`,
           title: movieItem.Title,
           type: 'movie',
           imdbID: movieItem.imdbID,
