@@ -104,13 +104,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
             url={url} 
             title={title}
             containerRef={playerContainerRef}
-            onNearEnd={() => {
-              // You could show a "Next Episode" overlay
-              // or automatically queue up the next episode
-              console.log("Video nearly finished");
-              // Maybe call onLoadNextEpisode() here
-            }}
-            nearEndThreshold={5} // Trigger when 5% of video remains
           />
         </div>
 

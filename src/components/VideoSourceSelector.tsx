@@ -22,14 +22,12 @@ export const VIDEO_SOURCES: VideoSource[] = [
   }
 ];
 
-interface VideoSourceSelectorProps {
+const VideoSourceSelector = ({
+  currentSource,
+  onSourceChange
+}: {
   currentSource: number;
   onSourceChange: (index: number) => void;
-}
-
-const VideoSourceSelector: React.FC<VideoSourceSelectorProps> = ({ 
-  currentSource, 
-  onSourceChange 
 }) => {
   return (
     <select
