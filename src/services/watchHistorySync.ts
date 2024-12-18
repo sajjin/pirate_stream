@@ -79,9 +79,15 @@ const mutations = {
         updatedAt
       }
     }
+  `,
+  deleteContinueWatching: /* GraphQL */ `
+    mutation DeleteContinueWatching($input: DeleteContinueWatchingInput!) {
+      deleteContinueWatching(input: $input) {
+        id
+      }
+    }
   `
 };
-
 
 export const watchHistorySync = {
   async fetchPosterFromTMDB(imdbID: string, type: string): Promise<string | null> {
@@ -203,6 +209,34 @@ export const watchHistorySync = {
         console.error('GraphQL Errors:', (error as any).errors);
       }
       return [];
+    }
+  },
+  async deleteFromHistory(imdbID: string, type: string): Promise<void> {
+    try {
+      // Get all items for this imdbID
+      const result = await client.graphql({
+        query: queries.listContinueWatching
+      });
+
+      const itemsToDelete = (result as any).data.listContinueWatchings.items.filter(
+        (item: any) => item.imdbID === imdbID
+      );
+      // Delete all matching items
+      await Promise.all(
+        itemsToDelete.map((item: any) =>
+          client.graphql({
+            query: mutations.deleteContinueWatching,
+            variables: {
+              input: { id: item.id }
+            }
+          })
+        )
+      );
+
+      console.log(`Deleted ${itemsToDelete.length} items from history`);
+    } catch (error) {
+      console.error('Error deleting from watch history:', error);
+      throw error;
     }
   }
 };

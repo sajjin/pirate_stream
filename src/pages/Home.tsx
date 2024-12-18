@@ -274,46 +274,29 @@ const Homepage = () => {
     setShows(results.filter(item => item.Type === 'series'));
   };
 
-  const deleteFromHistory = (videoInfo: VideoInfo) => {
+  const deleteFromHistory = async (videoInfo: VideoInfo) => {
     try {
-      // Get existing history
-      const existingHistory = JSON.parse(localStorage.getItem('watchHistory') || '[]') as VideoInfo[];
+      console.log('Deleting from history:', videoInfo);
       
-      // If it's a series, remove all episodes of the series
-      let filteredHistory = existingHistory.filter(item => {
-        if (videoInfo.type === 'movie') {
-          return !(item.imdbID === videoInfo.imdbID && item.type === 'movie');
-        } else {
-          // For series, remove all episodes of the same show
-          return item.imdbID !== videoInfo.imdbID;
-        }
-      });
-      
-      // Update localStorage
-      localStorage.setItem('watchHistory', JSON.stringify(filteredHistory));
-      
-      // Update state using the same grouping logic
-      const groupedContent: GroupedContent = {};
-      filteredHistory.forEach((item: VideoInfo) => {
-        const key = item.type === 'series' ? item.imdbID! : `${item.imdbID}-${item.type}`;
-        if (!groupedContent[key]) {
-          groupedContent[key] = [];
-        }
-        groupedContent[key].push(item);
-      });
-      
-      const latestWatched = Object.values(groupedContent)
-        .map(items => {
-          items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-          return items[0];
+      // Delete all entries for this series/movie from database
+      await watchHistorySync.deleteFromHistory(videoInfo.imdbID, videoInfo.type);
+  
+      // Update local state by removing all episodes of the series or the specific movie
+      setRecentlyWatched(prev => 
+        prev.filter(item => {
+          if (videoInfo.type === 'movie') {
+            return item.imdbID !== videoInfo.imdbID;
+          } else {
+            // For series, remove all episodes of the same show
+            return item.imdbID !== videoInfo.imdbID;
+          }
         })
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      
-      setRecentlyWatched(latestWatched);
+      );
     } catch (error) {
       console.error('Error deleting from watch history:', error);
     }
-  };
+  };  
+  
 
   const ContentRow: React.FC<ContentRowProps> = ({ title, items, type, onItemClick, onDeleteItem }) => {
     console.log(`ContentRow "${title}" items:`, items); // Debug log
