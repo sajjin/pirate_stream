@@ -9,6 +9,10 @@
 # production
 /build
 
+/amplify
+
+/.vscode
+
 # misc
 .DS_Store
 .env
