@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
+import { UserCircle } from 'lucide-react';
+
 
 interface HeaderProps {
   onSearch?: (results: any[]) => void;
@@ -13,8 +15,24 @@ const Header: React.FC<HeaderProps> = ({
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
-  const TMDB_API_KEY = 'de28a40a87b4fb9624452bb0ad02b724';
   const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+// Close dropdown when clicking outside
+useEffect(() => {
+  function handleClickOutside(event: MouseEvent) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      setShowDropdown(false);
+    }
+  }
+
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
 
   useEffect(() => {
     checkAuthState();
@@ -46,10 +64,10 @@ const Header: React.FC<HeaderProps> = ({
     try {
       const [tvResponse, movieResponse] = await Promise.all([
         fetch(
-          `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}`
+          `https://api.themoviedb.org/3/search/tv?api_key=${process.env.REACT_APP_TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}`
         ),
         fetch(
-          `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}`
+          `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}`
         )
       ]);
 
@@ -60,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({
       const tvShowsWithImdbIds = await Promise.all(
         tvData.results?.map(async (show: any) => {
           const externalIdsResponse = await fetch(
-            `https://api.themoviedb.org/3/tv/${show.id}/external_ids?api_key=${TMDB_API_KEY}`
+            `https://api.themoviedb.org/3/tv/${show.id}/external_ids?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
           );
           const externalIds = await externalIdsResponse.json();
           return {
@@ -74,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
       const moviesWithImdbIds = await Promise.all(
         movieData.results?.map(async (movie: any) => {
           const externalIdsResponse = await fetch(
-            `https://api.themoviedb.org/3/movie/${movie.id}/external_ids?api_key=${TMDB_API_KEY}`
+            `https://api.themoviedb.org/3/movie/${movie.id}/external_ids?api_key=${process.env.REACT_APP_TMDB_API_KEY}`
           );
           const externalIds = await externalIdsResponse.json();
           return {
@@ -126,17 +144,64 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <div className="fixed top-[56px] left-0 w-full bg-zinc-800 shadow-lg p-4 z-40">
-      <div className="max-w-6xl mx-auto flex flex-wrap items-center gap-2">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && searchIMDb()}
-          placeholder="Enter movie or show name"
-          className="px-4 py-2 rounded-lg bg-white text-black flex-1 min-w-[200px]"
-        />
-        <div className="flex gap-2 flex-wrap items-center">
+    <div className="fixed top-0 left-0 w-full bg-zinc-800 shadow-lg z-40">
+      {/* Auth buttons container */}
+      <div className="absolute top-0 right-4 py-2">
+        {user ? (
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            >
+              <UserCircle size={32} className="text-white" />
+            </button>
+            
+            {showDropdown && (
+              <div 
+                ref={dropdownRef}
+                className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-lg shadow-lg py-1 z-50"
+              >
+                <div className="px-4 py-2 border-b border-zinc-700">
+                  <p className="text-sm text-white">{user.username}</p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-700 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('/auth')}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => navigate('/auth')}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Sign Up
+            </button>
+          </div>
+        )}
+      </div>
+  
+      {/* Search bar container */}
+      <div className="max-w-6xl mx-auto p-4 mt-12">
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && searchIMDb()}
+            placeholder="Enter movie or show name"
+            className="px-4 py-2 rounded-lg bg-white text-black flex-1 min-w-[200px]"
+          />
           <button
             onClick={searchIMDb}
             disabled={loading}
@@ -144,35 +209,6 @@ const Header: React.FC<HeaderProps> = ({
           >
             {loading ? 'Loading...' : 'Search'}
           </button>
-
-           {user ? (
-            <>
-              <span className="text-white">
-                {user.username}
-              </span>
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => navigate('/auth')}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={() => navigate('/auth')}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Sign Up
-              </button>
-            </>
-          )} 
         </div>
       </div>
     </div>
