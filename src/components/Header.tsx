@@ -162,7 +162,7 @@ useEffect(() => {
                 className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-lg shadow-lg py-1 z-50"
               >
                 <div className="px-4 py-2 border-b border-zinc-700">
-                  <p className="text-sm text-white">{user.username}</p>
+                  <p className="text-sm text-white">{user.eamil}</p>
                 </div>
                 <button
                   onClick={handleSignOut}
