@@ -28,6 +28,8 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   const [showOverlay, setShowOverlay] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const overlayTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastMousePosRef = useRef({ x: 0, y: 0 });
+  const isMouseMoving = useRef(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -54,11 +56,36 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
       clearTimeout(overlayTimeoutRef.current);
     }
     overlayTimeoutRef.current = setTimeout(() => {
-      setShowOverlay(false);
+      if (!isMouseMoving.current) {
+        setShowOverlay(false);
+      }
     }, 3000);
   };
 
-  const handleMouseMove = () => {
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    
+    // Check if mouse has actually moved from its last position
+    const hasMoved = 
+      Math.abs(clientX - lastMousePosRef.current.x) > 0 || 
+      Math.abs(clientY - lastMousePosRef.current.y) > 0;
+
+    if (hasMoved) {
+      isMouseMoving.current = true;
+      setShowOverlay(true);
+      resetOverlayTimer();
+
+      // Update last known position
+      lastMousePosRef.current = { x: clientX, y: clientY };
+
+      // Reset the moving flag after a short delay
+      setTimeout(() => {
+        isMouseMoving.current = false;
+      }, 100);
+    }
+  };
+
+  const handleTouchStart = () => {
     setShowOverlay(true);
     resetOverlayTimer();
   };
@@ -101,8 +128,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
     <div 
       className="w-full bg-zinc-900 rounded-lg overflow-hidden"
       ref={playerContainerRef}
-      onMouseMove={handleMouseMove}
-      onTouchStart={handleMouseMove}
     >
       {!isFullscreen && (
         <>
@@ -126,7 +151,12 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         </>
       )}
 
-      <div className="relative w-full" ref={iframeContainerRef}>
+      <div 
+        className="relative w-full" 
+        ref={iframeContainerRef}
+        onMouseMove={handleMouseMove}
+        onTouchStart={handleTouchStart}
+      >
         {/* Video Player */}
         <div className="relative w-full">
           <EnhancedVideoPlayer 

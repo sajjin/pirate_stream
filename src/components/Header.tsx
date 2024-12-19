@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import { UserCircle } from 'lucide-react';
+import { clearStoredAuth } from '../auth/authHelper';
 
 
 interface HeaderProps {
@@ -50,6 +51,7 @@ useEffect(() => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      clearStoredAuth(); // Clear stored auth data
       setUser(null);
       navigate('/');
     } catch (err) {

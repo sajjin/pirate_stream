@@ -114,8 +114,6 @@ export const watchHistorySync = {
   async saveProgress(videoInfo: VideoInfo): Promise<void> {
     try {
       const user = await getCurrentUser();
-      console.log('Current user:', user);
-      console.log('Saving video info:', videoInfo);
 
       // Prepare the input data
       const input = {
@@ -132,14 +130,12 @@ export const watchHistorySync = {
         tmdbId: videoInfo.tmdbId || null
       };
 
-      console.log('Mutation input:', input);
 
       const result = await client.graphql({
         query: mutations.createContinueWatching,
         variables: { input }
       });
 
-      console.log('Save result:', result);
     } catch (error) {
       console.error('Error saving watch history:', error);
       // Log the full error details
@@ -154,7 +150,6 @@ export const watchHistorySync = {
 
   async loadWatchHistory(): Promise<VideoInfo[]> {
     try {
-      console.log('Loading watch history...');
       const result = await client.graphql({
         query: queries.listContinueWatching
       });
@@ -192,7 +187,6 @@ export const watchHistorySync = {
           (b.timestamp || 0) - (a.timestamp || 0)
         );
   
-      console.log('Transformed history:', transformedHistory);
       return transformedHistory;
     } catch (error) {
       console.error('Error loading watch history:', error);
@@ -228,7 +222,6 @@ export const watchHistorySync = {
         )
       );
 
-      console.log(`Deleted ${itemsToDelete.length} items from history`);
     } catch (error) {
       console.error('Error deleting from watch history:', error);
       throw error;
