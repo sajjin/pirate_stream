@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-// Type declarations for webkit prefixed properties
 interface WebkitDocument extends Document {
   webkitFullscreenElement?: Element | null;
   webkitExitFullscreen?: () => Promise<void>;
@@ -25,16 +24,18 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
   const [autoEnteredFullscreen, setAutoEnteredFullscreen] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
   const orientationChangeTimeoutRef = useRef<NodeJS.Timeout>();
+  const fullscreenExitAttempted = useRef(false);
 
   const requestFullscreen = async (element: HTMLElement) => {
     try {
       const webkitElement = element as WebkitHTMLElement;
       if (element.requestFullscreen) {
         await element.requestFullscreen();
+        setAutoEnteredFullscreen(true);
       } else if (webkitElement.webkitRequestFullscreen) {
         await webkitElement.webkitRequestFullscreen();
+        setAutoEnteredFullscreen(true);
       }
-      setAutoEnteredFullscreen(true);
     } catch (err) {
       console.error('Error requesting fullscreen:', err);
     }
@@ -43,14 +44,22 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
   const exitFullscreen = async () => {
     try {
       const webkitDoc = document as WebkitDocument;
+      fullscreenExitAttempted.current = true;
+
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       } else if (webkitDoc.webkitFullscreenElement && webkitDoc.webkitExitFullscreen) {
         await webkitDoc.webkitExitFullscreen();
       }
-      setAutoEnteredFullscreen(false);
     } catch (err) {
       console.error('Error exiting fullscreen:', err);
+    } finally {
+      // Reset the auto-entered state regardless of success/failure
+      setAutoEnteredFullscreen(false);
+      // Reset the exit attempt flag after a short delay
+      setTimeout(() => {
+        fullscreenExitAttempted.current = false;
+      }, 300);
     }
   };
 
@@ -87,7 +96,7 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
       const webkitDoc = document as WebkitDocument;
       if (nowLandscape && !document.fullscreenElement && !webkitDoc.webkitFullscreenElement) {
         await requestFullscreen(containerRef.current!);
-      } else if (!nowLandscape && autoEnteredFullscreen) {
+      } else if (!nowLandscape && autoEnteredFullscreen && !fullscreenExitAttempted.current) {
         await exitFullscreen();
       }
     }, 150);
@@ -110,8 +119,15 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
     // Handle fullscreen changes
     const handleFullscreenChange = () => {
       const webkitDoc = document as WebkitDocument;
-      if (!document.fullscreenElement && !webkitDoc.webkitFullscreenElement) {
+      const isCurrentlyFullscreen = !!(document.fullscreenElement || webkitDoc.webkitFullscreenElement);
+      
+      if (!isCurrentlyFullscreen && autoEnteredFullscreen && !fullscreenExitAttempted.current) {
         setAutoEnteredFullscreen(false);
+        // Check if we need to exit fullscreen again (for some mobile browsers)
+        const nowLandscape = checkOrientation();
+        if (!nowLandscape) {
+          exitFullscreen();
+        }
       }
     };
 
@@ -130,6 +146,11 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
       
       if (orientationChangeTimeoutRef.current) {
         clearTimeout(orientationChangeTimeoutRef.current);
+      }
+
+      // Ensure we exit fullscreen on unmount if we auto-entered
+      if (autoEnteredFullscreen) {
+        exitFullscreen();
       }
     };
   }, []);

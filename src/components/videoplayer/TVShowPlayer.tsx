@@ -27,9 +27,9 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [lastInteractionTime, setLastInteractionTime] = useState(0);
   const overlayTimeoutRef = useRef<NodeJS.Timeout>();
-  const isMouseDownRef = useRef(false);
+  const lastMousePosRef = useRef({ x: 0, y: 0 });
+  const isMouseMoving = useRef(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -56,49 +56,38 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
       clearTimeout(overlayTimeoutRef.current);
     }
     overlayTimeoutRef.current = setTimeout(() => {
-      // Only hide overlay if enough time has passed since last interaction
-      if (Date.now() - lastInteractionTime >= 3000) {
+      if (!isMouseMoving.current) {
         setShowOverlay(false);
       }
     }, 3000);
   };
 
-  const handleInteraction = (e: React.MouseEvent | React.TouchEvent) => {
-    // Prevent default touch behavior
-    if (e.type.startsWith('touch')) {
-      e.preventDefault();
-    }
-    
-    setShowOverlay(true);
-    setLastInteractionTime(Date.now());
-    resetOverlayTimer();
-  };
-
-  // Mouse-specific handlers
-  const handleMouseDown = () => {
-    isMouseDownRef.current = true;
-  };
-
-  const handleMouseUp = () => {
-    isMouseDownRef.current = false;
-  };
-
   const handleMouseMove = (e: React.MouseEvent) => {
-    // Only trigger if mouse is moving without being clicked
-    if (!isMouseDownRef.current) {
-      handleInteraction(e);
+    const { clientX, clientY } = e;
+    
+    // Check if mouse has actually moved from its last position
+    const hasMoved = 
+      Math.abs(clientX - lastMousePosRef.current.x) > 0 || 
+      Math.abs(clientY - lastMousePosRef.current.y) > 0;
+
+    if (hasMoved) {
+      isMouseMoving.current = true;
+      setShowOverlay(true);
+      resetOverlayTimer();
+
+      // Update last known position
+      lastMousePosRef.current = { x: clientX, y: clientY };
+
+      // Reset the moving flag after a short delay
+      setTimeout(() => {
+        isMouseMoving.current = false;
+      }, 100);
     }
   };
 
-  // Touch-specific handlers for better mobile support
-  const handleTouchStart = (e: React.TouchEvent) => {
-    handleInteraction(e);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    // Prevent scrolling while interacting with the player
-    e.preventDefault();
-    handleInteraction(e);
+  const handleTouchStart = () => {
+    setShowOverlay(true);
+    resetOverlayTimer();
   };
 
   const handleFullscreen = async () => {
@@ -166,10 +155,7 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         className="relative w-full" 
         ref={iframeContainerRef}
         onMouseMove={handleMouseMove}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
         onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
       >
         {/* Video Player */}
         <div className="relative w-full">
@@ -194,10 +180,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                   onLoadPreviousEpisode();
                 }}
                 className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  onLoadPreviousEpisode();
-                }}
               >
                 <ChevronLeft size={32} className="text-white" />
               </button>
@@ -213,10 +195,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                   onLoadNextEpisode();
                 }}
                 className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  onLoadNextEpisode();
-                }}
               >
                 <ChevronRight size={32} className="text-white" />
               </button>
@@ -234,10 +212,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                     handleFullscreen();
                   }}
                   className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    handleFullscreen();
-                  }}
                 >
                   <Maximize2 size={24} className="text-white" />
                 </button>
