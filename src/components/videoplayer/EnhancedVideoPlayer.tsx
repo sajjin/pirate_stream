@@ -1,5 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+// Type declarations for webkit prefixed properties
+interface WebkitDocument extends Document {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void>;
+}
+
+interface WebkitHTMLElement extends HTMLElement {
+  webkitRequestFullscreen?: () => Promise<void>;
+}
+
 interface EnhancedVideoPlayerProps {
   url: string;
   title: string;
@@ -13,79 +23,135 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
 }) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [autoEnteredFullscreen, setAutoEnteredFullscreen] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
+  const orientationChangeTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const requestFullscreen = async (element: HTMLElement) => {
+    try {
+      const webkitElement = element as WebkitHTMLElement;
+      if (element.requestFullscreen) {
+        await element.requestFullscreen();
+      } else if (webkitElement.webkitRequestFullscreen) {
+        await webkitElement.webkitRequestFullscreen();
+      }
+      setAutoEnteredFullscreen(true);
+    } catch (err) {
+      console.error('Error requesting fullscreen:', err);
+    }
+  };
+
+  const exitFullscreen = async () => {
+    try {
+      const webkitDoc = document as WebkitDocument;
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if (webkitDoc.webkitFullscreenElement && webkitDoc.webkitExitFullscreen) {
+        await webkitDoc.webkitExitFullscreen();
+      }
+      setAutoEnteredFullscreen(false);
+    } catch (err) {
+      console.error('Error exiting fullscreen:', err);
+    }
+  };
+
+  const checkOrientation = () => {
+    // Check screen.orientation.type first
+    if (window.screen?.orientation?.type) {
+      return window.screen.orientation.type.includes('landscape');
+    }
+    
+    // Fallback to window.orientation
+    if (window.orientation !== undefined) {
+      return Math.abs(window.orientation) === 90;
+    }
+    
+    // Default to false if neither method is available
+    return false;
+  };
+
+  const handleOrientationChange = async () => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (!isMobile || !containerRef.current) return;
+
+    // Clear any existing timeout
+    if (orientationChangeTimeoutRef.current) {
+      clearTimeout(orientationChangeTimeoutRef.current);
+    }
+
+    // Add a small delay to ensure the orientation change is complete
+    orientationChangeTimeoutRef.current = setTimeout(async () => {
+      const nowLandscape = checkOrientation();
+      setIsLandscape(nowLandscape);
+
+      const webkitDoc = document as WebkitDocument;
+      if (nowLandscape && !document.fullscreenElement && !webkitDoc.webkitFullscreenElement) {
+        await requestFullscreen(containerRef.current!);
+      } else if (!nowLandscape && autoEnteredFullscreen) {
+        await exitFullscreen();
+      }
+    }, 150);
+  };
 
   useEffect(() => {
-    const handleOrientation = () => {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
-      if (isMobile && containerRef.current) {
-        if (Math.abs(window.orientation) === 90) {
-          // Request fullscreen on the container instead of iframe
-          if (containerRef.current.requestFullscreen) {
-            containerRef.current.requestFullscreen()
-              .then(() => {
-                setAutoEnteredFullscreen(true);
-              })
-              .catch((err: Error) => {
-                console.log('Error attempting to enable fullscreen:', err);
-              });
-          } else if ((containerRef.current as any).webkitRequestFullscreen) {
-            (containerRef.current as any).webkitRequestFullscreen()
-              .then(() => {
-                setAutoEnteredFullscreen(true);
-              })
-              .catch((err: Error) => {
-                console.log('Error attempting to enable webkit fullscreen:', err);
-              });
-          }
-        } else if (autoEnteredFullscreen) {
-          // Only exit if we auto-entered fullscreen
-          if (document.fullscreenElement) {
-            document.exitFullscreen()
-              .then(() => {
-                setAutoEnteredFullscreen(false);
-              })
-              .catch((err: Error) => {
-                console.log('Error attempting to exit fullscreen:', err);
-              });
-          } else if ((document as any).webkitFullscreenElement) {
-            (document as any).webkitExitFullscreen()
-              .then(() => {
-                setAutoEnteredFullscreen(false);
-              })
-              .catch((err: Error) => {
-                console.log('Error attempting to exit webkit fullscreen:', err);
-              });
-          }
-        }
-      }
-    };
+    // Initial orientation check
+    setIsLandscape(checkOrientation());
 
+    // Setup orientation change detection using multiple approaches
+    const screenOrientation = window.screen?.orientation;
+
+    if (screenOrientation) {
+      screenOrientation.addEventListener('change', handleOrientationChange);
+    }
+
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+
+    // Handle fullscreen changes
     const handleFullscreenChange = () => {
-      // Reset auto-entered state if user exits fullscreen manually
-      if (!document.fullscreenElement) {
+      const webkitDoc = document as WebkitDocument;
+      if (!document.fullscreenElement && !webkitDoc.webkitFullscreenElement) {
         setAutoEnteredFullscreen(false);
       }
     };
 
-    window.addEventListener('orientationchange', handleOrientation);
-    window.addEventListener('resize', handleOrientation);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
+    // Cleanup
     return () => {
-      window.removeEventListener('orientationchange', handleOrientation);
-      window.removeEventListener('resize', handleOrientation);
+      if (screenOrientation) {
+        screenOrientation.removeEventListener('change', handleOrientationChange);
+      }
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleOrientationChange);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      
+      if (orientationChangeTimeoutRef.current) {
+        clearTimeout(orientationChangeTimeoutRef.current);
+      }
     };
-  }, [autoEnteredFullscreen, containerRef]);
+  }, []);
+
+  // Re-attempt fullscreen when url changes
+  useEffect(() => {
+    if (isLandscape) {
+      const webkitDoc = document as WebkitDocument;
+      if (!document.fullscreenElement && !webkitDoc.webkitFullscreenElement) {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile && containerRef.current) {
+          requestFullscreen(containerRef.current);
+        }
+      }
+    }
+  }, [url, isLandscape]);
 
   return (
-    <div 
+    <div
       className="relative w-full bg-black"
       style={{
-        paddingTop: '56.25%'
+        paddingTop: '56.25%',
       }}
     >
       <iframe

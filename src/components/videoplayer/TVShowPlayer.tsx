@@ -27,7 +27,9 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [lastInteractionTime, setLastInteractionTime] = useState(0);
   const overlayTimeoutRef = useRef<NodeJS.Timeout>();
+  const isMouseDownRef = useRef(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -54,13 +56,49 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
       clearTimeout(overlayTimeoutRef.current);
     }
     overlayTimeoutRef.current = setTimeout(() => {
-      setShowOverlay(false);
+      // Only hide overlay if enough time has passed since last interaction
+      if (Date.now() - lastInteractionTime >= 3000) {
+        setShowOverlay(false);
+      }
     }, 3000);
   };
 
-  const handleMouseMove = () => {
+  const handleInteraction = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent default touch behavior
+    if (e.type.startsWith('touch')) {
+      e.preventDefault();
+    }
+    
     setShowOverlay(true);
+    setLastInteractionTime(Date.now());
     resetOverlayTimer();
+  };
+
+  // Mouse-specific handlers
+  const handleMouseDown = () => {
+    isMouseDownRef.current = true;
+  };
+
+  const handleMouseUp = () => {
+    isMouseDownRef.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    // Only trigger if mouse is moving without being clicked
+    if (!isMouseDownRef.current) {
+      handleInteraction(e);
+    }
+  };
+
+  // Touch-specific handlers for better mobile support
+  const handleTouchStart = (e: React.TouchEvent) => {
+    handleInteraction(e);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // Prevent scrolling while interacting with the player
+    e.preventDefault();
+    handleInteraction(e);
   };
 
   const handleFullscreen = async () => {
@@ -101,8 +139,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
     <div 
       className="w-full bg-zinc-900 rounded-lg overflow-hidden"
       ref={playerContainerRef}
-      onMouseMove={handleMouseMove}
-      onTouchStart={handleMouseMove}
     >
       {!isFullscreen && (
         <>
@@ -126,7 +162,15 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         </>
       )}
 
-      <div className="relative w-full" ref={iframeContainerRef}>
+      <div 
+        className="relative w-full" 
+        ref={iframeContainerRef}
+        onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+      >
         {/* Video Player */}
         <div className="relative w-full">
           <EnhancedVideoPlayer 
@@ -150,6 +194,10 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                   onLoadPreviousEpisode();
                 }}
                 className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  onLoadPreviousEpisode();
+                }}
               >
                 <ChevronLeft size={32} className="text-white" />
               </button>
@@ -165,6 +213,10 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                   onLoadNextEpisode();
                 }}
                 className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  onLoadNextEpisode();
+                }}
               >
                 <ChevronRight size={32} className="text-white" />
               </button>
@@ -182,6 +234,10 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
                     handleFullscreen();
                   }}
                   className="p-3 bg-black/50 rounded-full hover:bg-black/75 transition-all transform hover:scale-110"
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleFullscreen();
+                  }}
                 >
                   <Maximize2 size={24} className="text-white" />
                 </button>
