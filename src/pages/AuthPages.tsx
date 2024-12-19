@@ -1,11 +1,10 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signUp, confirmSignUp, signIn } from 'aws-amplify/auth';
+import { signUp, confirmSignUp, signIn, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { watchHistorySync } from '../services/watchHistorySync';
-import { startSessionRefresh } from '../auth/authHelper';
-
+import { startSessionRefresh, storeAuthData } from '../auth/authHelper';
 
 
 type AuthMode = 'signin' | 'signup' | 'verify';
@@ -84,6 +83,11 @@ const AuthPage: React.FC = () => {
           username: formData.email.toLowerCase().trim(),
           password: formData.password,
         });
+
+      const session = await fetchAuthSession();
+      if (session?.tokens) {
+        storeAuthData(session.tokens);
+      }
         
         startSessionRefresh();
         
