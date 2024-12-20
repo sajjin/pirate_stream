@@ -42,8 +42,10 @@ useEffect(() => {
   const checkAuthState = async () => {
     try {
       const currentUser = await getCurrentUser();
+      console.log('Current user:', currentUser); // Add this for debugging
       setUser(currentUser);
     } catch (err) {
+      console.error('Auth error:', err); // Add this for debugging
       setUser(null);
     }
   };
@@ -164,7 +166,8 @@ useEffect(() => {
                 className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-lg shadow-lg py-1 z-50"
               >
                 <div className="px-4 py-2 border-b border-zinc-700">
-                  <p className="text-sm text-white">{user.email}</p>
+                <p className="text-sm text-white">{user.username}</p>
+                <p className="text-xs text-gray-400">{user.signInDetails?.loginId}</p>
                 </div>
                 <button
                   onClick={handleSignOut}
