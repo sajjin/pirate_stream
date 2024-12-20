@@ -4,7 +4,8 @@ import { signUp, confirmSignUp, signIn, fetchAuthSession, getCurrentUser } from 
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { watchHistorySync } from '../services/watchHistorySync';
-import { startSessionRefresh, storeAuthData } from '../auth/authHelper';
+import { authPersistence } from '../auth/authPersistence';
+
 
 
 type AuthMode = 'signin' | 'signup' | 'verify';
@@ -83,13 +84,6 @@ const AuthPage: React.FC = () => {
           username: formData.email.toLowerCase().trim(),
           password: formData.password,
         });
-
-      const session = await fetchAuthSession();
-      if (session?.tokens) {
-        storeAuthData(session.tokens);
-      }
-        
-        startSessionRefresh();
         
         // Load watch history after successful sign in
         try {
@@ -102,7 +96,8 @@ const AuthPage: React.FC = () => {
         // Clear attempt counter on success
         localStorage.removeItem(attemptKey);
         localStorage.removeItem(`${attemptKey}_time`);
-        
+
+        await authPersistence.storeCredentials(formData.email.toLowerCase().trim());
         navigate('/');
       } else if (mode === 'signup') {
         if (passwordStrength.score < 3) {
