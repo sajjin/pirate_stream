@@ -19,13 +19,6 @@ export const VIDEO_SOURCES: VideoSource[] = [
       season && episode
         ? `https://vidsrc.xyz/embed/tv?imdb=${imdbId}&s=${season}&e=${episode}`
         : `https://vidsrc.xyz/embed/movie?imdb=${imdbId}`
-  },
-  {
-    name: 'Source 3 (has serveral options)',
-    getUrl: (imdbId, season, episode) =>
-      season && episode
-        ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}&fs=1`
-        : `https://multiembed.mov/?video_id=${imdbId}&fs=1`
   }
 ];
 
