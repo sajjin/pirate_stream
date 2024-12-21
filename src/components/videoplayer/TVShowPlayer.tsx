@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ConditionalVideoPlayer } from './ConditionalVideoPlayer';
+import { VideoPlayer } from './VideoPlayers';
 
 interface TVShowPlayerProps {
   title: string;
@@ -22,7 +22,6 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   onLoadPreviousEpisode,
   onLoadNextEpisode,
 }) => {
-  const playerContainerRef = useRef<HTMLDivElement>(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const overlayTimeoutRef = useRef<NodeJS.Timeout>();
   const lastMousePosRef = useRef({ x: 0, y: 0 });
@@ -70,10 +69,7 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   }, []);
 
   return (
-    <div 
-      className="w-full bg-zinc-900 rounded-lg overflow-hidden"
-      ref={playerContainerRef}
-    >
+    <div className="w-full bg-zinc-900 rounded-lg overflow-hidden">
       <div className="p-4">
         <h2 className="text-xl font-semibold">
           Now Playing: {title}
@@ -97,11 +93,7 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
       >
-        <ConditionalVideoPlayer 
-          url={url} 
-          title={title}
-          containerRef={playerContainerRef}
-        />
+        <VideoPlayer url={url} title={title} />
 
         {showOverlay && (
           <>
