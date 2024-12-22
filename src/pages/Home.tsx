@@ -677,7 +677,6 @@ const Homepage = () => {
             <p className="text-sm">Search for movies and TV shows to get started</p>
           </div>
         )}
-        <iframe allowFullScreen scrolling="no" src="https://vidsrc.dev/embed/movie/693134"></iframe>
         
         <ContentRow 
           title="Continue Watching" 
