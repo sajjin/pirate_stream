@@ -47,7 +47,7 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
       const videoInfo: VideoInfo = {
         imdbID,
         title,
-        type: 'series',
+        type: 'series' as const,
         season,
         episode,
         episodeTitle,
@@ -105,46 +105,40 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
     
     setIsLoading(true);
     try {
-      // Mark current episode as completed before changing
-      const progress: VideoProgress = {
-        currentTime: 100,
-        duration: 100,
-        completed: true,
-        lastWatched: Date.now()
-      };
-
-      const videoInfo: VideoInfo = {
-        imdbID,
-        title,
-        type: 'series',
-        season,
-        episode,
-        episodeTitle,
-        poster,
-        tmdbId,
-        timestamp: Date.now(),
-        progress
-      };
-
-      await videoProgressService.saveProgress(videoInfo, 100, 100);
-      
       if (direction === 'next') {
-        await onLoadNextEpisode();
+        onLoadNextEpisode();
       } else {
-        await onLoadPreviousEpisode();
+        onLoadPreviousEpisode();
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Show/hide overlay on mouse movement
+  const [overlayTimer, setOverlayTimer] = useState<NodeJS.Timeout | null>(null);
+
   const handleMouseMove = () => {
     setShowOverlay(true);
-    // Hide overlay after 3 seconds of no movement
-    const timer = setTimeout(() => setShowOverlay(false), 3000);
-    return () => clearTimeout(timer);
+    
+    if (overlayTimer) {
+      clearTimeout(overlayTimer);
+    }
+    
+    const timer = setTimeout(() => {
+      setShowOverlay(false);
+    }, 3000);
+    
+    setOverlayTimer(timer);
   };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (overlayTimer) {
+        clearTimeout(overlayTimer);
+      }
+    };
+  }, [overlayTimer]);
 
   return (
     <div className="w-full bg-zinc-900 rounded-lg overflow-hidden">
@@ -176,11 +170,15 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         <VideoPlayer url={url} title={title} />
 
         {showOverlay && (
-          <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+          <div 
+            className="absolute inset-0 flex items-center justify-between px-4"
+            style={{ pointerEvents: 'none' }}
+          >
             <button
               onClick={() => handleEpisodeChange('prev')}
               disabled={isLoading}
-              className="p-3 bg-black bg-opacity-50 rounded-full transition-all transform hover:scale-110 hover:bg-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+              className="p-3 bg-black bg-opacity-50 rounded-full transition-all transform hover:scale-110 hover:bg-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ pointerEvents: 'auto' }}
               aria-label="Previous episode"
             >
               <ChevronLeft className="w-8 h-8 text-white" />
@@ -189,7 +187,8 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
             <button
               onClick={() => handleEpisodeChange('next')}
               disabled={isLoading}
-              className="p-3 bg-black bg-opacity-50 rounded-full transition-all transform hover:scale-110 hover:bg-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+              className="p-3 bg-black bg-opacity-50 rounded-full transition-all transform hover:scale-110 hover:bg-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ pointerEvents: 'auto' }}
               aria-label="Next episode"
             >
               <ChevronRight className="w-8 h-8 text-white" />
