@@ -10,8 +10,8 @@ export const VIDEO_SOURCES: VideoSource[] = [
     name: 'Source 1 (better quality but may hitch)',
     getUrl: (imdbId, season, episode) =>
       season && episode
-        ? `https://vidsrc.to/embed/tv/${imdbId}/${season}/${episode}`
-        : `https://vidsrc.to/embed/movie/${imdbId}`
+        ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}`
+        : `https://multiembed.mov/?video_id=${imdbId}`
   },
   {
     name: 'Source 2 (faster but lower quality)',
