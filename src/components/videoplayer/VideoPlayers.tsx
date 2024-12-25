@@ -10,9 +10,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title }) => {
     <div className="relative w-full bg-black" style={{ paddingTop: '56.25%' }}>
       <iframe 
         allowFullScreen
-        allow="fullscreen"
-        frameBorder="0"
-        scrolling="no" 
+        scrolling="no"
         src={url}
         title={title}
         className="absolute top-0 left-0 w-full h-full"
