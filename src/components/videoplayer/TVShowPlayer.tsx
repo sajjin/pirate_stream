@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { VideoPlayer } from './VideoPlayers';
 import { videoProgressService } from '../../services/videoProgressService';
 import { VideoInfo, VideoProgress } from '../../types';
+import { VIDEO_SOURCES } from '../VideoSourceSelector';
 
 interface TVShowPlayerProps {
   title: string;
@@ -18,7 +19,7 @@ interface TVShowPlayerProps {
   currentSource: number;
 }
 
-export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
+const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   title,
   url,
   season,
@@ -29,17 +30,19 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   poster,
   onLoadPreviousEpisode,
   onLoadNextEpisode,
+  currentSource,
 }) => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Save episode progress when component mounts (starting episode)
-  // and when it unmounts (finishing episode)
+  const [startTime] = useState(Date.now());
+  const [overlayTimer, setOverlayTimer] = useState<NodeJS.Timeout | null>(null);
+
+  // Save initial progress when episode starts
   useEffect(() => {
-    const markEpisodeStarted = async () => {
+    const saveInitialProgress = async () => {
       const progress: VideoProgress = {
         currentTime: 0,
-        duration: 0, // We don't have actual duration, using 0 as starting point
+        duration: 3600, // Default duration of 1 hour in seconds
         completed: false,
         lastWatched: Date.now()
       };
@@ -58,20 +61,30 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
       };
 
       try {
-        await videoProgressService.saveProgress(videoInfo, 0, 0);
+        await videoProgressService.saveProgress(videoInfo, 0, 3600);
       } catch (error) {
         console.error('Error saving initial progress:', error);
       }
     };
 
-    markEpisodeStarted();
+    saveInitialProgress();
+  }, [imdbID, season, episode, title, episodeTitle, poster, tmdbId]);
 
-    // When component unmounts, mark episode as completed
-    return () => {
-      const markEpisodeCompleted = async () => {
+  // Handle episode navigation
+  const handleEpisodeChange = async (direction: 'next' | 'prev') => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      // Calculate watch time in seconds
+      const watchTime = Math.floor((Date.now() - startTime) / 1000);
+      const isShortView = watchTime < 30; // Less than 30 seconds viewed
+      
+      // Only mark as completed if they watched for more than 30 seconds
+      if (!isShortView) {
         const progress: VideoProgress = {
-          currentTime: 100, // Using 100 as completed
-          duration: 100,
+          currentTime: 3600, // Mark as finished
+          duration: 3600,
           completed: true,
           lastWatched: Date.now()
         };
@@ -79,7 +92,7 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
         const videoInfo: VideoInfo = {
           imdbID,
           title,
-          type: 'series',
+          type: 'series' as const,
           season,
           episode,
           episodeTitle,
@@ -89,33 +102,21 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
           progress
         };
 
-        try {
-          await videoProgressService.saveProgress(videoInfo, 100, 100);
-        } catch (error) {
-          console.error('Error saving completion progress:', error);
-        }
-      };
+        await videoProgressService.saveProgress(videoInfo, 3600, 3600);
+      }
 
-      markEpisodeCompleted();
-    };
-  }, [imdbID, season, episode, title, episodeTitle, poster, tmdbId]);
-
-  const handleEpisodeChange = async (direction: 'next' | 'prev') => {
-    if (isLoading) return;
-    
-    setIsLoading(true);
-    try {
+      // Navigate to next/previous episode
       if (direction === 'next') {
         onLoadNextEpisode();
       } else {
         onLoadPreviousEpisode();
       }
+    } catch (error) {
+      console.error('Error handling episode change:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const [overlayTimer, setOverlayTimer] = useState<NodeJS.Timeout | null>(null);
 
   const handleMouseMove = () => {
     setShowOverlay(true);
@@ -131,14 +132,47 @@ export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
     setOverlayTimer(timer);
   };
 
-  // Cleanup timer on unmount
+  // Save progress on unmount if they watched for a meaningful duration
   useEffect(() => {
     return () => {
       if (overlayTimer) {
         clearTimeout(overlayTimer);
       }
+
+      const cleanup = async () => {
+        const watchTime = Math.floor((Date.now() - startTime) / 1000);
+        if (watchTime >= 30) { // Only save if they watched for at least 30 seconds
+          const progress: VideoProgress = {
+            currentTime: 3600,
+            duration: 3600,
+            completed: true,
+            lastWatched: Date.now()
+          };
+
+          const videoInfo: VideoInfo = {
+            imdbID,
+            title,
+            type: 'series' as const,
+            season,
+            episode,
+            episodeTitle,
+            poster,
+            tmdbId,
+            timestamp: Date.now(),
+            progress
+          };
+
+          try {
+            await videoProgressService.saveProgress(videoInfo, 3600, 3600);
+          } catch (error) {
+            console.error('Error saving final progress:', error);
+          }
+        }
+      };
+
+      cleanup();
     };
-  }, [overlayTimer]);
+  }, [imdbID, season, episode, title, episodeTitle, poster, tmdbId, startTime]);
 
   return (
     <div className="w-full bg-zinc-900 rounded-lg overflow-hidden">
