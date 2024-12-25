@@ -12,6 +12,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, title }) => {
         allowFullScreen
         scrolling="no"
         src={url}
+        referrerPolicy="origin"
         title={title}
         className="absolute top-0 left-0 w-full h-full"
         style={{ border: 'none' }}
