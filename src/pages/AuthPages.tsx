@@ -1,33 +1,26 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signUp, confirmSignUp, signIn, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
+import { signUp, confirmSignUp, signIn, fetchAuthSession, getCurrentUser, SignInOutput, confirmSignIn } from 'aws-amplify/auth';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { watchHistorySync } from '../services/watchHistorySync';
-import { startSessionRefresh, storeAuthData } from '../auth/authHelper';
+import { authPersistence } from '../auth/authPersistence';
 
-
-type AuthMode = 'signin' | 'signup' | 'verify';
-
-interface FormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  verificationCode: string;
-}
 
 const AuthPage: React.FC = () => {
-  const [mode, setMode] = useState<AuthMode>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'verify' | 'confirm-mfa'>('signin');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: '' });
+  const [user, setUser] = useState<SignInOutput | null>(null);
   const navigate = useNavigate();
   
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
-    verificationCode: ''
+    verificationCode: '',
+    mfaCode: ''
   });
 
   // Reset form when changing modes
@@ -36,7 +29,8 @@ const AuthPage: React.FC = () => {
       email: formData.email, // Preserve email across mode changes
       password: '',
       confirmPassword: '',
-      verificationCode: ''
+      verificationCode: '',
+      mfaCode: ''
     });
     setError('');
   }, [mode]);
@@ -68,42 +62,44 @@ const AuthPage: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const attemptKey = `auth_attempt_${mode}_${formData.email}`;
-    const now = Date.now();
-    try {
-      const attempts = parseInt(localStorage.getItem(attemptKey) || '0');
-      const lastAttemptTime = parseInt(localStorage.getItem(`${attemptKey}_time`) || '0');
 
-      if (attempts >= 5 && now - lastAttemptTime < 300000) {
-        throw new Error('Too many attempts. Please try again in a few minutes.');
-      }
+    try {
 
       if (mode === 'signin') {
-        await signIn({
+        const signInResult = await signIn({
           username: formData.email.toLowerCase().trim(),
           password: formData.password,
         });
-
-      const session = await fetchAuthSession();
-      if (session?.tokens) {
-        storeAuthData(session.tokens);
-      }
-        
-        startSessionRefresh();
-        
-        // Load watch history after successful sign in
-        try {
-          const watchHistory = await watchHistorySync.loadWatchHistory();
-          console.log('Watch history loaded:', watchHistory);
-        } catch (error) {
-          console.error('Error loading watch history:', error);
+        switch (signInResult.nextStep.signInStep) {
+          case 'CONFIRM_SIGN_IN_WITH_EMAIL_CODE':
+            setMode('confirm-mfa');
+            setUser(signInResult);
+            break;
+          
+          case 'DONE':
+            navigate('/');
+            break;
+            
+          default:
+            console.log('Unhandled sign-in step:', signInResult.nextStep.signInStep);
+            break;
+        }
+      } else if (mode === 'confirm-mfa') {
+        if (user) {
+          await confirmSignIn({
+            challengeResponse: formData.mfaCode
+          });
+          try {
+            const watchHistory = await watchHistorySync.loadWatchHistory();
+            console.log('Watch history loaded:', watchHistory);
+          } catch (error) {
+            console.error('Error loading watch history:', error);
+          }
+          
+          await authPersistence.storeCredentials(formData.email.toLowerCase().trim());
+          navigate('/');
         }
         
-        // Clear attempt counter on success
-        localStorage.removeItem(attemptKey);
-        localStorage.removeItem(`${attemptKey}_time`);
-        
-        navigate('/');
       } else if (mode === 'signup') {
         if (passwordStrength.score < 3) {
           throw new Error('Please choose a stronger password');
@@ -129,11 +125,6 @@ const AuthPage: React.FC = () => {
         setMode('signin');
       }
     } catch (err) {
-      // Update attempt counter
-      const attempts = parseInt(localStorage.getItem(attemptKey) || '0');
-      localStorage.setItem(attemptKey, (attempts + 1).toString());
-      localStorage.setItem(`${attemptKey}_time`, now.toString());
-      
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -145,17 +136,50 @@ const AuthPage: React.FC = () => {
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
       <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">
-            {mode === 'signin' ? 'Welcome Back' : 
-             mode === 'signup' ? 'Create Account' : 
-             'Verify Email'}
-          </h1>
-          <p className="text-gray-400 mt-2">
-            {mode === 'signin' ? 'Sign in to access your account' : 
-             mode === 'signup' ? 'Create a new account to get started' : 
-             'Enter the verification code sent to your email'}
-          </p>
+        <h1 className="text-3xl font-bold">
+          {mode === 'signin' ? 'Welcome Back' : 
+          mode === 'signup' ? 'Create Account' : 
+          mode === 'confirm-mfa' ? 'Check Your Email' :
+          'Verify Email'}
+        </h1>
+        <p className="text-gray-400 mt-2">
+          {mode === 'signin' ? 'Sign in to access your account' : 
+          mode === 'signup' ? 'Create a new account to get started' : 
+          mode === 'confirm-mfa' ? 'Enter the code sent to your email' :
+          'Enter the verification code sent to your email'}
+        </p>
         </div>
+        {mode === 'confirm-mfa' && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-center">Check Your Email</h2>
+            <p className="text-sm text-center text-gray-400">
+              Enter the verification code sent to your email
+            </p>
+            <div>
+              <label className="block text-sm font-medium mb-2">Email Code</label>
+              <input
+                type="text"
+                value={formData.mfaCode}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  mfaCode: e.target.value.trim() 
+                }))}
+                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500"
+                placeholder="Enter code from email"
+                maxLength={6}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              Verify Email Code
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {mode !== 'verify' && (

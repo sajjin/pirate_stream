@@ -6,17 +6,26 @@ import HomePage from './pages/Home';
 import { Amplify } from 'aws-amplify';
 import './config';
 import config from './amplifyconfiguration.json';
-import { startSessionRefresh, refreshSession } from './auth/authHelper';
+import { authPersistence } from './auth/authPersistence';
 
 Amplify.configure(config);
+
 
 const App: React.FC = () => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const isValid = await refreshSession();
-        if (isValid) {
-          startSessionRefresh();
+        const isAuthenticated = await authPersistence.checkAndRestoreSession();
+        if (isAuthenticated) {
+          // Start periodic token refresh
+          const refreshInterval = setInterval(async () => {
+            const refreshed = await authPersistence.refreshToken();
+            if (!refreshed) {
+              clearInterval(refreshInterval);
+            }
+          }, 45 * 60 * 1000); // Refresh every 45 minutes
+
+          return () => clearInterval(refreshInterval);
         }
       } catch (error) {
         console.error('Auth initialization failed:', error);
@@ -25,6 +34,7 @@ const App: React.FC = () => {
 
     initAuth();
   }, []);
+
 
   return (
     <BrowserRouter>

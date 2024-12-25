@@ -8,15 +8,15 @@ export type VideoSource = {
 export const VIDEO_SOURCES: VideoSource[] = [
   {
     name: 'Source 1 (better quality but may hitch)',
-    getUrl: (imdbId, season, episode) => 
-      season && episode 
+    getUrl: (imdbId, season, episode) =>
+      season && episode
         ? `https://multiembed.mov/?video_id=${imdbId}&s=${season}&e=${episode}&fs=1`
         : `https://multiembed.mov/?video_id=${imdbId}&fs=1`
   },
   {
     name: 'Source 2 (faster but lower quality)',
-    getUrl: (imdbId, season, episode) => 
-      season && episode 
+    getUrl: (imdbId, season, episode) =>
+      season && episode
         ? `https://vidsrc.xyz/embed/tv?imdb=${imdbId}&s=${season}&e=${episode}`
         : `https://vidsrc.xyz/embed/movie?imdb=${imdbId}`
   }
