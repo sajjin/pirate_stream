@@ -19,7 +19,7 @@ interface TVShowPlayerProps {
   currentSource: number;
 }
 
-const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
+export const TVShowPlayer: React.FC<TVShowPlayerProps> = ({
   title,
   url,
   season,
