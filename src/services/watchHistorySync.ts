@@ -6,7 +6,6 @@ const client = generateClient();
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
 
-// First, let's define our GraphQL operations
 const queries = {
   listContinueWatching: /* GraphQL */ `
     query ListContinueWatching {

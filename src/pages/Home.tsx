@@ -628,6 +628,7 @@ const Homepage = () => {
                   season={currentVideo.season || ''}
                   episode={currentVideo.episode || ''}
                   episodeTitle={currentVideo.episodeTitle}
+                  imdbID={currentVideo.imdbID}
                   onLoadPreviousEpisode={loadPreviousEpisode}
                   onLoadNextEpisode={loadNextEpisode}
                   currentSource={currentSource}
