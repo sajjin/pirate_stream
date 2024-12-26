@@ -55,7 +55,8 @@ export interface RuntimeConfig {
 }
 
 const env: Record<keyof Config, undefined | string> = {
-  TMDB_READ_API_KEY: import.meta.env.VITE_TMDB_READ_API_KEY,
+  TMDB_READ_API_KEY:
+    "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZTI4YTQwYTg3YjRmYjk2MjQ0NTJiYjBhZDAyYjcyNCIsIm5iZiI6MTczMjkzMjkxNS41MTcsInN1YiI6IjY3NGE3NTMzYjcyZGU1OTEyM2VlNTNiNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.S-JJ0RZaEM4mHlrTekB_-VwVTVfByLmJp04ueVfKOyk",
   APP_VERSION: undefined,
   GITHUB_LINK: undefined,
   DONATION_LINK: undefined,
@@ -70,7 +71,7 @@ const env: Record<keyof Config, undefined | string> = {
   ONBOARDING_PROXY_INSTALL_LINK: import.meta.env
     .VITE_ONBOARDING_PROXY_INSTALL_LINK,
   DMCA_EMAIL: import.meta.env.VITE_DMCA_EMAIL,
-  CORS_PROXY_URL: import.meta.env.VITE_CORS_PROXY_URL,
+  CORS_PROXY_URL: "https://purple-king-9869.sajjinnijjar.workers.dev",
   NORMAL_ROUTER: import.meta.env.VITE_NORMAL_ROUTER,
   BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
   DISALLOWED_IDS: import.meta.env.VITE_DISALLOWED_IDS,
