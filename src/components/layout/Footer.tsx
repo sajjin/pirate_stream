@@ -7,7 +7,6 @@ import { Icon, Icons } from "@/components/Icon";
 import { BrandPill } from "@/components/layout/BrandPill";
 import { WideContainer } from "@/components/layout/WideContainer";
 import { shouldHaveDmcaPage } from "@/pages/Dmca";
-import { conf } from "@/setup/config";
 
 // to and href are mutually exclusive
 type FooterLinkProps = RequireExactlyOne<

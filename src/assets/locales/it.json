@@ -23,14 +23,14 @@
             "body": "La disponibilità dei sottotitoli e delle versioni doppiate dipende dalla fonte. Alcune fonti offrono opzioni per sottotitoli in diverse lingue o contenuti doppiati, che possono essere selezionati direttamente nel player se disponibili.",
             "title": "Pirata Amnis offre sottotitoli o contenuti doppiati?"
         },
-        "contact": "Domande? Contattaci su Discord o scrivici una mail a contact@vidbinge.com",
+        "contact": "Domande? Contattaci su Discord o scrivici una mail a contact@pirata-amnis.com",
         "q4": {
-            "body": "Non c'è un limite a quanto puoi guardare su VidBinge. Guarda quanto vuoi, sempre, senza restrizioni o costi aggiuntivi",
+            "body": "Non c'è un limite a quanto puoi guardare su pirata-amnis. Guarda quanto vuoi, sempre, senza restrizioni o costi aggiuntivi",
             "title": "C'è un limite a quanto posso guardare?"
         },
         "q5": {
-            "title": "Ogni quanto vengono aggiunti nuovi contenuti su VidBinge?",
-            "body": "La disponibilità di nuovi contenuti si basa sulle fonti connesse alla nostra piattaforma. Appena queste fonti aggiornano le loro librerie, nuovi film e serie TV diventeranno accessibili tramite VidBinge."
+            "title": "Ogni quanto vengono aggiunti nuovi contenuti su pirata-amnis?",
+            "body": "La disponibilità di nuovi contenuti si basa sulle fonti connesse alla nostra piattaforma. Appena queste fonti aggiornano le loro librerie, nuovi film e serie TV diventeranno accessibili tramite pirata-amnis."
         }
     },
     "actions": {
@@ -614,7 +614,7 @@
         "unsaved": "Le modifiche non sono state salvate"
     },
     "privacy": {
-        "description": "Benvenut* su VidBinge! La tua privacy è importante per noi. VidBinge (vidbinge.com) si impegna a proteggere la tua privacy mentre ti godi i tuoi film e le tue serie preferite sulla nostra piattaforma. Questa Privacy Policy spiega come gestiamo e proteggiamo i tuoi dati.",
+        "description": "Benvenut* su pirata-amnis! La tua privacy è importante per noi. pirata-amnis (pirata-amnis.com) si impegna a proteggere la tua privacy mentre ti godi i tuoi film e le tue serie preferite sulla nostra piattaforma. Questa Privacy Policy spiega come gestiamo e proteggiamo i tuoi dati.",
         "lastUpdated": "",
         "p1": {
             "body": "",

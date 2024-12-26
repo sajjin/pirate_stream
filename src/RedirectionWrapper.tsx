@@ -26,7 +26,7 @@ export function RedirectionWrapper({ children }: RedirectionWrapperProps) {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
           <div className="bg-purple-950 p-4 sm:p-8 rounded-xl shadow-2xl text-center text-white w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-purple-300">
-              Welcome to Vidbinge.com!
+              Welcome to pirata-amnis.com!
             </h2>
             <div className="space-y-3 sm:space-y-4 text-gray-300 text-xs sm:text-sm leading-relaxed">
               <p>
@@ -64,7 +64,7 @@ export function RedirectionWrapper({ children }: RedirectionWrapperProps) {
               <p>
                 With best regards,
                 <br />
-                The Sudo-Flix, Movie-Web and VidBinge Team
+                The Sudo-Flix, Movie-Web and pirata-amnis Team
               </p>
             </div>
             <button

@@ -24,7 +24,7 @@ function IframeMessage(): JSX.Element | null {
     >
       <a
         className="block tabbable rounded-full text-2xl mb-6"
-        href="https://www.vidbinge.com/"
+        href="https://www.pirata-amnis.com/"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -52,12 +52,12 @@ function IframeMessage(): JSX.Element | null {
         </p>
         <a
           id="iframe-link"
-          href="https://www.vidbinge.com/"
+          href="https://www.pirata-amnis.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-2xl sm:text-4xl font-bold underline mt-2 block"
         >
-          Visit VidBinge.com
+          Visit pirata-amnis.com
         </a>
         <p className="text-xl sm:text-3xl font-bold mt-6">
           This Stream Will Start Shortly...

@@ -2,9 +2,9 @@
   <img src="https://skillicons.dev/icons?i=react,vite,ts" />
 </p>
 
-This is the source code to VidBinge, allegedly. I do not condone piracy of any kind. I just simply like coding stuff.
+This is the source code to pirata-amnis, allegedly. I do not condone piracy of any kind. I just simply like coding stuff.
 
-# ⚡What is VidBinge?
+# ⚡What is pirata-amnis?
 
 This service works by displaying video files from third-party providers inside an intuitive and aesthetic user interface.
 
@@ -51,21 +51,21 @@ pnpm build
 
 # ❗ Important Note
 
-The `vidbingedotcom` branch is specifically tailored for the official VidBinge website (vidbinge.com) and includes custom features such as exclusive advertisements and proprietary analytics code. These modifications are intended solely for VidBinge’s production environment.
+The `pirata-amnisdotcom` branch is specifically tailored for the official pirata-amnis website (pirata-amnis.com) and includes custom features such as exclusive advertisements and proprietary analytics code. These modifications are intended solely for pirata-amnis’s production environment.
 
-**We recommend using the `dev` branch as your source for general development.** This branch is fully functional for production use but does not include the site-specific modifications found in the `vidbingedotcom` branch. Deploying the `dev` branch will help avoid unintended incorporation of VidBinge-specific advertising and analytics into your projects.
+**We recommend using the `dev` branch as your source for general development.** This branch is fully functional for production use but does not include the site-specific modifications found in the `pirata-amnisdotcom` branch. Deploying the `dev` branch will help avoid unintended incorporation of pirata-amnis-specific advertising and analytics into your projects.
 
 
 # ✉️ Contact
 
 [Discord Server](https://discord.gg/4jzBvV8E5r)
 
-[Email](mailto:josh@vidbinge.com)
+[Email](mailto:josh@pirata-amnis.com)
 
 
 # ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=VidBingeApp/vidbinge&type=Date)](https://star-history.com/#VidBingeApp/vidbinge&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=pirata-amnisApp/pirata-amnis&type=Date)](https://star-history.com/#pirata-amnisApp/pirata-amnis&Date)
 
 
 ## 🤝 Thanks to all Contributors

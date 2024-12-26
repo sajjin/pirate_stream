@@ -44,7 +44,7 @@ export function RedirectionWrapper({ children }: RedirectionWrapperProps) {
               </svg>
             </button>
             <h2 className="text-xl md:text-3xl font-bold mb-4 md:mb-6 text-purple-300">
-              Welcome to VidBinge.com!
+              Welcome to pirata-amnis.com!
             </h2>
             <div className="space-y-3 md:space-y-4 text-sm md:text-base leading-relaxed text-gray-300">
               <p>
@@ -81,7 +81,7 @@ export function RedirectionWrapper({ children }: RedirectionWrapperProps) {
               <p>
                 With best regards,
                 <br />
-                The Sudo-Flix, Movie-Web and VidBinge Team
+                The Sudo-Flix, Movie-Web and pirata-amnis Team
               </p>
             </div>
             <button

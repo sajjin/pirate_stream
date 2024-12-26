@@ -1,6 +1,6 @@
 {
     "about": {
-        "description": "Velkommen til VidBinge.com, din ultimative destination for ubegrænset streaming af film og tv-shows. Udforsk vores omfattende bibliotek af klassikere og nye udgivelser, tilgængelige på enhver enhed. Nyd vores tjeneste 100% abonnement-fri og 100% annonce-fri. Dyk ind og begynd binge i dag!",
+        "description": "Velkommen til pirata-amnis.com, din ultimative destination for ubegrænset streaming af film og tv-shows. Udforsk vores omfattende bibliotek af klassikere og nye udgivelser, tilgængelige på enhver enhed. Nyd vores tjeneste 100% abonnement-fri og 100% annonce-fri. Dyk ind og begynd binge i dag!",
         "faqTitle": "Ofte Stillede Spørgsmål",
         "q1": {
             "body": "Pirata Amnis hoster ikke noget indhold. Når du klikker på noget for at se, bliver internettet gennemsøgt efter det valgte medie (På indlæsningsskærmen og i fanen 'video sources' kan du se, hvilken kilde du bruger). Medier bliver aldrig uploadet af Pirata Amnis, alt er gennem denne søgemekanisme.",
@@ -15,12 +15,12 @@
             "title": "Søgeresultaterne viser showet eller filmen, hvorfor kan jeg ikke afspille det?"
         },
         "q4": {
-            "body": "Der er ingen grænse for, hvor meget du kan se på VidBinge. Stream så meget du vil, når som helst, uden nogen restriktioner eller ekstra omkostninger.",
+            "body": "Der er ingen grænse for, hvor meget du kan se på pirata-amnis. Stream så meget du vil, når som helst, uden nogen restriktioner eller ekstra omkostninger.",
             "title": "Er der en grænse for, hvor meget jeg kan se?"
         },
         "q5": {
             "title": "Hvor ofte tilføjes nyt indhold til Pirata Amnis?",
-            "body": "Tilgængeligheden af nyt indhold er baseret på de kilder, der er forbundet til vores platform. Når disse kilder opdaterer deres biblioteker, vil nye film og tv-shows blive tilgængelige gennem VidBinge."
+            "body": "Tilgængeligheden af nyt indhold er baseret på de kilder, der er forbundet til vores platform. Når disse kilder opdaterer deres biblioteker, vil nye film og tv-shows blive tilgængelige gennem pirata-amnis."
         },
         "q6": {
             "title": "Hvad skal jeg gøre, hvis en video ikke afspilles?",
@@ -34,18 +34,18 @@
         "contact": ""
     },
     "privacy": {
-        "description": "Velkommen til VidBinge! Din privatliv er vigtig for os. VidBinge (vidbinge.com) er forpligtet til at beskytte dit privatliv, mens du nyder dine yndlingsfilm og shows på vores platform. Denne privatlivspolitik forklarer, hvordan vi håndterer og beskytter dine data.",
+        "description": "Velkommen til pirata-amnis! Din privatliv er vigtig for os. pirata-amnis (pirata-amnis.com) er forpligtet til at beskytte dit privatliv, mens du nyder dine yndlingsfilm og shows på vores platform. Denne privatlivspolitik forklarer, hvordan vi håndterer og beskytter dine data.",
         "lastUpdated": "Sidst opdateret: April 21, 2024",
         "p1": {
             "body": "Pirata Amnis hoster ikke noget indhold. Når du klikker på noget for at se, bliver internettet gennemsøgt efter det valgte medie (På indlæsningsskærmen og i fanen 'video sources' kan du se, hvilken kilde du bruger). Medier bliver aldrig uploadet af Pirata Amnis, alt er gennem denne søgemekanisme.",
             "title": "Information Vi Ikke Indsamler"
         },
         "p2": {
-            "body": "Vi bruger tredjeparts analyseværktøjer, såsom Google Analytics, til at indsamle og behandle grundlæggende demografiske oplysninger, der inkluderer generel placering, enhedstype og browsingaktiviteter på vores side. Disse oplysninger er anonymiserede og bruges udelukkende til at forbedre funktionaliteten og indholdet af VidBinge, så du får en bedre streamingoplevelse.",
+            "body": "Vi bruger tredjeparts analyseværktøjer, såsom Google Analytics, til at indsamle og behandle grundlæggende demografiske oplysninger, der inkluderer generel placering, enhedstype og browsingaktiviteter på vores side. Disse oplysninger er anonymiserede og bruges udelukkende til at forbedre funktionaliteten og indholdet af pirata-amnis, så du får en bedre streamingoplevelse.",
             "title": "Information Vi Indsamler"
         },
         "p3": {
-            "body": "VidBinge bruger cookies til at forbedre din visningsoplevelse. Cookies hjælper os med at forstå brugeradfærd på vores side (såsom mest sete film), hvilket gør det muligt for os at forbedre vores tjenester. Du kan vælge at deaktivere cookies gennem dine browserindstillinger, men dette kan påvirke sidens funktionalitet.",
+            "body": "pirata-amnis bruger cookies til at forbedre din visningsoplevelse. Cookies hjælper os med at forstå brugeradfærd på vores side (såsom mest sete film), hvilket gør det muligt for os at forbedre vores tjenester. Du kan vælge at deaktivere cookies gennem dine browserindstillinger, men dette kan påvirke sidens funktionalitet.",
             "title": "Brug af Cookies"
         },
         "p4": {
@@ -58,9 +58,9 @@
         },
         "p6": {
             "title": "Kontakt Os",
-            "body": "Hvis du har spørgsmål til denne privatlivspolitik, bedes du kontakte os via e-mail på: contact@vidbinge.com"
+            "body": "Hvis du har spørgsmål til denne privatlivspolitik, bedes du kontakte os via e-mail på: contact@pirata-amnis.com"
         },
-        "title": "Privatlivspolitik for VidBinge"
+        "title": "Privatlivspolitik for pirata-amnis"
     },
     "actions": {
         "copied": "Kopieret",

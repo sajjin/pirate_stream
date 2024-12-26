@@ -1,6 +1,6 @@
 {
     "about": {
-        "description": "Bienvenido a VidBinge.com, tu destino definitivo para el streaming ilimitado de películas y programas de televisión. Explora nuestra extensa biblioteca de clásicos y nuevos lanzamientos, disponible en cualquier dispositivo. Disfruta de nuestro servicio 100% libre de suscripciones y 100% libre de anuncios. ¡Sumérgete y únete al maratón hoy!",
+        "description": "Bienvenido a pirata-amnis.com, tu destino definitivo para el streaming ilimitado de películas y programas de televisión. Explora nuestra extensa biblioteca de clásicos y nuevos lanzamientos, disponible en cualquier dispositivo. Disfruta de nuestro servicio 100% libre de suscripciones y 100% libre de anuncios. ¡Sumérgete y únete al maratón hoy!",
         "faqTitle": "Preguntas Frecuentes",
         "q1": {
             "body": "Pirata Amnis no aloja ningún contenido. Cuando haces clic en algo para ver, se busca en internet el medio seleccionado (En la pantalla de carga y en la pestaña 'fuentes de video' puedes ver qué fuente estás utilizando). Los medios nunca son subidos por Pirata Amnis, todo es a través de este mecanismo de búsqueda.",
@@ -15,12 +15,12 @@
             "title": "Los resultados de la búsqueda muestran el programa o película, ¿por qué no puedo reproducirlo?"
         },
         "q4": {
-            "body": "No hay límite en cuanto a cuánto puedes ver en VidBinge. Transmite tanto como quieras, en cualquier momento, sin restricciones ni costos adicionales.",
+            "body": "No hay límite en cuanto a cuánto puedes ver en pirata-amnis. Transmite tanto como quieras, en cualquier momento, sin restricciones ni costos adicionales.",
             "title": "¿Hay un límite de cuánto puedo ver?"
         },
         "q5": {
             "title": "¿Con qué frecuencia se añade contenido nuevo a Pirata Amnis?",
-            "body": "La disponibilidad de contenido nuevo se basa en las fuentes conectadas a nuestra plataforma. A medida que estas fuentes actualizan sus bibliotecas, nuevas películas y programas de televisión se volverán accesibles a través de VidBinge."
+            "body": "La disponibilidad de contenido nuevo se basa en las fuentes conectadas a nuestra plataforma. A medida que estas fuentes actualizan sus bibliotecas, nuevas películas y programas de televisión se volverán accesibles a través de pirata-amnis."
         },
         "q6": {
             "title": "¿Qué debo hacer si un video no se reproduce?",
@@ -34,18 +34,18 @@
         "contact": ""
     },
     "privacy": {
-        "description": "¡Bienvenido a VidBinge! Tu privacidad es importante para nosotros. VidBinge (vidbinge.com) está comprometido a proteger tu privacidad mientras disfrutas de tus películas y programas favoritos en nuestra plataforma. Esta Política de Privacidad explica cómo manejamos y protegemos tus datos.",
+        "description": "¡Bienvenido a pirata-amnis! Tu privacidad es importante para nosotros. pirata-amnis (pirata-amnis.com) está comprometido a proteger tu privacidad mientras disfrutas de tus películas y programas favoritos en nuestra plataforma. Esta Política de Privacidad explica cómo manejamos y protegemos tus datos.",
         "lastUpdated": "Última actualización: 21/4/2024",
         "p1": {
             "body": "Pirata Amnis no aloja ningún contenido. Cuando haces clic en algo para ver, se busca en internet el medio seleccionado (En la pantalla de carga y en la pestaña 'fuentes de video' puedes ver qué fuente estás utilizando). Los medios nunca son subidos por Pirata Amnis, todo es a través de este mecanismo de búsqueda.",
             "title": "Información que No Recolectamos"
         },
         "p2": {
-            "body": "Utilizamos herramientas analíticas de terceros, como Google Analytics, para recopilar y procesar información demográfica básica que incluye ubicación general, tipo de dispositivo y actividades de navegación en nuestro sitio. Esta información se anonimiza y se utiliza únicamente para mejorar la funcionalidad y el contenido de VidBinge, asegurando que tengas una mejor experiencia de streaming.",
+            "body": "Utilizamos herramientas analíticas de terceros, como Google Analytics, para recopilar y procesar información demográfica básica que incluye ubicación general, tipo de dispositivo y actividades de navegación en nuestro sitio. Esta información se anonimiza y se utiliza únicamente para mejorar la funcionalidad y el contenido de pirata-amnis, asegurando que tengas una mejor experiencia de streaming.",
             "title": "Información que Recolectamos"
         },
         "p3": {
-            "body": "VidBinge utiliza cookies para mejorar tu experiencia de visualización. Las cookies nos ayudan a entender el comportamiento del usuario dentro de nuestro sitio (como las películas más vistas), lo que nos permite mejorar nuestros servicios. Puedes optar por desactivar las cookies a través de la configuración de tu navegador, pero esto puede afectar la funcionalidad del sitio.",
+            "body": "pirata-amnis utiliza cookies para mejorar tu experiencia de visualización. Las cookies nos ayudan a entender el comportamiento del usuario dentro de nuestro sitio (como las películas más vistas), lo que nos permite mejorar nuestros servicios. Puedes optar por desactivar las cookies a través de la configuración de tu navegador, pero esto puede afectar la funcionalidad del sitio.",
             "title": "Uso de Cookies"
         },
         "p4": {
@@ -58,9 +58,9 @@
         },
         "p6": {
             "title": "Contáctanos",
-            "body": "Si tienes alguna pregunta sobre esta Política de Privacidad, por favor contacta por correo electrónico a: contact@vidbinge.com"
+            "body": "Si tienes alguna pregunta sobre esta Política de Privacidad, por favor contacta por correo electrónico a: contact@pirata-amnis.com"
         },
-        "title": "Política de Privacidad para VidBinge"
+        "title": "Política de Privacidad para pirata-amnis"
     },
     "actions": {
         "copied": "Copiado",

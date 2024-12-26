@@ -1,6 +1,6 @@
 {
     "about": {
-        "description": "VidBinge.com'a hoş geldiniz, film ve TV dizileri için sınırsız yayınların gerçek adresi. Klasiklerden en yeni çıkışlara kadar uzanan geniş kütüphanemizi keşfedin, üstelik her cihazda erişilebilir. Hizmetimiz tamamen abonelik ve reklam içermeden sunulmaktadır. Hemen dalın ve Pirata Amnis keyfine katılın!",
+        "description": "pirata-amnis.com'a hoş geldiniz, film ve TV dizileri için sınırsız yayınların gerçek adresi. Klasiklerden en yeni çıkışlara kadar uzanan geniş kütüphanemizi keşfedin, üstelik her cihazda erişilebilir. Hizmetimiz tamamen abonelik ve reklam içermeden sunulmaktadır. Hemen dalın ve Pirata Amnis keyfine katılın!",
         "faqTitle": "Sıkça sorulan sorular",
         "q1": {
             "body": "Pirata Amnis herhangi bir içerik barındırmaz. İzlemek için bir şeye tıkladığınızda, seçilen medya için internette arama yapılır (Yükleme ekranında ve 'video kaynakları' sekmesinde hangi kaynağı kullandığınızı görebilirsiniz). Medya hiçbir zaman Pirata Amnis tarafından yüklenmez, her şey bu arama mekanizması aracılığıyla gerçekleşir.",
@@ -16,7 +16,7 @@
         },
         "title": "Pirata Amnis hakkında",
         "q4": {
-            "body": "VidBinge'de ne kadar izleyebileceğinizin bir sınırı yoktur. İstediğiniz zaman, herhangi bir kısıtlama veya ek ücret olmadan istediğiniz kadar izleyin.",
+            "body": "pirata-amnis'de ne kadar izleyebileceğinizin bir sınırı yoktur. İstediğiniz zaman, herhangi bir kısıtlama veya ek ücret olmadan istediğiniz kadar izleyin.",
             "title": "Ne kadar izleyebileceğimin bir sınırı var mı?"
         },
         "q7": {
@@ -24,10 +24,10 @@
             "title": "Pirata Amnis altyazı veya dublajlı içerik sunuyor mu?"
         },
         "q5": {
-            "body": "Yeni içerik kullanılabilirliği, platformumuza bağlı kaynaklara dayanmaktadır. Bu kaynaklar kütüphanelerini güncelledikçe, yeni filmler ve TV şovları VidBinge aracılığıyla erişilebilir hale gelecektir.",
+            "body": "Yeni içerik kullanılabilirliği, platformumuza bağlı kaynaklara dayanmaktadır. Bu kaynaklar kütüphanelerini güncelledikçe, yeni filmler ve TV şovları pirata-amnis aracılığıyla erişilebilir hale gelecektir.",
             "title": "Pirata Amnis'ye ne sıklıkla yeni içerik ekleniyor?"
         },
-        "contact": "Herhangi bir sorunuz mu var? Bize Discord sunucumuzdan ya da contact@vidbinge.com adresine e-posta göndererek ulaşabilirsiniz",
+        "contact": "Herhangi bir sorunuz mu var? Bize Discord sunucumuzdan ya da contact@pirata-amnis.com adresine e-posta göndererek ulaşabilirsiniz",
         "q6": {
             "title": "Bir video oynatılmazsa ne yapmalıyım?",
             "body": "Bir video oynatılmıyorsa, bunun nedeni kaynakla ilgili sorunlar olabilir. Oynat düğmesine tekrar tıklamayı veya 'video kaynakları' sekmesinden farklı bir kaynak seçmeyi deneyin. Sorunlar devam ederse, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin."
@@ -615,7 +615,7 @@
     },
     "privacy": {
         "p3": {
-            "body": "VidBinge, görüntüleme deneyiminizi geliştirmek için çerezleri kullanır. Çerezler, sitemizdeki kullanıcı davranışını (en çok izlenen filmler gibi) anlamamıza yardımcı olur ve bu da hizmetlerimizi geliştirmemizi sağlar. Tarayıcı ayarlarınızdan çerezleri devre dışı bırakmayı seçebilirsiniz, ancak bu sitenin işlevselliğini etkileyebilir.",
+            "body": "pirata-amnis, görüntüleme deneyiminizi geliştirmek için çerezleri kullanır. Çerezler, sitemizdeki kullanıcı davranışını (en çok izlenen filmler gibi) anlamamıza yardımcı olur ve bu da hizmetlerimizi geliştirmemizi sağlar. Tarayıcı ayarlarınızdan çerezleri devre dışı bırakmayı seçebilirsiniz, ancak bu sitenin işlevselliğini etkileyebilir.",
             "title": "Çerez Kullanımı"
         },
         "p5": {
@@ -627,11 +627,11 @@
             "title": "Toplamadığımız Bilgiler"
         },
         "p6": {
-            "body": "Gizlilik Politikası hakkında herhangi bir sorunuz varsa, lütfen e-posta yoluyla iletişime geçin: contact@vidbinge.com",
+            "body": "Gizlilik Politikası hakkında herhangi bir sorunuz varsa, lütfen e-posta yoluyla iletişime geçin: contact@pirata-amnis.com",
             "title": "Bizimle İletişime Geçin"
         },
         "p2": {
-            "body": "Genel konum, cihaz türü ve sitemizdeki tarama etkinliklerini içeren temel demografik bilgileri toplamak ve işlemek için Google Analytics gibi üçüncü taraf analiz araçlarını kullanıyoruz. Bu bilgiler anonimleştirilir ve yalnızca VidBinge'in işlevselliğini ve içeriğini geliştirmek için kullanılır ve daha iyi bir akış deneyimi yaşamanızı sağlar.",
+            "body": "Genel konum, cihaz türü ve sitemizdeki tarama etkinliklerini içeren temel demografik bilgileri toplamak ve işlemek için Google Analytics gibi üçüncü taraf analiz araçlarını kullanıyoruz. Bu bilgiler anonimleştirilir ve yalnızca pirata-amnis'in işlevselliğini ve içeriğini geliştirmek için kullanılır ve daha iyi bir akış deneyimi yaşamanızı sağlar.",
             "title": "Topladığımız Bilgiler"
         },
         "lastUpdated": "Son Güncelleme 21 Nisan 2024",
@@ -639,7 +639,7 @@
             "body": "Google Analytics'i kullanmamız, anonimleştirilmiş demografik verileri Google ile paylaştığımız anlamına gelir. Bu bilgiler Google'ın gizlilik politikası kapsamında işlenmektedir. Hiçbir veriyi diğer üçüncü taraflarla paylaşmıyor veya satmıyoruz.",
             "title": "Üçüncü Taraf Hizmetleri"
         },
-        "description": "VidBinge'e hoş geldiniz! Gizliliğiniz bizim için önemlidir. VidBinge (vidbinge.com), siz platformumuzda en sevdiğiniz film ve şovların keyfini çıkarırken gizliliğinizi korumayı taahhüt eder. Bu Gizlilik Politikası, verilerinizi nasıl işlediğimizi ve koruduğumuzu açıklamaktadır.",
-        "title": "VidBinge için Gizlilik Politikası"
+        "description": "pirata-amnis'e hoş geldiniz! Gizliliğiniz bizim için önemlidir. pirata-amnis (pirata-amnis.com), siz platformumuzda en sevdiğiniz film ve şovların keyfini çıkarırken gizliliğinizi korumayı taahhüt eder. Bu Gizlilik Politikası, verilerinizi nasıl işlediğimizi ve koruduğumuzu açıklamaktadır.",
+        "title": "pirata-amnis için Gizlilik Politikası"
     }
 }
