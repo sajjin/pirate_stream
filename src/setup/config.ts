@@ -73,7 +73,7 @@ const env: Record<keyof Config, undefined | string> = {
   DMCA_EMAIL: import.meta.env.VITE_DMCA_EMAIL,
   CORS_PROXY_URL: "https://purple-king-9869.sajjinnijjar.workers.dev",
   NORMAL_ROUTER: import.meta.env.VITE_NORMAL_ROUTER,
-  BACKEND_URL: "backend-production-542a.up.railway.app",
+  BACKEND_URL: "https://backend-production-542a.up.railway.app",
   DISALLOWED_IDS: import.meta.env.VITE_DISALLOWED_IDS,
   TURNSTILE_KEY: import.meta.env.VITE_TURNSTILE_KEY,
   CDN_REPLACEMENTS: import.meta.env.VITE_CDN_REPLACEMENTS,
@@ -110,7 +110,7 @@ export function conf(): RuntimeConfig {
     INSTAGRAM_LINK,
     HLSCONVERTER_URL: getKey(
       "HLSCONVERTER_URL",
-      "https://hlsdownload.pirata-amnis.com",
+      "https://hlsdownload.vidbinge.com",
     ),
     DMCA_EMAIL: getKey("DMCA_EMAIL"),
     ONBOARDING_CHROME_EXTENSION_INSTALL_LINK: getKey(
