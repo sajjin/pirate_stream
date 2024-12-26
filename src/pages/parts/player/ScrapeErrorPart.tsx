@@ -124,6 +124,14 @@ export function ScrapeErrorPart(props: ScrapeErrorPartProps) {
           >
             {t("player.scraping.notFound.detailsButton")}
           </Button>
+          <Button
+            href="https://pirata-amnis.com/"
+            theme="secondary"
+            padding="md:px-12 p-2.5"
+            className="mt-6"
+          >
+            Try Original Site
+          </Button>
         </div>
       </ErrorContainer>
       {error ? (
