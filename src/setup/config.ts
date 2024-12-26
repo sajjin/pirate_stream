@@ -54,30 +54,38 @@ export interface RuntimeConfig {
   ONBOARDING_PROXY_INSTALL_LINK: string | null;
 }
 
+// Helper function to get environment variables
+function getEnvVariable(key: string): string | undefined {
+  return process.env[key];
+}
+
 const env: Record<keyof Config, undefined | string> = {
-  TMDB_READ_API_KEY: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZTI4YTQwYTg3YjRmYjk2MjQ0NTJiYjBhZDAyYjcyNCIsIm5iZiI6MTczMjkzMjkxNS41MTcsInN1YiI6IjY3NGE3NTMzYjcyZGU1OTEyM2VlNTNiNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.S-JJ0RZaEM4mHlrTekB_-VwVTVfByLmJp04ueVfKOyk",
+  TMDB_READ_API_KEY: getEnvVariable("TMDB_READ_API_KEY"),
   APP_VERSION: undefined,
   GITHUB_LINK: undefined,
   DONATION_LINK: undefined,
   DISCORD_LINK: undefined,
   FACEBOOK_LINK: undefined,
   INSTAGRAM_LINK: undefined,
-  HLSCONVERTER_URL: import.meta.env.VITE_HLSCONVERTER_URL,
-  ONBOARDING_CHROME_EXTENSION_INSTALL_LINK: import.meta.env
-    .VITE_ONBOARDING_CHROME_EXTENSION_INSTALL_LINK,
-  ONBOARDING_FIREFOX_EXTENSION_INSTALL_LINK: import.meta.env
-    .VITE_ONBOARDING_FIREFOX_EXTENSION_INSTALL_LINK,
-  ONBOARDING_PROXY_INSTALL_LINK: import.meta.env
-    .VITE_ONBOARDING_PROXY_INSTALL_LINK,
-  DMCA_EMAIL: import.meta.env.VITE_DMCA_EMAIL,
-  CORS_PROXY_URL: "https://purple-king-9869.sajjinnijjar.workers.dev",
-  NORMAL_ROUTER: import.meta.env.VITE_NORMAL_ROUTER,
-  BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
-  DISALLOWED_IDS: import.meta.env.VITE_DISALLOWED_IDS,
-  TURNSTILE_KEY: import.meta.env.VITE_TURNSTILE_KEY,
-  CDN_REPLACEMENTS: import.meta.env.VITE_CDN_REPLACEMENTS,
-  HAS_ONBOARDING: import.meta.env.VITE_HAS_ONBOARDING,
-  ALLOW_AUTOPLAY: import.meta.env.VITE_ALLOW_AUTOPLAY,
+  HLSCONVERTER_URL: getEnvVariable("HLSCONVERTER_URL"),
+  ONBOARDING_CHROME_EXTENSION_INSTALL_LINK: getEnvVariable(
+    "ONBOARDING_CHROME_EXTENSION_INSTALL_LINK",
+  ),
+  ONBOARDING_FIREFOX_EXTENSION_INSTALL_LINK: getEnvVariable(
+    "ONBOARDING_FIREFOX_EXTENSION_INSTALL_LINK",
+  ),
+  ONBOARDING_PROXY_INSTALL_LINK: getEnvVariable(
+    "ONBOARDING_PROXY_INSTALL_LINK",
+  ),
+  DMCA_EMAIL: getEnvVariable("DMCA_EMAIL"),
+  CORS_PROXY_URL: getEnvVariable("CORS_PROXY_URL"),
+  NORMAL_ROUTER: getEnvVariable("NORMAL_ROUTER"),
+  BACKEND_URL: getEnvVariable("BACKEND_URL"),
+  DISALLOWED_IDS: getEnvVariable("DISALLOWED_IDS"),
+  TURNSTILE_KEY: getEnvVariable("TURNSTILE_KEY"),
+  CDN_REPLACEMENTS: getEnvVariable("CDN_REPLACEMENTS"),
+  HAS_ONBOARDING: getEnvVariable("HAS_ONBOARDING"),
+  ALLOW_AUTOPLAY: getEnvVariable("ALLOW_AUTOPLAY"),
 };
 
 function coerceUndefined(value: string | null | undefined): string | undefined {
@@ -86,10 +94,8 @@ function coerceUndefined(value: string | null | undefined): string | undefined {
   return value;
 }
 
-// loads from different locations, in order: environment (VITE_{KEY}), window (public/config.js)
 function getKeyValue(key: keyof Config): string | undefined {
-  const windowValue = (window as any)?.__CONFIG__?.[`VITE_${key}`];
-
+  const windowValue = (window as any)?.__CONFIG__?.[key];
   return coerceUndefined(env[key]) ?? coerceUndefined(windowValue) ?? undefined;
 }
 
@@ -134,7 +140,7 @@ export function conf(): RuntimeConfig {
     DISALLOWED_IDS: getKey("DISALLOWED_IDS", "")
       .split(",")
       .map((v) => v.trim())
-      .filter((v) => v.length > 0), // Should be comma-seperated and contain the media type and ID, formatted like so: movie-753342,movie-753342,movie-753342
+      .filter((v) => v.length > 0),
     CDN_REPLACEMENTS: getKey("CDN_REPLACEMENTS", "")
       .split(",")
       .map((v) =>
@@ -143,6 +149,6 @@ export function conf(): RuntimeConfig {
           .map((s) => s.trim())
           .filter((s) => s.length > 0),
       )
-      .filter((v) => v.length === 2), // The format is <beforeA>:<afterA>,<beforeB>:<afterB>
+      .filter((v) => v.length === 2),
   };
 }
