@@ -73,20 +73,6 @@ export function Footer() {
           </h3>
           <p className="mt-3">{t("footer.legal.disclaimerText")}</p>
         </div>
-        <div className="flex flex-wrap gap-[0.5rem] -ml-3">
-          <FooterLink icon={Icons.DISCORD} href={conf().DISCORD_LINK}>
-            {t("footer.links.discord")}
-          </FooterLink>
-          <FooterLink icon={Icons.FACEBOOK} href={conf().FACEBOOK_LINK}>
-            {t("footer.links.facebook")}
-          </FooterLink>
-          <FooterLink icon={Icons.INSTAGRAM} href={conf().INSTAGRAM_LINK}>
-            {t("footer.links.instagram")}
-          </FooterLink>
-          <div className="inline md:hidden">
-            <Dmca />
-          </div>
-        </div>
         <div className="hidden items-center justify-end md:flex -mr-3">
           <Dmca />
         </div>
