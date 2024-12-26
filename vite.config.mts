@@ -109,10 +109,10 @@ export default defineConfig(({ mode }) => {
 
         ],
         manifest: {
-          id: "https://www.vidbinge.com/",
-          name: "Vid Binge",
-          short_name: "VidBinge",
-          description: "Stream a wide array of movies and TV shows on Vid Binge, completely free. Enjoy unlimited, ad-free viewing with no subscriptions required.",
+          id: "https://www.pirata-amnis.com/",
+          name: "Pirata Amnis",
+          short_name: "PirataAmnis",
+          description: "Stream a wide array of movies and TV shows on Pirata Amnis, completely free. Enjoy unlimited, ad-free viewing with no subscriptions required.",
           theme_color: "#120f1d",
           background_color: "#120f1d",
           display: "standalone",

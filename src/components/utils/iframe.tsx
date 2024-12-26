@@ -43,7 +43,7 @@ function IframeMessage(): JSX.Element | null {
               />
             </svg>
           </span>
-          <span className="font-semibold text-white">Vid Binge</span>
+          <span className="font-semibold text-white">Pirata Amnis</span>
         </div>
       </a>
       <div>
@@ -64,7 +64,7 @@ function IframeMessage(): JSX.Element | null {
         </p>
       </div>
       <p className="absolute bottom-4 text-md sm:text-lg font-bold mt-6">
-        This Stream is Provided By Vid Binge
+        This Stream is Provided By Pirata Amnis
       </p>
     </div>
   );

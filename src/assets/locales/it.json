@@ -1,27 +1,27 @@
 {
     "about": {
-        "description": "Vid Binge è un'applicazione web che ricerca dei stream sull'internet. Il team cerca di usare un approccio prevalentemente minimalista per usufruire del contenuto.",
+        "description": "Pirata Amnis è un'applicazione web che ricerca dei stream sull'internet. Il team cerca di usare un approccio prevalentemente minimalista per usufruire del contenuto.",
         "faqTitle": "Domande comuni",
         "q1": {
-            "body": "Vid Binge non ospita alcun contento. Quando clicci su qualcosa da guardare, Vid Binge cerca l'internet per media di vostra scelta (Sull schermata di caricamento e nell tab 'sorgenti video' si può vedere quale sorgente si sta utilizzando). I media non sono mai caricati da Vid Binge, tutto è attraverso questo meccanismo di ricerca.",
+            "body": "Pirata Amnis non ospita alcun contento. Quando clicci su qualcosa da guardare, Pirata Amnis cerca l'internet per media di vostra scelta (Sull schermata di caricamento e nell tab 'sorgenti video' si può vedere quale sorgente si sta utilizzando). I media non sono mai caricati da Pirata Amnis, tutto è attraverso questo meccanismo di ricerca.",
             "title": "Da dove arriva il contenuto?"
         },
         "q2": {
-            "body": "Non è possibile richiedere uno show o un film, Vid Binge non gestisce alcun contenuto. Tutti i contenuti sono visualizzati da sorgenti online.",
+            "body": "Non è possibile richiedere uno show o un film, Pirata Amnis non gestisce alcun contenuto. Tutti i contenuti sono visualizzati da sorgenti online.",
             "title": "Dove posso richiedere una serie o un film?"
         },
         "q3": {
             "body": "Nostri risultati sono alimentati da «The Movie Database (TMDB)» e visualizzare indipendentemente dal fatto che nostri sorgenti hanno effettivamente il contenuto.",
             "title": "I risultati di ricerca mostrano la serie o il film, perché non posso riprodurlo?"
         },
-        "title": "Su di Vid Binge",
+        "title": "Su di Pirata Amnis",
         "q6": {
             "body": "Se un video non parte, potrebbe essere per problemi con la fonte. Prova a cliccare di nuovo Play o a scegliere una fonte alternativa dal tab 'video sources'.",
             "title": "Cosa posso fare se un video non parte?"
         },
         "q7": {
             "body": "La disponibilità dei sottotitoli e delle versioni doppiate dipende dalla fonte. Alcune fonti offrono opzioni per sottotitoli in diverse lingue o contenuti doppiati, che possono essere selezionati direttamente nel player se disponibili.",
-            "title": "Vid Binge offre sottotitoli o contenuti doppiati?"
+            "title": "Pirata Amnis offre sottotitoli o contenuti doppiati?"
         },
         "contact": "Domande? Contattaci su Discord o scrivici una mail a contact@vidbinge.com",
         "q4": {
@@ -99,7 +99,7 @@
     "footer": {
         "legal": {
             "disclaimer": "Disclaimer",
-            "disclaimerText": "Vid Binge non ospita qualsiasi file, si collega solo a fonti di terze parti. Se avete problemi legali, rivolgetevi ai file host e ai provider. Vid Binge non è responsabile per i file multimediali mostrati dai video provider."
+            "disclaimerText": "Pirata Amnis non ospita qualsiasi file, si collega solo a fonti di terze parti. Se avete problemi legali, rivolgetevi ai file host e ai provider. Pirata Amnis non è responsabile per i file multimediali mostrati dai video provider."
         },
         "links": {
             "discord": "Discord",
@@ -112,13 +112,13 @@
         "tagline": "Guardate i vostri preferiti programmi televisivi e film con questo app di streaming open source."
     },
     "global": {
-        "name": "Vid Binge",
+        "name": "Pirata Amnis",
         "pages": {
-            "about": "Su di Vid Binge",
+            "about": "Su di Pirata Amnis",
             "dmca": "DMCA",
             "login": "Accedi",
             "onboarding": "Setup",
-            "pagetitle": "{{title}} - Vid Binge",
+            "pagetitle": "{{title}} - Pirata Amnis",
             "register": "Registrarsi",
             "settings": "Impostazioni",
             "discover": "",
@@ -205,7 +205,7 @@
             "offline": "Controlla la tua connessione internet"
         },
         "menu": {
-            "about": "Su di Vid Binge",
+            "about": "Su di Pirata Amnis",
             "donation": "Donare",
             "logout": "Esci",
             "register": "Sincronizzare con il cloud",
@@ -280,7 +280,7 @@
                     "title": "Proxy personalizzato"
                 }
             },
-            "title": "Configuriamo Vid Binge"
+            "title": "Configuriamo Pirata Amnis"
         }
     },
     "overlays": {
@@ -297,10 +297,10 @@
         "menus": {
             "downloads": {
                 "copyHlsPlaylist": "Copia link HLS playlist",
-                "disclaimer": "I download vengono effettuati direttamente dal provider. Vid Binge non ha il controllo sulle modalità di fornitura dei download.",
+                "disclaimer": "I download vengono effettuati direttamente dal provider. Pirata Amnis non ha il controllo sulle modalità di fornitura dei download.",
                 "downloadSubtitle": "Scarica sottotitolo attuale",
                 "downloadVideo": "Scarica video",
-                "hlsDisclaimer": "I download vengono effettuati direttamente dal provider. Vid Binge non ha il controllo sul modo in cui i download vengono forniti.<br /><br />Nota che se state scaricando un playlist HLS, <bold>non è raccomandato di scaricare se non si ha familiarità con i formati di streaming avanzati</bold>. Prova altri sorgenti per diversi formati.",
+                "hlsDisclaimer": "I download vengono effettuati direttamente dal provider. Pirata Amnis non ha il controllo sul modo in cui i download vengono forniti.<br /><br />Nota che se state scaricando un playlist HLS, <bold>non è raccomandato di scaricare se non si ha familiarità con i formati di streaming avanzati</bold>. Prova altri sorgenti per diversi formati.",
                 "onAndroid": {
                     "1": "Per scaricare su Android, fai clic sul pulsante di scaricare, e poi nella nuova paggina, <bold>toccare e tenere premuto</bold> sul video, e selezionare <bold>salva</bold>.",
                     "shortTitle": "Scarica / Android",
@@ -434,7 +434,7 @@
                 "badge": "L'estensione è disabilitata",
                 "enableExtension": "Abilita l'estensione",
                 "homeButton": "Torna alla pagina iniziale",
-                "text": "Avete installato l'estensione Vid Binge. Per iniziare a usarla, è necessario abilitare l'estensione per questo sito.",
+                "text": "Avete installato l'estensione Pirata Amnis. Per iniziare a usarla, è necessario abilitare l'estensione per questo sito.",
                 "title": "Abilita l'estensione"
             },
             "items": {
@@ -457,7 +457,7 @@
             "shortRemaining": "-{{timeLeft}}"
         },
         "turnstile": {
-            "description": "Verifica che siate umani completando il Captcha sulla destra. Questo serve a mantenere Vid Binge sicuro!",
+            "description": "Verifica che siate umani completando il Captcha sulla destra. Questo serve a mantenere Pirata Amnis sicuro!",
             "error": "Impossibile verificare la vostra umanità. Riprova.",
             "title": "Dobbiamo verificare che lei sia umano.",
             "verifyingHumanity": "Verificare la vostra umanità..."
@@ -465,7 +465,7 @@
     },
     "screens": {
         "dmca": {
-            "text": "Benvenuti nella pagina di contatto DMCA di Vid Binge! Rispettiamo i diritti di proprietà intellettuale e vogliamo risolvere rapidamente qualsiasi problema di copyright. Se ritenete che il vostro lavoro protetto da copyright sia stato utilizzato in modo improprio sulla nostra piattaforma, inviate una notizia DMCA all'indirizzo e-mail indicato di seguito. Dovresti includere una descrizione del materiale protetto da copyright, i propri dati di contatto e una dichiarazione di buona fede. Ci impegniamo a risolvere tempestivamente questi problemi e apprezziamo la vostra collaborazione per mantenere Vid Binge un luogo che rispetta la creatività e i diritti d'autore.",
+            "text": "Benvenuti nella pagina di contatto DMCA di Pirata Amnis! Rispettiamo i diritti di proprietà intellettuale e vogliamo risolvere rapidamente qualsiasi problema di copyright. Se ritenete che il vostro lavoro protetto da copyright sia stato utilizzato in modo improprio sulla nostra piattaforma, inviate una notizia DMCA all'indirizzo e-mail indicato di seguito. Dovresti includere una descrizione del materiale protetto da copyright, i propri dati di contatto e una dichiarazione di buona fede. Ci impegniamo a risolvere tempestivamente questi problemi e apprezziamo la vostra collaborazione per mantenere Pirata Amnis un luogo che rispetta la creatività e i diritti d'autore.",
             "title": "DMCA"
         },
         "loadingApp": "Caricamento dell'applicazione",

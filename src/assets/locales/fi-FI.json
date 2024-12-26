@@ -1,20 +1,20 @@
 {
     "about": {
-        "description": "Vid Binge on verkkosovellus, joka etsii suoratoistoja internetistä. Tiimi pyrkii enimmäkseen minimalistiseen lähestymistapaan sisällön kuluttamiseen.",
+        "description": "Pirata Amnis on verkkosovellus, joka etsii suoratoistoja internetistä. Tiimi pyrkii enimmäkseen minimalistiseen lähestymistapaan sisällön kuluttamiseen.",
         "faqTitle": "Yleisiä kysymyksiä",
         "q1": {
-            "body": "Vid Binge ei isännöi mitään sisältöä. Kun klikkaat jotain katsottavaa, valittua mediaa etsitään internetistä (latausnäytössä ja 'videolähteet'-välilehdellä näet, mitä lähdettä käytät). Vid Binge ei koskaan lataa mediaa, kaikki tapahtuu tämän hakumekanismin kautta.",
+            "body": "Pirata Amnis ei isännöi mitään sisältöä. Kun klikkaat jotain katsottavaa, valittua mediaa etsitään internetistä (latausnäytössä ja 'videolähteet'-välilehdellä näet, mitä lähdettä käytät). Pirata Amnis ei koskaan lataa mediaa, kaikki tapahtuu tämän hakumekanismin kautta.",
             "title": "Mistä sisältö tulee?"
         },
         "q2": {
-            "body": "Ohjelmaa tai elokuvaa ei voi pyytää, Vid Binge ei hallinnoi sisältöä. Kaikki sisältö katsotaan internetin lähteistä.",
+            "body": "Ohjelmaa tai elokuvaa ei voi pyytää, Pirata Amnis ei hallinnoi sisältöä. Kaikki sisältö katsotaan internetin lähteistä.",
             "title": "Missä voin pyytää sarjaa tai elokuvaa?"
         },
         "q3": {
             "body": "Hakutuloksemme perustuvat The Movie Database (TMDB) -tietokantaan, ja ne näkyvät riippumatta siitä, onko sisältöä oikeasti lähteissämme.",
             "title": "Hakutuloksissa näytetään ohjelma tai elokuva. Miksi en voi toistaa sitä?"
         },
-        "title": "Tietoja Vid Bingeistä",
+        "title": "Tietoja Pirata Amnisistä",
         "contact": "",
         "q4": {
             "body": "",
@@ -99,7 +99,7 @@
     "footer": {
         "legal": {
             "disclaimer": "Vastuuvapauslauseke",
-            "disclaimerText": "Vid Binge ei isännöi tiedostoja, se vain linkittää kolmannen osapuolen palveluihin. Lakiasioista tulee ottaa yhteyttä tiedostoisäntään ja palveluntarjoajiin. Vid Binge ei ole vastuussa videontarjoajien näyttämistä mediatiedostoista."
+            "disclaimerText": "Pirata Amnis ei isännöi tiedostoja, se vain linkittää kolmannen osapuolen palveluihin. Lakiasioista tulee ottaa yhteyttä tiedostoisäntään ja palveluntarjoajiin. Pirata Amnis ei ole vastuussa videontarjoajien näyttämistä mediatiedostoista."
         },
         "links": {
             "discord": "Discord",
@@ -112,13 +112,13 @@
         "tagline": "Katso suosikkiohjelmiasi ja elokuviasi tällä avoimen lähdekoodin suoratoistosovelluksella."
     },
     "global": {
-        "name": "Vid Binge",
+        "name": "Pirata Amnis",
         "pages": {
             "about": "Meistä",
             "dmca": "DMCA",
             "login": "Kirjaudu sisään",
             "onboarding": "asetus",
-            "pagetitle": "{{title}} - Vid Binge",
+            "pagetitle": "{{title}} - Pirata Amnis",
             "register": "Rekisteröidy",
             "settings": "Asetukset",
             "discover": "",
