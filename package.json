@@ -1,8 +1,8 @@
 {
-  "name": "pirata-amnis",
+  "name": "VidBinge",
   "version": "4.9.5",
   "private": false,
-  "homepage": "https://github.com/pirata-amnisApp/pirata-amnis",
+  "homepage": "https://github.com/VidBingeApp/VidBinge",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -32,7 +32,7 @@
     "@formkit/auto-animate": "^0.8.2",
     "@headlessui/react": "^1.7.19",
     "@ladjs/country-language": "^1.0.3",
-    "@movie-web/providers": "https://github.com/pirata-amnisApp/providers.git",
+    "@movie-web/providers": "https://github.com/VidBingeApp/providers.git",
     "@noble/hashes": "^1.4.0",
     "@plasmohq/messaging": "^0.6.2",
     "@react-spring/web": "^9.7.4",
