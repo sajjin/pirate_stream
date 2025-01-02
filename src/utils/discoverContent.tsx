@@ -19,6 +19,20 @@ import {
 
 import { Icon, Icons } from "../components/Icon";
 
+interface TMDBMedia {
+  id: number;
+  title?: string;
+  name?: string;
+  poster_path?: string;
+  overview?: string;
+  vote_average?: number;
+  media_type?: string;
+  cast?: Array<{
+    name: string;
+    character?: string;
+  }>;
+}
+
 function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -143,6 +157,24 @@ export function DiscoverContent() {
   const [selectedCategory, setSelectedCategory] = useState("movies");
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
+  async function fetchMediaCredits(mediaId: number, type: string) {
+    try {
+      const data = await get<any>(`/${type}/${mediaId}/credits`, {
+        api_key: conf().TMDB_READ_API_KEY,
+        language: "en-US",
+      });
+      return (
+        data.cast?.map((member: any) => ({
+          name: member.name,
+          character: member.character,
+        })) ?? []
+      );
+    } catch (error) {
+      console.error("Error fetching credits:", error);
+      return [];
+    }
+  }
+
   // Handle category change for both event (from <select>) and string (from custom dropdown)
   const handleCategoryChange = (
     eventOrValue: React.ChangeEvent<HTMLSelectElement> | string,
@@ -158,12 +190,25 @@ export function DiscoverContent() {
   };
 
   useEffect(() => {
-    const fetchMoviesForCategory = async (category: Category) => {
+    const fetchMoviesForCategory = async (
+      category: Category,
+      isTVShow: boolean,
+    ) => {
       try {
         const data = await get<any>(category.endpoint, {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
         });
+
+        const resultsWithCast = await Promise.all(
+          data.results.map(async (item: TMDBMedia) => {
+            const cast = await fetchMediaCredits(
+              item.id,
+              isTVShow ? "tv" : "movie",
+            );
+            return { ...item, cast };
+          }),
+        );
 
         // Shuffle the movies
         for (let i = data.results.length - 1; i > 0; i -= 1) {
@@ -176,7 +221,7 @@ export function DiscoverContent() {
 
         setCategoryMovies((prevCategoryMovies) => ({
           ...prevCategoryMovies,
-          [category.name]: data.results,
+          [category.name]: resultsWithCast,
         }));
       } catch (error) {
         console.error(
@@ -185,16 +230,29 @@ export function DiscoverContent() {
         );
       }
     };
-    categories.forEach(fetchMoviesForCategory);
+    categories.forEach((category) => fetchMoviesForCategory(category, false));
   }, []);
 
   useEffect(() => {
-    const fetchShowsForCategory = async (category: Category) => {
+    const fetchShowsForCategory = async (
+      category: Category,
+      isTVShow: boolean,
+    ) => {
       try {
         const data = await get<any>(category.endpoint, {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
         });
+
+        const resultsWithCast = await Promise.all(
+          data.results.map(async (item: TMDBMedia) => {
+            const cast = await fetchMediaCredits(
+              item.id,
+              isTVShow ? "tv" : "movie",
+            );
+            return { ...item, cast };
+          }),
+        );
 
         // Shuffle the TV shows
         for (let i = data.results.length - 1; i > 0; i -= 1) {
@@ -207,7 +265,7 @@ export function DiscoverContent() {
 
         setCategoryShows((prevCategoryShows) => ({
           ...prevCategoryShows,
-          [category.name]: data.results,
+          [category.name]: resultsWithCast,
         }));
       } catch (error) {
         console.error(
@@ -216,7 +274,7 @@ export function DiscoverContent() {
         );
       }
     };
-    tvCategories.forEach(fetchShowsForCategory);
+    tvCategories.forEach((category) => fetchShowsForCategory(category, true));
   }, []);
 
   // Fetch TV show genres
@@ -254,18 +312,26 @@ export function DiscoverContent() {
           language: "en-US",
         });
 
+        // Get cast data for each show
+        const showsWithCast = await Promise.all(
+          data.results.map(async (show: TMDBMedia) => {
+            const cast = await fetchMediaCredits(show.id, "tv");
+            return { ...show, cast };
+          }),
+        );
+
         // Shuffle the TV shows
-        for (let i = data.results.length - 1; i > 0; i -= 1) {
+        for (let i = showsWithCast.length - 1; i > 0; i -= 1) {
           const j = Math.floor(Math.random() * (i + 1));
-          [data.results[i], data.results[j]] = [
-            data.results[j],
-            data.results[i],
+          [showsWithCast[i], showsWithCast[j]] = [
+            showsWithCast[j],
+            showsWithCast[i],
           ];
         }
 
         setTVShowGenres((prevTVShowGenres) => ({
           ...prevTVShowGenres,
-          [genreId]: data.results,
+          [genreId]: showsWithCast,
         }));
       } catch (error) {
         console.error(`Error fetching TV shows for genre ${genreId}:`, error);
@@ -306,7 +372,6 @@ export function DiscoverContent() {
       try {
         const movies: any[] = [];
         for (let page = 1; page <= 6; page += 1) {
-          // Fetch only 6 pages
           const data = await get<any>("/discover/movie", {
             api_key: conf().TMDB_READ_API_KEY,
             with_genres: genreId.toString(),
@@ -317,15 +382,26 @@ export function DiscoverContent() {
           movies.push(...data.results);
         }
 
+        // Get cast data for each movie
+        const moviesWithCast = await Promise.all(
+          movies.map(async (movie) => {
+            const cast = await fetchMediaCredits(movie.id, "movie");
+            return { ...movie, cast };
+          }),
+        );
+
         // Shuffle the movies
-        for (let i = movies.length - 1; i > 0; i -= 1) {
+        for (let i = moviesWithCast.length - 1; i > 0; i -= 1) {
           const j = Math.floor(Math.random() * (i + 1));
-          [movies[i], movies[j]] = [movies[j], movies[i]];
+          [moviesWithCast[i], moviesWithCast[j]] = [
+            moviesWithCast[j],
+            moviesWithCast[i],
+          ];
         }
 
         setGenreMovies((prevGenreMovies) => ({
           ...prevGenreMovies,
-          [genreId]: movies,
+          [genreId]: moviesWithCast,
         }));
       } catch (error) {
         console.error(`Error fetching movies for genre ${genreId}:`, error);
@@ -339,55 +415,62 @@ export function DiscoverContent() {
   const fetchMoviesByProvider = async (providerId: string) => {
     try {
       const movies: any[] = [];
-      // eslint-disable-next-line no-plusplus
       for (let page = 1; page <= 3; page++) {
         const data = await get<any>("/discover/movie", {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
           page: page.toString(),
           with_watch_providers: providerId,
-          watch_region: "US", // You can set a specific region if required
+          watch_region: "US",
         });
 
         movies.push(...data.results);
       }
+
+      // Get cast data for each movie
+      const moviesWithCast = await Promise.all(
+        movies.map(async (movie) => {
+          const cast = await fetchMediaCredits(movie.id, "movie");
+          return { ...movie, cast };
+        }),
+      );
+
       setProviderMovies((prev) => ({
         ...prev,
-        [providerId]: movies,
+        [providerId]: moviesWithCast,
       }));
     } catch (error) {
       console.error(`Error fetching movies for provider ${providerId}:`, error);
     }
   };
 
-  useEffect(() => {
-    const randomMovieProvider =
-      movieProviders[Math.floor(Math.random() * movieProviders.length)];
-    setSelectedProvider(randomMovieProvider); // Store the selected provider
-
-    fetchMoviesByProvider(randomMovieProvider.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Fetch TV Shows By Provider
   const fetchTVByProvider = async (providerId: string) => {
     try {
       const series: any[] = [];
-      // eslint-disable-next-line no-plusplus
       for (let page = 1; page <= 3; page++) {
         const data = await get<any>("/discover/tv", {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
           page: page.toString(),
           with_watch_providers: providerId,
-          watch_region: "US", // You can set a specific region if required
+          watch_region: "US",
         });
 
         series.push(...data.results);
       }
+
+      // Get cast data for each show
+      const seriesWithCast = await Promise.all(
+        series.map(async (show) => {
+          const cast = await fetchMediaCredits(show.id, "tv");
+          return { ...show, cast };
+        }),
+      );
+
       setProviderTVShows((prev) => ({
         ...prev,
-        [providerId]: series,
+        [providerId]: seriesWithCast,
       }));
     } catch (error) {
       console.error(
@@ -513,16 +596,18 @@ export function DiscoverContent() {
           onWheel={(e) => handleWheel(e, categorySlug)}
         >
           {medias
-            .filter((media, index, self) => {
+            .filter((media: TMDBMedia, index, self) => {
               return (
                 index ===
                 self.findIndex(
-                  (m) => m.id === media.id && m.title === media.title,
+                  (m) =>
+                    m.id === media.id &&
+                    (m.title === media.title || m.name === media.name),
                 )
               );
             })
             .slice(0, 20)
-            .map((media) => (
+            .map((media: TMDBMedia) => (
               <a
                 key={media.id}
                 onClick={() =>
@@ -532,25 +617,72 @@ export function DiscoverContent() {
                     }`,
                   )
                 }
-                className="discover-card max-h-200 text-center relative mt-3 mx-[0.285em] transition-transform duration-[0.45s] hover:scale-105"
-                style={{ flex: `0 0 ${movieWidth}` }} // Set a fixed width for each movie
+                className="discover-card max-h-200 text-center relative mt-3 mx-[0.285em] transition-transform duration-[0.45s] hover:scale-105 hover:z-50"
+                style={{ flex: `0 0 ${movieWidth}` }}
               >
-                <Flare.Base className="group cursor-pointer rounded-xl relative p-[0.65em] bg-background-main transition-colors duration-300 bg-transparent">
+                <Flare.Base className="group cursor-pointer rounded-xl relative p-[0.65em] bg-background-main transition-all duration-300 bg-transparent hover:z-50">
                   <Flare.Light
                     flareSize={300}
                     cssColorVar="--colors-mediaCard-hoverAccent"
                     backgroundClass="bg-mediaCard-hoverBackground duration-200"
                     className="rounded-xl bg-background-main group-hover:opacity-100"
                   />
-                  <img
-                    src={
-                      media.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
-                        : "/placeholder.png"
-                    }
-                    alt={media.poster_path ? "" : "failed to fetch :("}
-                    className="rounded-xl relative"
-                  />
+                  <div className="relative">
+                    <img
+                      src={
+                        media.poster_path
+                          ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
+                          : "/placeholder.png"
+                      }
+                      alt={media.poster_path ? "" : "failed to fetch :("}
+                      className="rounded-xl relative"
+                    />
+                    {/* Details Card - Moved inside main card container */}
+                    <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute left-[calc(100%+1rem)] top-0 w-96 rounded-lg bg-background-main/95 p-4 shadow-lg transition-all duration-200">
+                      <div className="absolute -left-2 top-0 w-2 h-full" />{" "}
+                      {/* Invisible bridge */}
+                      {typeof media.vote_average === "number" && (
+                        <div className="mb-2 flex items-center">
+                          <span
+                            className="mr-1 text-yellow-400"
+                            dangerouslySetInnerHTML={{
+                              __html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 576 512"><path d="M288 448l-96 64 32-112-96-64h120l32-112 32 112h120l-96 64 32 112z"/></svg>`,
+                            }}
+                          />
+                          <span className="text-sm font-bold text-white">
+                            {media.vote_average.toFixed(1)}/10
+                          </span>
+                        </div>
+                      )}
+                      {media.overview && (
+                        <p className="text-sm text-gray-300 whitespace-normal break-words overflow-y-auto max-h-32 pr-2 mb-3">
+                          {media.overview}
+                        </p>
+                      )}
+                      {/* Add cast section */}
+                      {media.cast && media.cast.length > 0 && (
+                        <div className="border-t border-gray-700 pt-3">
+                          <p className="text-sm font-semibold text-white mb-2">
+                            Cast
+                          </p>
+                          <div className="text-sm text-gray-300 space-y-1 max-h-24 overflow-y-auto pr-2">
+                            {media.cast.slice(0, 5).map((actor, index) => (
+                              <div key={index} className="flex justify-between">
+                                <span className="font-medium">
+                                  {actor.name}
+                                </span>
+                                {actor.character && (
+                                  <span className="text-gray-400 text-xs ml-2">
+                                    as {actor.character}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <h1 className="group relative pt-2 pr-1 text-[13.5px] whitespace-normal duration-[0.35s] font-semibold text-white opacity-0 group-hover:opacity-100 flex items-center">
                     <span className="flex-1 text-center">
                       {isTVShow

@@ -229,10 +229,14 @@ export function getMediaDetails<
   TReturn = MediaDetailReturn<T>,
 >(id: string, type: T): Promise<TReturn> {
   if (type === TMDBContentTypes.MOVIE) {
-    return get<TReturn>(`/movie/${id}`, { append_to_response: "external_ids" });
+    return get<TReturn>(`/movie/${id}`, {
+      append_to_response: "external_ids,credits",
+    });
   }
   if (type === TMDBContentTypes.TV) {
-    return get<TReturn>(`/tv/${id}`, { append_to_response: "external_ids" });
+    return get<TReturn>(`/tv/${id}`, {
+      append_to_response: "external_ids,credits",
+    });
   }
   throw new Error("Invalid media type");
 }

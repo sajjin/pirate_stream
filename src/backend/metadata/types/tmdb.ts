@@ -128,6 +128,7 @@ export interface TMDBShowData {
   external_ids: {
     imdb_id: string | null;
   };
+  credits?: TMDBCredits;
 }
 
 export interface TMDBMovieData {
@@ -179,6 +180,7 @@ export interface TMDBMovieData {
   external_ids: {
     imdb_id: string | null;
   };
+  credits?: TMDBCredits;
 }
 
 export interface TMDBEpisodeResult {
@@ -286,4 +288,13 @@ export interface TMDBSearchResult {
   results: (TMDBMovieSearchResult | TMDBShowSearchResult)[];
   total_pages: number;
   total_results: number;
+}
+
+export interface TMDBCredits {
+  cast: Array<{
+    id: number;
+    name: string;
+    character: string;
+    profile_path: string | null;
+  }>;
 }
