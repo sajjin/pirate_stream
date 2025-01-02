@@ -1,3 +1,5 @@
+/* eslint no-array-index-key: 0 */
+
 import classNames from "classnames";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";

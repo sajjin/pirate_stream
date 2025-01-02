@@ -1,3 +1,5 @@
+/* eslint no-plusplus: 0 */
+
 // Based mfs only use only one 500 line file instead of ten 50 line files.
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";

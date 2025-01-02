@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */
+
 export enum TMDBContentTypes {
   MOVIE = "movie",
   TV = "tv",
