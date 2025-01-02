@@ -668,8 +668,11 @@ export function DiscoverContent() {
                             Cast
                           </p>
                           <div className="text-sm text-gray-300 space-y-1 max-h-24 overflow-y-auto pr-2">
-                            {media.cast.slice(0, 5).map((actor, index) => (
-                              <div key={index} className="flex justify-between">
+                            {media.cast.slice(0, 5).map((actor) => (
+                              <div
+                                key={`${media.id}-${actor.name}`}
+                                className="flex justify-between"
+                              >
                                 <span className="font-medium">
                                   {actor.name}
                                 </span>

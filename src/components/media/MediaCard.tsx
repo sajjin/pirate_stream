@@ -1,5 +1,3 @@
-/* eslint no-array-index-key: 0 */
-
 import classNames from "classnames";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,8 +79,8 @@ function MediaCardTooltip({
         <div className="border-t border-gray-700 pt-3">
           <p className="text-sm font-semibold text-white mb-2">Cast</p>
           <div className="text-sm text-gray-300 space-y-1 max-h-24 overflow-y-auto pr-2">
-            {cast.slice(0, 5).map((actor, index) => (
-              <div key={index} className="flex justify-between">
+            {cast.slice(0, 5).map((actor) => (
+              <div key={`${actor.name}`} className="flex justify-between">
                 <span className="font-medium">{actor.name}</span>
                 {actor.character && (
                   <span className="text-gray-400 text-xs ml-2">
