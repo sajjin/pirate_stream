@@ -429,17 +429,9 @@ export function DiscoverContent() {
         movies.push(...data.results);
       }
 
-      // Get cast data for each movie
-      const moviesWithCast = await Promise.all(
-        movies.map(async (movie) => {
-          const cast = await fetchMediaCredits(movie.id, "movie");
-          return { ...movie, cast };
-        }),
-      );
-
       setProviderMovies((prev) => ({
         ...prev,
-        [providerId]: moviesWithCast,
+        [providerId]: movies,
       }));
     } catch (error) {
       console.error(`Error fetching movies for provider ${providerId}:`, error);
@@ -462,17 +454,9 @@ export function DiscoverContent() {
         series.push(...data.results);
       }
 
-      // Get cast data for each show
-      const seriesWithCast = await Promise.all(
-        series.map(async (show) => {
-          const cast = await fetchMediaCredits(show.id, "tv");
-          return { ...show, cast };
-        }),
-      );
-
       setProviderTVShows((prev) => ({
         ...prev,
-        [providerId]: seriesWithCast,
+        [providerId]: series,
       }));
     } catch (error) {
       console.error(
