@@ -1,6 +1,6 @@
 {
   "packageManager": "pnpm@9.14.4",
-  "name": "Pirata Amnis",
+  "name": "pirata-amnis",
   "version": "4.7.0",
   "private": true,
   "homepage": "https://github.com/sussy-code/smov",

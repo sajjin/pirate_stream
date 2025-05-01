@@ -1,11 +1,8 @@
-/* eslint no-plusplus: 0 */
-
 // Based mfs only use only one 500 line file instead of ten 50 line files.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { get } from "@/backend/metadata/tmdb";
-import { Loading } from "@/components/layout/Loading";
 import { Divider } from "@/components/utils/Divider";
 import { Flare } from "@/components/utils/Flare";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -21,20 +18,6 @@ import {
 } from "@/utils/discover";
 
 import { Icon, Icons } from "../components/Icon";
-
-interface TMDBMedia {
-  id: number;
-  title?: string;
-  name?: string;
-  poster_path?: string;
-  overview?: string;
-  vote_average?: number;
-  media_type?: string;
-  cast?: Array<{
-    name: string;
-    character?: string;
-  }>;
-}
 
 function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -94,27 +77,6 @@ function ScrollToTopButton() {
   );
 }
 
-const movieProviders = [
-  { name: "Netflix", id: "8" },
-  { name: "Apple TV+", id: "2" },
-  { name: "Amazon Prime Video", id: "10" },
-  { name: "Hulu", id: "15" },
-  { name: "Max", id: "1899" },
-  { name: "Paramount Plus", id: "531" },
-  { name: "Disney Plus", id: "337" },
-  { name: "Shudder", id: "99" },
-];
-
-const tvProviders = [
-  { name: "Netflix", id: "8" },
-  { name: "Apple TV+", id: "350" },
-  { name: "Paramount Plus", id: "531" },
-  { name: "Hulu", id: "15" },
-  { name: "Max", id: "1899" },
-  { name: "Disney Plus", id: "337" },
-  { name: "fubuTV", id: "257" },
-];
-
 export function DiscoverContent() {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [randomMovie, setRandomMovie] = useState<Movie | null>(null);
@@ -125,13 +87,6 @@ export function DiscoverContent() {
   const [providerMovies, setProviderMovies] = useState<{
     [providerId: string]: Movie[];
   }>({});
-  const [providerLoading, setProviderLoading] = useState<{
-    [providerId: string]: boolean;
-  }>({});
-  const [tvProviderLoading, setTvProviderLoading] = useState<{
-    [providerId: string]: boolean;
-  }>({});
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProvider, setSelectedProvider] = useState({
     name: "",
@@ -144,6 +99,26 @@ export function DiscoverContent() {
     name: "",
     id: "",
   });
+  const movieProviders = [
+    { name: "Netflix", id: "8" },
+    { name: "Apple TV+", id: "2" },
+    { name: "Amazon Prime Video", id: "10" },
+    { name: "Hulu", id: "15" },
+    { name: "Max", id: "1899" },
+    { name: "Paramount Plus", id: "531" },
+    { name: "Disney Plus", id: "337" },
+    { name: "Shudder", id: "99" },
+  ];
+
+  const tvProviders = [
+    { name: "Netflix", id: "8" },
+    { name: "Apple TV+", id: "350" },
+    { name: "Paramount Plus", id: "531" },
+    { name: "Hulu", id: "15" },
+    { name: "Max", id: "1899" },
+    { name: "Disney Plus", id: "337" },
+    { name: "fubuTV", id: "257" },
+  ];
 
   const [countdown, setCountdown] = useState<number | null>(null);
   const navigate = useNavigate();
@@ -163,34 +138,10 @@ export function DiscoverContent() {
   const [countdownTimeout, setCountdownTimeout] =
     useState<NodeJS.Timeout | null>(null);
   const { isMobile } = useIsMobile();
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadingProgress, setLoadingProgress] = useState({
-    genres: false,
-    categories: false,
-    providers: false,
-  });
 
   // State to track selected category (movies or TV shows)
   const [selectedCategory, setSelectedCategory] = useState("movies");
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-
-  async function fetchMediaCredits(mediaId: number, type: string) {
-    try {
-      const data = await get<any>(`/${type}/${mediaId}/credits`, {
-        api_key: conf().TMDB_READ_API_KEY,
-        language: "en-US",
-      });
-      return (
-        data.cast?.map((member: any) => ({
-          name: member.name,
-          character: member.character,
-        })) ?? []
-      );
-    } catch (error) {
-      console.error("Error fetching credits:", error);
-      return [];
-    }
-  }
 
   // Handle category change for both event (from <select>) and string (from custom dropdown)
   const handleCategoryChange = (
@@ -206,40 +157,13 @@ export function DiscoverContent() {
     setDropdownOpen(false); // Close dropdown after selection
   };
 
-  // Update loading progress
   useEffect(() => {
-    if (
-      loadingProgress.genres &&
-      loadingProgress.categories &&
-      loadingProgress.providers
-    ) {
-      // Add a small delay to ensure smooth transition
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-    }
-  }, [loadingProgress]);
-
-  useEffect(() => {
-    const fetchMoviesForCategory = async (
-      category: Category,
-      isTVShow: boolean,
-    ) => {
+    const fetchMoviesForCategory = async (category: Category) => {
       try {
         const data = await get<any>(category.endpoint, {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
         });
-
-        const resultsWithCast = await Promise.all(
-          data.results.map(async (item: TMDBMedia) => {
-            const cast = await fetchMediaCredits(
-              item.id,
-              isTVShow ? "tv" : "movie",
-            );
-            return { ...item, cast };
-          }),
-        );
 
         // Shuffle the movies
         for (let i = data.results.length - 1; i > 0; i -= 1) {
@@ -250,9 +174,9 @@ export function DiscoverContent() {
           ];
         }
 
-        setCategoryMovies((prev) => ({
-          ...prev,
-          [category.name]: resultsWithCast,
+        setCategoryMovies((prevCategoryMovies) => ({
+          ...prevCategoryMovies,
+          [category.name]: data.results,
         }));
       } catch (error) {
         console.error(
@@ -261,33 +185,16 @@ export function DiscoverContent() {
         );
       }
     };
-    Promise.all(
-      categories.map((category) => fetchMoviesForCategory(category, false)),
-    ).then(() => {
-      setLoadingProgress((prev) => ({ ...prev, categories: true }));
-    });
+    categories.forEach(fetchMoviesForCategory);
   }, []);
 
   useEffect(() => {
-    const fetchShowsForCategory = async (
-      category: Category,
-      isTVShow: boolean,
-    ) => {
+    const fetchShowsForCategory = async (category: Category) => {
       try {
         const data = await get<any>(category.endpoint, {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
         });
-
-        const resultsWithCast = await Promise.all(
-          data.results.map(async (item: TMDBMedia) => {
-            const cast = await fetchMediaCredits(
-              item.id,
-              isTVShow ? "tv" : "movie",
-            );
-            return { ...item, cast };
-          }),
-        );
 
         // Shuffle the TV shows
         for (let i = data.results.length - 1; i > 0; i -= 1) {
@@ -300,7 +207,7 @@ export function DiscoverContent() {
 
         setCategoryShows((prevCategoryShows) => ({
           ...prevCategoryShows,
-          [category.name]: resultsWithCast,
+          [category.name]: data.results,
         }));
       } catch (error) {
         console.error(
@@ -309,7 +216,7 @@ export function DiscoverContent() {
         );
       }
     };
-    tvCategories.forEach((category) => fetchShowsForCategory(category, true));
+    tvCategories.forEach(fetchShowsForCategory);
   }, []);
 
   // Fetch TV show genres
@@ -322,13 +229,13 @@ export function DiscoverContent() {
         });
 
         // Shuffle the array of genres
-        for (let i = data.genres.length - 1; i > 0; i -= 1) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [data.genres[i], data.genres[j]] = [data.genres[j], data.genres[i]];
-        }
+        // for (let i = data.genres.length - 1; i > 0; i -= 1) {
+        //   const j = Math.floor(Math.random() * (i + 1));
+        //   [data.genres[i], data.genres[j]] = [data.genres[j], data.genres[i]];
+        // }
 
         // Fetch only the first 10 TV show genres
-        setTVGenres(data.genres.slice(0, 15));
+        setTVGenres(data.genres.slice(0, 10));
       } catch (error) {
         console.error("Error fetching TV show genres:", error);
       }
@@ -347,26 +254,18 @@ export function DiscoverContent() {
           language: "en-US",
         });
 
-        // Get cast data for each show
-        const showsWithCast = await Promise.all(
-          data.results.map(async (show: TMDBMedia) => {
-            const cast = await fetchMediaCredits(show.id, "tv");
-            return { ...show, cast };
-          }),
-        );
-
         // Shuffle the TV shows
-        for (let i = showsWithCast.length - 1; i > 0; i -= 1) {
+        for (let i = data.results.length - 1; i > 0; i -= 1) {
           const j = Math.floor(Math.random() * (i + 1));
-          [showsWithCast[i], showsWithCast[j]] = [
-            showsWithCast[j],
-            showsWithCast[i],
+          [data.results[i], data.results[j]] = [
+            data.results[j],
+            data.results[i],
           ];
         }
 
         setTVShowGenres((prevTVShowGenres) => ({
           ...prevTVShowGenres,
-          [genreId]: showsWithCast,
+          [genreId]: data.results,
         }));
       } catch (error) {
         console.error(`Error fetching TV shows for genre ${genreId}:`, error);
@@ -384,13 +283,20 @@ export function DiscoverContent() {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
         });
+
+        // Shuffle the array of genres
+        // for (let i = data.genres.length - 1; i > 0; i -= 1) {
+        //   const j = Math.floor(Math.random() * (i + 1));
+        //   [data.genres[i], data.genres[j]] = [data.genres[j], data.genres[i]];
+        // }
+
+        // Fetch only the first 12 genres
         setGenres(data.genres.slice(0, 15));
-        setLoadingProgress((prev) => ({ ...prev, genres: true }));
       } catch (error) {
         console.error("Error fetching genres:", error);
-        setLoadingProgress((prev) => ({ ...prev, genres: true })); // Set to true even on error to prevent infinite loading
       }
     };
+
     fetchGenres();
   }, []);
 
@@ -398,32 +304,28 @@ export function DiscoverContent() {
   useEffect(() => {
     const fetchMoviesForGenre = async (genreId: number) => {
       try {
-        const data = await get<any>("/discover/movie", {
-          api_key: conf().TMDB_READ_API_KEY,
-          with_genres: genreId.toString(),
-          language: "en-US",
-        });
+        const movies: any[] = [];
+        for (let page = 1; page <= 25; page += 1) {
+          // Fetch only 6 pages
+          const data = await get<any>("/discover/movie", {
+            api_key: conf().TMDB_READ_API_KEY,
+            with_genres: genreId.toString(),
+            language: "en-US",
+            page: page.toString(),
+          });
 
-        // Get cast data for each movie
-        const moviesWithCast = await Promise.all(
-          data.results.map(async (movie: TMDBMedia) => {
-            const cast = await fetchMediaCredits(movie.id, "movie");
-            return { ...movie, cast };
-          }),
-        );
+          movies.push(...data.results);
+        }
 
         // Shuffle the movies
-        for (let i = moviesWithCast.length - 1; i > 0; i -= 1) {
+        for (let i = movies.length - 1; i > 0; i -= 1) {
           const j = Math.floor(Math.random() * (i + 1));
-          [moviesWithCast[i], moviesWithCast[j]] = [
-            moviesWithCast[j],
-            moviesWithCast[i],
-          ];
+          [movies[i], movies[j]] = [movies[j], movies[i]];
         }
 
         setGenreMovies((prevGenreMovies) => ({
           ...prevGenreMovies,
-          [genreId]: moviesWithCast,
+          [genreId]: movies,
         }));
       } catch (error) {
         console.error(`Error fetching movies for genre ${genreId}:`, error);
@@ -434,92 +336,66 @@ export function DiscoverContent() {
   }, [genres]);
 
   // Fetch Movies By Provider
-  const fetchMoviesByProvider = useCallback(async (providerId: string) => {
+  const fetchMoviesByProvider = async (providerId: string) => {
     try {
-      setProviderLoading((prev) => ({
-        ...prev,
-        [providerId]: true,
-      }));
-
       const movies: any[] = [];
-      for (let page = 1; page <= 25; page++) {
+      // eslint-disable-next-line no-plusplus
+      for (let page = 1; page <= 50; page++) {
         const data = await get<any>("/discover/movie", {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
           page: page.toString(),
           with_watch_providers: providerId,
-          watch_region: "US",
+          watch_region: "US", // You can set a specific region if required
         });
 
         movies.push(...data.results);
       }
-
-      const moviesWithCast = await Promise.all(
-        movies.map(async (movie) => {
-          const cast = await fetchMediaCredits(movie.id, "movie");
-          return { ...movie, cast };
-        }),
-      );
-
       setProviderMovies((prev) => ({
         ...prev,
-        [providerId]: moviesWithCast,
+        [providerId]: movies,
       }));
     } catch (error) {
       console.error(`Error fetching movies for provider ${providerId}:`, error);
-    } finally {
-      setProviderLoading((prev) => ({
-        ...prev,
-        [providerId]: false,
-      }));
     }
+  };
+
+  useEffect(() => {
+    const randomMovieProvider =
+      movieProviders[Math.floor(Math.random() * movieProviders.length)];
+    setSelectedProvider(randomMovieProvider); // Store the selected provider
+
+    fetchMoviesByProvider(randomMovieProvider.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch TV Shows By Provider
-  const fetchTVByProvider = useCallback(async (providerId: string) => {
+  const fetchTVByProvider = async (providerId: string) => {
     try {
-      setTvProviderLoading((prev) => ({
-        ...prev,
-        [providerId]: true,
-      }));
-
       const series: any[] = [];
-      for (let page = 1; page <= 25; page++) {
+      // eslint-disable-next-line no-plusplus
+      for (let page = 1; page <= 50; page++) {
         const data = await get<any>("/discover/tv", {
           api_key: conf().TMDB_READ_API_KEY,
           language: "en-US",
           page: page.toString(),
           with_watch_providers: providerId,
-          watch_region: "US",
+          watch_region: "US", // You can set a specific region if required
         });
 
         series.push(...data.results);
       }
-
-      // Get cast data for each show
-      const showsWithCast = await Promise.all(
-        series.map(async (show) => {
-          const cast = await fetchMediaCredits(show.id, "tv");
-          return { ...show, cast };
-        }),
-      );
-
       setProviderTVShows((prev) => ({
         ...prev,
-        [providerId]: showsWithCast,
+        [providerId]: series,
       }));
     } catch (error) {
       console.error(
         `Error fetching tv shows for provider ${providerId}:`,
         error,
       );
-    } finally {
-      setTvProviderLoading((prev) => ({
-        ...prev,
-        [providerId]: false,
-      }));
     }
-  }, []);
+  };
 
   useEffect(() => {
     const randomTVProvider =
@@ -552,20 +428,6 @@ export function DiscoverContent() {
       }
     }
   }
-
-  // Update providers fetching
-  useEffect(() => {
-    const randomProvider =
-      movieProviders[Math.floor(Math.random() * movieProviders.length)];
-    setSelectedProvider(randomProvider);
-
-    Promise.all([
-      fetchMoviesByProvider(randomProvider.id),
-      fetchTVByProvider(randomProvider.id),
-    ]).then(() => {
-      setLoadingProgress((prev) => ({ ...prev, providers: true }));
-    });
-  }, [fetchMoviesByProvider, fetchTVByProvider]);
 
   const [movieWidth, setMovieWidth] = useState(
     window.innerWidth < 600 ? "150px" : "200px",
@@ -651,18 +513,16 @@ export function DiscoverContent() {
           onWheel={(e) => handleWheel(e, categorySlug)}
         >
           {medias
-            .filter((media: TMDBMedia, index, self) => {
+            .filter((media, index, self) => {
               return (
                 index ===
                 self.findIndex(
-                  (m) =>
-                    m.id === media.id &&
-                    (m.title === media.title || m.name === media.name),
+                  (m) => m.id === media.id && m.title === media.title,
                 )
               );
             })
-            .slice(0, 45)
-            .map((media: TMDBMedia) => (
+            .slice(0, 50)
+            .map((media) => (
               <a
                 key={media.id}
                 onClick={() =>
@@ -672,75 +532,25 @@ export function DiscoverContent() {
                     }`,
                   )
                 }
-                className="discover-card max-h-200 text-center relative mt-3 mx-[0.285em] transition-transform duration-[0.45s] hover:scale-105 hover:z-50"
-                style={{ flex: `0 0 ${movieWidth}` }}
+                className="discover-card max-h-200 text-center relative mt-3 mx-[0.285em] transition-transform duration-[0.45s] hover:scale-105"
+                style={{ flex: `0 0 ${movieWidth}` }} // Set a fixed width for each movie
               >
-                <Flare.Base className="group cursor-pointer rounded-xl relative p-[0.65em] bg-background-main transition-all duration-300 bg-transparent hover:z-50">
+                <Flare.Base className="group cursor-pointer rounded-xl relative p-[0.65em] bg-background-main transition-colors duration-300 bg-transparent">
                   <Flare.Light
                     flareSize={300}
                     cssColorVar="--colors-mediaCard-hoverAccent"
                     backgroundClass="bg-mediaCard-hoverBackground duration-200"
                     className="rounded-xl bg-background-main group-hover:opacity-100"
                   />
-                  <div className="relative">
-                    <img
-                      src={
-                        media.poster_path
-                          ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
-                          : "/placeholder.png"
-                      }
-                      alt={media.poster_path ? "" : "failed to fetch :("}
-                      className="rounded-xl relative"
-                    />
-                    {/* Details Card - Moved inside main card container */}
-                    <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 absolute left-[calc(100%+1rem)] top-0 w-96 rounded-lg bg-background-main/95 p-4 shadow-lg transition-all duration-200">
-                      <div className="absolute -left-2 top-0 w-2 h-full" />{" "}
-                      {/* Invisible bridge */}
-                      {typeof media.vote_average === "number" && (
-                        <div className="mb-2 flex items-center">
-                          <span
-                            className="mr-1 text-yellow-400"
-                            dangerouslySetInnerHTML={{
-                              __html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 576 512"><path d="M288 448l-96 64 32-112-96-64h120l32-112 32 112h120l-96 64 32 112z"/></svg>`,
-                            }}
-                          />
-                          <span className="text-sm font-bold text-white">
-                            {media.vote_average.toFixed(1)}/10
-                          </span>
-                        </div>
-                      )}
-                      {media.overview && (
-                        <p className="text-sm text-gray-300 whitespace-normal break-words overflow-y-auto max-h-32 pr-2 mb-3">
-                          {media.overview}
-                        </p>
-                      )}
-                      {/* Add cast section */}
-                      {media.cast && media.cast.length > 0 && (
-                        <div className="border-t border-gray-700 pt-3">
-                          <p className="text-sm font-semibold text-white mb-2">
-                            Cast
-                          </p>
-                          <div className="text-sm text-gray-300 space-y-1 max-h-24 overflow-y-auto pr-2">
-                            {media.cast.slice(0, 5).map((actor) => (
-                              <div
-                                key={`${media.id}-${actor.name}`}
-                                className="flex justify-between"
-                              >
-                                <span className="font-medium">
-                                  {actor.name}
-                                </span>
-                                {actor.character && (
-                                  <span className="text-gray-400 text-xs ml-2">
-                                    as {actor.character}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <img
+                    src={
+                      media.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${media.poster_path}`
+                        : "/placeholder.png"
+                    }
+                    alt={media.poster_path ? "" : "failed to fetch :("}
+                    className="rounded-xl relative"
+                  />
                   <h1 className="group relative pt-2 pr-1 text-[13.5px] whitespace-normal duration-[0.35s] font-semibold text-white opacity-0 group-hover:opacity-100 flex items-center">
                     <span className="flex-1 text-center">
                       {isTVShow
@@ -762,21 +572,21 @@ export function DiscoverContent() {
             <button
               type="button"
               title="Back"
-              className="absolute left-2 top-1/2 -translate-y-1/2 h-48 z-[60] group"
+              className="absolute left-5 top-1/2 transform -translate-y-3/4 z-10"
               onClick={() => scrollCarousel(categorySlug, "left")}
             >
-              <div className="cursor-pointer text-white flex justify-center items-center h-full w-14 bg-search-hoverBackground bg-opacity-80 group-hover:bg-opacity-90 transition-all duration-200 rounded-xl">
-                <Icon icon={Icons.ARROW_LEFT} className="text-4xl" />
+              <div className="cursor-pointer text-white flex justify-center items-center h-10 w-10 rounded-full bg-search-hoverBackground active:scale-110 transition-[transform,background-color] duration-200">
+                <Icon icon={Icons.ARROW_LEFT} />
               </div>
             </button>
             <button
               type="button"
               title="Next"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-48 z-[60] group"
+              className="absolute right-5 top-1/2 transform -translate-y-3/4 z-10"
               onClick={() => scrollCarousel(categorySlug, "right")}
             >
-              <div className="cursor-pointer text-white flex justify-center items-center h-full w-14 bg-search-hoverBackground bg-opacity-80 group-hover:bg-opacity-90 transition-all duration-200 rounded-xl">
-                <Icon icon={Icons.ARROW_RIGHT} className="text-4xl" />
+              <div className="cursor-pointer text-white flex justify-center items-center h-10 w-10 rounded-full bg-search-hoverBackground active:scale-110 transition-[transform,background-color] duration-200">
+                <Icon icon={Icons.ARROW_RIGHT} />
               </div>
             </button>
           </div>
@@ -1038,7 +848,7 @@ export function DiscoverContent() {
     <button
       type="button"
       key={`${categorySlug}-${direction}`}
-      className="flex items-center rounded-lg px-6 text-white py-4"
+      className="flex items-center rounded-full px-4 text-white py-3"
       onClick={() => {
         const element = document.getElementById(
           `button-carousel-${categorySlug}`,
@@ -1055,34 +865,12 @@ export function DiscoverContent() {
       }}
     >
       {direction === "left" ? (
-        <Icon icon={Icons.CHEVRON_LEFT} className="text-3xl" />
+        <Icon icon={Icons.CHEVRON_LEFT} className="text-2xl" />
       ) : (
-        <Icon icon={Icons.CHEVRON_RIGHT} className="text-3xl" />
+        <Icon icon={Icons.CHEVRON_RIGHT} className="text-2xl" />
       )}
     </button>
   );
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-64 space-y-4">
-        <Loading />
-        <p className="text-lg font-medium text-gray-400 animate-pulse mt-4">
-          Fetching the latest movies & TV shows...
-        </p>
-        <p className="text-sm text-gray-500">
-          Please wait while we load the best recommendations for you.
-        </p>
-        <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mt-4">
-          <div
-            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500"
-            style={{
-              width: `${(Object.values(loadingProgress).filter(Boolean).length / 3) * 100}%`,
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -1267,17 +1055,8 @@ export function DiscoverContent() {
               id="carousel-providers"
             >
               {selectedProvider.id ? (
-                providerLoading[selectedProvider.id] ? (
-                  <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                    <Loading />
-                    <p className="text-lg font-medium text-gray-400 animate-pulse">
-                      Loading {selectedProvider.name} content...
-                    </p>
-                    <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse" />
-                    </div>
-                  </div>
-                ) : providerMovies[selectedProvider.id]?.length > 0 ? (
+                providerMovies[selectedProvider.id] &&
+                providerMovies[selectedProvider.id].length > 0 ? (
                   renderMovies(
                     providerMovies[selectedProvider.id],
                     `Popular Movies on ${selectedProvider.name}`,
@@ -1328,25 +1107,15 @@ export function DiscoverContent() {
               <Divider marginClass="ml-5" />
             </div>
             <div
-              key={`carousel-tv-providers-${selectedTVProvider.id}`}
+              key={`carousel-tv-providers-${selectedProvider.id}`}
               id="carousel-tv-providers"
             >
               {selectedTVProvider.id ? (
-                tvProviderLoading[selectedTVProvider.id] ? (
-                  <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                    <Loading />
-                    <p className="text-lg font-medium text-gray-400 animate-pulse">
-                      Loading {selectedTVProvider.name} content...
-                    </p>
-                    <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse" />
-                    </div>
-                  </div>
-                ) : providerTVShows[selectedTVProvider.id]?.length > 0 ? (
+                providerTVShows[selectedTVProvider.id] &&
+                providerTVShows[selectedTVProvider.id].length > 0 ? (
                   renderMovies(
                     providerTVShows[selectedTVProvider.id],
                     `Popular Shows on ${selectedTVProvider.name}`,
-                    true,
                   )
                 ) : (
                   <p className="text-center text-gray-600">
