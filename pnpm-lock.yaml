@@ -40,8 +40,8 @@ importers:
         specifier: ^0.7.2
         version: 0.7.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@movie-web/providers':
-        specifier: github:sussy-code/providers
-        version: https://codeload.github.com/sussy-code/providers/tar.gz/b53ad8a399bd342e68c10501b45a6a1f635a5812
+        specifier: github:VidBingeApp/providers/providers
+        version: https://codeload.github.com/VidBingeApp/providers/tar.gz/3d59469e67f5e66fe1ac3f09fae06f9cdfaf47bc
       '@noble/hashes':
         specifier: ^1.5.0
         version: 1.5.0
