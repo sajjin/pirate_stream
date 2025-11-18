@@ -40,10 +40,25 @@ export async function downloadCaption(
 
       data = extensionResponse.response.body;
     } else {
-      data = await proxiedFetch<string>(caption.url, { responseType: "text" });
+      data = await proxiedFetch<string>(caption.url, {
+        responseType: "text",
+        headers: {
+          "Accept-Charset": "utf-8",
+        },
+      });
     }
   } else {
-    data = await fetch(caption.url).then((v) => v.text());
+    const response = await fetch(caption.url);
+    const contentType = response.headers.get("content-type") || "";
+    const charset = contentType.includes("charset=")
+      ? contentType.split("charset=")[1].toLowerCase()
+      : "utf-8";
+
+    // Get the raw bytes
+    const buffer = await response.arrayBuffer();
+    // Decode using the detected charset, defaulting to UTF-8
+    const decoder = new TextDecoder(charset);
+    data = decoder.decode(buffer);
   }
   if (!data) throw new Error("failed to get caption data");
 

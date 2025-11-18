@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import classNames from "classnames";
+import { useCallback, useRef, useState } from "react";
 import Sticky from "react-sticky-el";
-import { useWindowSize } from "react-use";
 
 import { SearchBarInput } from "@/components/form/SearchBar";
 import { ThinContainer } from "@/components/layout/ThinContainer";
 import { useSlashFocus } from "@/components/player/hooks/useSlashFocus";
 import { HeroTitle } from "@/components/text/HeroTitle";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsTV } from "@/hooks/useIsTv";
 import { useRandomTranslation } from "@/hooks/useRandomTranslation";
 import { useSearchQuery } from "@/hooks/useSearchQuery";
 import { useBannerSize } from "@/stores/banner";
@@ -13,13 +15,18 @@ import { useBannerSize } from "@/stores/banner";
 export interface HeroPartProps {
   setIsSticky: (val: boolean) => void;
   searchParams: ReturnType<typeof useSearchQuery>;
+  showTitle?: boolean;
+  isInFeatured?: boolean;
 }
 
-function getTimeOfDay(date: Date): "night" | "morning" | "day" | "420" | "69" {
+function getTimeOfDay(
+  date: Date,
+): "night" | "morning" | "day" | "420" | "69" | "halloween" {
   const month = date.getMonth() + 1;
   const day = date.getDate();
   if (month === 4 && day === 20) return "420";
   if (month === 6 && day === 9) return "69";
+  if (month === 10 && day === 31) return "halloween";
   const hour = date.getHours();
   if (hour < 5) return "night";
   if (hour < 12) return "morning";
@@ -27,32 +34,32 @@ function getTimeOfDay(date: Date): "night" | "morning" | "day" | "420" | "69" {
   return "night";
 }
 
-export function HeroPart({ setIsSticky, searchParams }: HeroPartProps) {
+export function HeroPart({
+  setIsSticky,
+  searchParams,
+  showTitle,
+  isInFeatured,
+}: HeroPartProps) {
   const { t: randomT } = useRandomTranslation();
   const [search, setSearch, setSearchUnFocus] = searchParams;
-  const [, setShowBg] = useState(false);
+  const [showBg, setShowBg] = useState(false);
   const bannerSize = useBannerSize();
+  const { isMobile } = useIsMobile();
+  const { isTV } = useIsTV();
+
   const stickStateChanged = useCallback(
     (isFixed: boolean) => {
       setShowBg(isFixed);
       setIsSticky(isFixed);
     },
-    [setShowBg, setIsSticky],
+    [setIsSticky],
   );
 
-  const { width: windowWidth } = useWindowSize();
-
-  const topSpacing = 16;
-  const [stickyOffset, setStickyOffset] = useState(topSpacing);
-  useEffect(() => {
-    if (windowWidth > 1200) {
-      // On large screens the bar goes inline with the nav elements
-      setStickyOffset(topSpacing);
-    } else {
-      // On smaller screens the bar goes below the nav elements
-      setStickyOffset(topSpacing + 60);
-    }
-  }, [windowWidth]);
+  // Navbar height is 80px (h-20)
+  const navbarHeight = 80;
+  // On desktop: inline with navbar (same top position)
+  // On mobile: below navbar (navbar height + banner)
+  const topOffset = isMobile ? navbarHeight + bannerSize : bannerSize + 14;
 
   const time = getTimeOfDay(new Date());
   const title = randomT(`home.titles.${time}`);
@@ -62,15 +69,23 @@ export function HeroPart({ setIsSticky, searchParams }: HeroPartProps) {
 
   return (
     <ThinContainer>
-      <div className="mt-44 space-y-16 text-center">
-        <div className="relative z-10 mb-16">
-          <HeroTitle className="mx-auto max-w-md">{title}</HeroTitle>
-        </div>
+      <div
+        className={classNames(
+          "space-y-16 text-center",
+          showTitle ? "mt-44" : "mt-4",
+        )}
+      >
+        {showTitle && (!isTV || search.length === 0) ? (
+          <div className="relative z-10 mb-16">
+            <HeroTitle className="mx-auto max-w-md">{title}</HeroTitle>
+          </div>
+        ) : null}
+
         <div className="relative h-20 z-30">
           <Sticky
-            topOffset={stickyOffset * -1 + bannerSize}
+            topOffset={-topOffset}
             stickyStyle={{
-              paddingTop: `${stickyOffset + bannerSize}px`,
+              paddingTop: `${topOffset}px`,
             }}
             onFixedToggle={stickStateChanged}
           >
@@ -80,6 +95,8 @@ export function HeroPart({ setIsSticky, searchParams }: HeroPartProps) {
               value={search}
               onUnFocus={setSearchUnFocus}
               placeholder={placeholder ?? ""}
+              isSticky={showBg}
+              isInFeatured={isInFeatured}
             />
           </Sticky>
         </div>

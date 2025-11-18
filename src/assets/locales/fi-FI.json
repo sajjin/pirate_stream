@@ -1,6 +1,6 @@
 {
   "about": {
-    "description": "Pirata Amnis on verkkosovellus, joka etsii suoratoistoja internetistä. Tiimi pyrkii enimmäkseen minimalistiseen lähestymistapaan sisällön kuluttamiseen.",
+    "description": "Pirata Amnis on movie-webin haarukka, joka pysyy pystyssä, vaikka movie-web.app suljettiin. Pirata Amnis pyörii yksityisellä, itse ylläpitämälläni VPS:llä. Pyöritän sivua tappiolla; mainoksia ei ole, koska uskon ilmaiseen mediaan.",
     "faqTitle": "Yleisiä kysymyksiä",
     "q1": {
       "body": "Pirata Amnis ei isännöi mitään sisältöä. Kun klikkaat jotain katsottavaa, valittua mediaa etsitään internetistä (latausnäytössä ja 'videolähteet'-välilehdellä näet, mitä lähdettä käytät). Pirata Amnis ei koskaan lataa mediaa, kaikki tapahtuu tämän hakumekanismin kautta.",
@@ -14,7 +14,15 @@
       "body": "Hakutuloksemme perustuvat The Movie Database (TMDB) -tietokantaan, ja ne näkyvät riippumatta siitä, onko sisältöä oikeasti lähteissämme.",
       "title": "Hakutuloksissa näytetään ohjelma tai elokuva. Miksi en voi toistaa sitä?"
     },
-    "title": "Tietoja Pirata Amnisistä"
+    "title": "Tietoja Pirata Amnisistä",
+    "q4": {
+      "body": "Kaikki data synkronoidaan yhteisön taustajärjestelmään, ja kuka tahansa voi vapaasti käyttää tätä.",
+      "title": "Entä tietoni ja muut asiat?"
+    },
+    "q5": {
+      "body": "Pirata Amnisilla on Discord-palvelin, jonka löydät tämän sivun yläosasta!",
+      "title": "Miten voin saada lisätietoa?"
+    }
   },
   "actions": {
     "copied": "Kopioitu",
@@ -25,7 +33,7 @@
     "deviceNameLabel": "Laitteen nimi",
     "deviceNamePlaceholder": "Henkilökohtainen puhelin",
     "generate": {
-      "description": "Tunnuslauseesi toimii käyttäjätunnuksena ja salasanana. Varmista, että pidät sen turvassa, sillä sinun on annettava se kirjautuaksesi tilillesi",
+      "description": "Tunnuslauseesi toimii käyttäjätunnuksena ja salasanana. Varmista, että pidät sen turvassa, sillä sinun on annettava se kirjautuaksesi tilillesi. <bold>Älä hävitä tunnuslausettasi!</bold>",
       "next": "Olen tallentanut tunnuslauseeni",
       "passphraseFrameLabel": "Tunnuslause",
       "title": "Sinun tunnuslause"
@@ -44,7 +52,7 @@
       "information": {
         "color1": "Profiilin väri yksi",
         "color2": "Profiilin väri kaksi",
-        "header": "Anna laitteellesi nimi ja valitse haluamasi värit ja käyttäjäkuvake",
+        "header": "Anna laitteellesi nimi ja valitse sitten haluamasi värit ja käyttäjäkuvake!",
         "icon": "Käyttäjäkuvake",
         "next": "Seuraava",
         "title": "Tilitiedot"
@@ -55,10 +63,12 @@
         "text": "Oletko määrittänyt sen oikein?",
         "title": "Palvelimeen ei saada yhteyttä"
       },
-      "host": "Olet muodostamassa yhteyttä <0>{{hostname}}</0> - vahvista, että luotat siihen ennen kuin luot tilin",
-      "no": "Mene takaisin",
+      "host": "Olet muodostamassa yhteyttä <0>{{hostname}}</0> - vahvista, että luotat siihen ennen kuin luot tilin...",
+      "no": "Takaisin",
       "title": "Luotatko tähän palvelimeen?",
-      "yes": "Luotan tähän palvelimeen"
+      "yes": "Luotan tähän palvelimeen 🤞",
+      "noHostTitle": "Palvelinta ei ole konfiguroitu!",
+      "noHost": "Palvelinta ei ole konfiguroitu, joten et voi luoda tiliä"
     },
     "verify": {
       "description": "Anna aikaisemmin saamasi tunnuslause vahvistaaksesi, että olet tallentanut sen ja luodaksesi tilisi",
@@ -84,21 +94,27 @@
     },
     "links": {
       "discord": "Discord",
-      "dmca": "DMCA",
-      "github": "GitHub"
+      "legal": "Legal / DMCA",
+      "github": "GitHub",
+      "twitter": "Twitter",
+      "funding": "Tue meitä"
     },
-    "tagline": "Katso suosikkiohjelmiasi ja elokuviasi tällä avoimen lähdekoodin suoratoistosovelluksella."
+    "tagline": "Katso suosikkiohjelmiasi ja elokuviasi täysin ilmaiseksi ilman mainoksia! (っ'ヮ'c)"
   },
   "global": {
     "name": "Pirata Amnis",
     "pages": {
-      "about": "Meistä",
-      "dmca": "DMCA",
+      "about": "Tietoja",
+      "legal": "Legal / DMCA",
       "login": "Kirjaudu sisään",
       "onboarding": "asetus",
       "pagetitle": "{{title}} - Pirata Amnis",
       "register": "Rekisteröidy",
-      "settings": "Asetukset"
+      "settings": "Asetukset",
+      "migration": "Siirrä käyttäjätili",
+      "discover": "Löydä uutta",
+      "support": "Tuki",
+      "jip": "Jip"
     }
   },
   "home": {
@@ -106,37 +122,73 @@
       "sectionTitle": "Kirjanmerkit"
     },
     "continueWatching": {
-      "sectionTitle": "Jatka katselua"
+      "sectionTitle": "Jatka katselua..."
     },
     "mediaList": {
       "stopEditing": "Lopeta muokkaaminen"
     },
     "search": {
-      "allResults": "Siinä kaikki mitä meillä on!",
+      "allResults": "Siinä kaikki mitä meillä löytyy...",
       "failed": "Mediaa ei löytynyt, yritä uudelleen!",
       "loading": "Ladataan...",
-      "noResults": "Emme löytäneet mitään!",
+      "noResults": "Emme löytäneet mitään :(",
       "placeholder": {
         "default": "Mitä haluat katsoa?",
-        "extra": []
+        "extra": [
+          "Mitä tekisi mieli?",
+          "Poistetaanko selaushistoriasi?",
+          "Mitä haluat striimata?",
+          "Pirata Amnis on paras sivusto ikinä!",
+          "Mitä katselulistallasi on tänään?",
+          "Miten päiväsi sujui?",
+          "Pahoittelut, sivusto ei toimi koskaan...",
+          "Eikö Pirata Amnis olekin paras?",
+          ">ᴗ<"
+        ]
       },
-      "sectionTitle": "Hakutulokset"
+      "sectionTitle": "Hakutulokset",
+      "empty": {
+        "default": "Tervetuloa! Löydä katsottavaa täältä!",
+        "extra": [
+          "Täällä ei ole mitään :(",
+          "Niin tyhjää...",
+          "Aivan tyhjää.",
+          "Hei uusi tyyppi :3"
+        ]
+      },
+      "discoverMore": "Löydä lisää",
+      "discover": "Löydä katsottavaa"
     },
     "titles": {
       "day": {
         "default": "Mitä haluaisit katsoa tänä iltapäivänä?",
         "extra": [
-          "Onko seikkailunhaluinen olo? Jurassic Park saattaa olla täydellinen valinta."
+          "Onko seikkailunhaluinen olo? Jurassic Park saattaa olla täydellinen valinta!"
         ]
       },
       "morning": {
         "default": "Mitä haluaisit katsoa tänä aamuna?",
-        "extra": ["Kuulen, että Rakkautta ennen aamua (Before Sunrise) on hyvä"]
+        "extra": [
+          "Kuulen, että Rakkautta ennen aamua (Before Sunrise) on hyvä!"
+        ]
       },
       "night": {
         "default": "Mitä haluaisit katsoa tänä iltana?",
-        "extra": ["Väsynyt? Kuulin, että Manaaja (The Exorcist) on hyvä."]
+        "extra": ["Väsynyt? Kuulin, että Manaaja (The Exorcist) on hyvä!"]
+      },
+      "420": {
+        "default": "Mitä tekisi mieli katsoa tänä 4/20-päivänä?",
+        "extra": ["Hyvää 4/20-päivää 🥳!"]
+      },
+      "69": {
+        "default": "Ootko valmis johonkin kuumaan?",
+        "extra": ["Hyvää 69-päivää 😘!"]
       }
+    },
+    "mediaCard": {
+      "moreInfo": "Lisätietoja",
+      "copyLink": "Kopioi Linkki",
+      "close": "Sulje"
     }
   },
   "media": {
@@ -144,7 +196,10 @@
     "types": {
       "movie": "Elokuva",
       "show": "Sarja"
-    }
+    },
+    "unreleased": "Julkaisematon",
+    "episodeShort": "J",
+    "seasonShort": "K"
   },
   "navigation": {
     "banner": {
@@ -161,19 +216,19 @@
   "notFound": {
     "badge": "Ei löydetty",
     "goHome": "Takaisin kotiin",
-    "message": "Etsimme kaikkialta: roskakorien alta, kaapista, välityspalvelimen takaa, mutta emme lopulta löytäneet etsimääsi sivua.",
+    "message": "Etsimme kaikkialta: roskisten alta, kaapista, välityspalvelimen takaa… mutta emme silti löytäneet etsimääsi sivua. (ಥ﹏ಥ)",
     "title": "Sivua ei löytynyt"
   },
   "onboarding": {
     "defaultConfirm": {
       "cancel": "Peruuta",
       "confirm": "Käytä oletuksia",
-      "description": "Oletuksissa ei ole parhaita suoratoistoja ja se voi olla sietämättömän hidasta.",
+      "description": "Oletusasetuksilla ei ole parhaat streamit. Jäät paitsi parhaista lähteistä!",
       "title": "Oletko varma?"
     },
     "extension": {
       "back": "Mene takaisin",
-      "explainer": "Käyttämällä selainlaajennusta voit saada parhaat tarjoamamme suoratoistot. Yksinkertaisella asennuksella.",
+      "explainer": "Selainlaajennuksen avulla saat käyttöön parhaat streamimme. Vain yksinkertainen asennus riittää. 👌",
       "explainerIos": "Valitettavasti selainlaajennusta ei tueta iOS:ssä. Valitse toinen vaihtoehto painamalla <bold>Palaa</bold>.",
       "extensionHelp": "Jos olet asentanut laajennuksen, mutta se ei havaitse sitä, <bold>avaa laajennus selaimen laajennusvalikosta</bold> ja noudata näytön ohjeita.",
       "linkChrome": "Asenna Chromen laajennus",
@@ -209,20 +264,28 @@
       "explainer": "Parhaiden suoratoistojen saamiseksi sinun täytyy valita, mitä suoratoistomenetelmää haluat käyttää.",
       "options": {
         "default": {
-          "text": "En halua hyvälaatuisia suoratoistoja,<0 /> <1>käytä oletusasetusta</1>"
+          "text": "En halua hyvälaatuisia streameja, käytä oletusasetuksia."
         },
         "extension": {
           "action": "Asenna laajennus",
           "description": "Asenna selaimen laajennus ja saa pääsy parhaisiin lähteisiin."
         }
       },
-      "title": "Aloitetaan asennus elokuva-webin kanssa"
+      "title": "Aloitetaan asennus elokuva-webin kanssa",
+      "moreInfo": {
+        "explainer": {
+          "extension": "1. Laajennus",
+          "options": "Vaihtoehtosi:",
+          "proxy": "2. Proxy"
+        },
+        "button": "Lisää tietoja"
+      }
     }
   },
   "player": {
     "menus": {
       "episodes": {
-        "emptyState": "Tässä kaudessa ei ole jaksoja, tarkista myöhemmin!"
+        "emptyState": "Tässä kaudessa ei ole jaksoja – tarkista myöhemmin uudelleen (sori :3)..."
       },
       "quality": {
         "hint": "Voit kokeilla <0>vaihtaa lähdettä</0> saadaksesi eri laatuasetuksia."
@@ -232,14 +295,14 @@
           "text": "Emme löytäneet upotuksia, kokeile toista lähdettä."
         },
         "noStream": {
-          "text": "Tässä lähteessä ei ole suoratoistoja tälle elokuvalle tai ohjelmalle."
+          "text": "Tällä lähteellä ei ole streameja tälle elokuvalle tai sarjalle. /ᐠ - ˕ -マ Ⳋ"
         }
       }
     },
     "metadata": {
       "api": {
         "text": "API-metatietoja ei voitu ladata, tarkista internet-yhteys.",
-        "title": "Ei voitu ladata API:n metatietoja."
+        "title": "API-metatietojen lataus epäonnistui"
       }
     },
     "playbackError": {
@@ -247,14 +310,14 @@
         "errorAborted": "Mediatiedon haku keskeytettiin käyttäjän pyynnöstä.",
         "errorNotSupported": "Mediaa tai mediantarjoajaa ei tueta."
       },
-      "text": "Tapahtui virhe yritettäessä toistaa mediaa. Yritä uudelleen."
+      "text": "Median toistossa tapahtui virhe 😖. Yritä uudelleen tai kokeile toista lähdettä!"
     },
     "time": {
       "remaining": "{{timeLeft}} jäljellä • Päättyy {{timeFinished, datetime}}"
     },
     "turnstile": {
       "error": "Ei voitu varmistaa inhimillisyyttäsi. Yritä uudelleen.",
-      "title": "Meidän täytyy varmistaa, että olet ihminen."
+      "title": "Oletko robotti?"
     }
   },
   "screens": {
@@ -265,7 +328,7 @@
   "settings": {
     "account": {
       "register": {
-        "text": "Jaa katseluetenemisesi laitteiden välillä ja pidä ne synkronoituina."
+        "text": "Jaa katseluedistymisesi laitteiden välillä ja pidä ne synkronoituna. ( ̧⸝⸝⍢⸝⸝)ෆ"
       }
     },
     "connections": {
@@ -284,5 +347,105 @@
     "subtitles": {
       "previewQuote": "Minun ei pidä pelätä. Pelko on mielen tappaja."
     }
+  },
+  "details": {
+    "resume": "Jatka",
+    "play": "Toista",
+    "runtime": "Kesto:",
+    "releaseDate": "Julkaisupäivä:",
+    "rating": "Arvosana:",
+    "tmdb": "Näytä TMDB:ssä",
+    "imdb": "Näytä IMDb:ssä",
+    "episodes": "Jaksot",
+    "season": "Kausi",
+    "airs": "Esitetään",
+    "language": "Kieli:",
+    "episode": "Jakso",
+    "endsAt": "Loppuu {{time}}",
+    "votes": "arvostelut"
+  },
+  "migration": {
+    "loginRequired": "Sinun täytyy olla kirjautuneena siirtääksesi tietosi! Palaa takaisin ja kirjaudu sisään jatkaaksesi.",
+    "start": {
+      "title": "Siirrä tietosi",
+      "explainer": "Jos haluat siirtää tai varmuuskopioida tietosi, voit tehdä sen alla olevien vaihtoehtojen avulla. Näin säilytät tietosi, kun vaihdat taustapalvelinta.",
+      "options": {
+        "or": "tai",
+        "direct": {
+          "description": "Tämä siirtää tietosi suoraan uudelle palvelimelle. Tämä on nopein vaihtoehto.<br /><br />Tämän vaihtoehdon avulla voit säilyttää saman tunnuslauseen!",
+          "title": "Suora siirto",
+          "quality": "Helpoin ja nopein",
+          "action": "Siirrä tiedot"
+        },
+        "download": {
+          "description": "Tämä lataa tietosi laitteellesi. Voit sen jälkeen lähettää ne uudelle palvelimelle tai säilyttää ne varmuuden vuoksi.",
+          "title": "Lataa tiedot",
+          "quality": "Teknisempi versio",
+          "action": "Lataa tiedot"
+        },
+        "upload": {
+          "title": "Lähetä tiedot",
+          "quality": "Palauta varmuuskopiosta",
+          "action": "Lähetä tiedot"
+        }
+      }
+    },
+    "direct": {
+      "recaptchaLabel": "ReCaptcha Avain (Vaihtoehtoinen)",
+      "button": {
+        "processing": "Käsitellään...",
+        "home": "Takaisin Etusivulle",
+        "login": "Jatka kirjautumiseen"
+      },
+      "backendLabel": "Kohdepalvelimen URL-osoite",
+      "title": "Suora siirto",
+      "toggleLable": "Tarviiko ReCaptchaa?"
+    },
+    "upload": {
+      "status": {
+        "success": "Tietosi lataaminen onnistui! 🎉",
+        "processing": "Käsitellään tietoja...",
+        "error": "Tietojesi lataaminen epäonnistui. 😿"
+      },
+      "file": {
+        "select": "Valitse tiedosto",
+        "name": "Tiedoston nimi",
+        "change": "Vaihda tiedosto",
+        "description": "Valitse tiedosto, jonka haluat ladata"
+      },
+      "dataPreview": "Esikatsele:",
+      "items": {
+        "bookmarks": "Suosikit",
+        "progress": "Katselun edistyminen"
+      },
+      "exportedOn": "Viety",
+      "button": {
+        "import": "Tuo tiedot",
+        "processing": "Käsitellään...",
+        "success": "Tuonti valmis",
+        "home": "Jatka etusivulle"
+      },
+      "title": "Vie tiedot",
+      "description": "Lähetä aiemmin viedyt tiedostosi palauttaaksesi suosikkisi ja etenemisesi tällä tilillä."
+    },
+    "download": {
+      "description": "Tämä lataa tietosi laitteellesi. Voit sen jälkeen joko lähettää ne uudelle palvelimelle tai säilyttää ne varmuuden vuoksi.",
+      "title": "Lataa tiedot",
+      "items": {
+        "description": "Lataus sisältää:",
+        "progress": "Katselun edistyminen",
+        "bookmarks": "Suosikit"
+      },
+      "status": {
+        "error": "Tietojen lataus epäonnistui. 😿",
+        "success": "Tietojesi lataaminen onnistui! 🎉"
+      },
+      "button": {
+        "download": "Lataa tietosi",
+        "home": "Takaisin etusivulle",
+        "login": "Jatka kirjautumiseen"
+      }
+    },
+    "back": "Takaisin"
   }
 }

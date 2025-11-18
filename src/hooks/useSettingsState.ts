@@ -1,4 +1,3 @@
-import isEqual from "lodash.isequal";
 import {
   Dispatch,
   SetStateAction,
@@ -19,7 +18,9 @@ export function useDerived<T>(
     setOverwrite(undefined);
   }, [initial]);
   const changed = useMemo(
-    () => !isEqual(overwrite, initial) && overwrite !== undefined,
+    () =>
+      JSON.stringify(overwrite) !== JSON.stringify(initial) &&
+      overwrite !== undefined,
     [overwrite, initial],
   );
   const setter = useCallback<Dispatch<SetStateAction<T>>>(
@@ -43,6 +44,8 @@ export function useSettingsState(
   deviceName: string,
   proxyUrls: string[] | null,
   backendUrl: string | null,
+  febboxKey: string | null,
+  realDebridKey: string | null,
   profile:
     | {
         colorA: string;
@@ -52,12 +55,41 @@ export function useSettingsState(
     | undefined,
   enableThumbnails: boolean,
   enableAutoplay: boolean,
+  enableDiscover: boolean,
+  enableFeatured: boolean,
+  enableDetailsModal: boolean,
   sourceOrder: string[],
+  enableSourceOrder: boolean,
+  lastSuccessfulSource: string | null,
+  enableLastSuccessfulSource: boolean,
+  disabledSources: string[],
+  embedOrder: string[],
+  enableEmbedOrder: boolean,
+  disabledEmbeds: string[],
+  proxyTmdb: boolean,
+  enableSkipCredits: boolean,
+  enableImageLogos: boolean,
+  enableCarouselView: boolean,
+  forceCompactEpisodeView: boolean,
+  enableLowPerformanceMode: boolean,
+  enableNativeSubtitles: boolean,
+  enableHoldToBoost: boolean,
+  homeSectionOrder: string[],
+  manualSourceSelection: boolean,
+  enableDoubleClickToSeek: boolean,
 ) {
   const [proxyUrlsState, setProxyUrls, resetProxyUrls, proxyUrlsChanged] =
     useDerived(proxyUrls);
   const [backendUrlState, setBackendUrl, resetBackendUrl, backendUrlChanged] =
     useDerived(backendUrl);
+  const [febboxKeyState, setFebboxKey, resetFebboxKey, febboxKeyChanged] =
+    useDerived(febboxKey);
+  const [
+    realDebridKeyState,
+    setRealDebridKey,
+    resetRealDebridKey,
+    realDebridKeyChanged,
+  ] = useDerived(realDebridKey);
   const [themeState, setTheme, resetTheme, themeChanged] = useDerived(theme);
   const setPreviewTheme = usePreviewThemeStore((s) => s.setPreviewTheme);
   const resetPreviewTheme = useCallback(
@@ -93,11 +125,133 @@ export function useSettingsState(
     enableAutoplayChanged,
   ] = useDerived(enableAutoplay);
   const [
+    enableSkipCreditsState,
+    setEnableSkipCreditsState,
+    resetEnableSkipCredits,
+    enableSkipCreditsChanged,
+  ] = useDerived(enableSkipCredits);
+  const [
+    enableDiscoverState,
+    setEnableDiscoverState,
+    resetEnableDiscover,
+    enableDiscoverChanged,
+  ] = useDerived(enableDiscover);
+  const [
+    enableFeaturedState,
+    setEnableFeaturedState,
+    resetEnableFeatured,
+    enableFeaturedChanged,
+  ] = useDerived(enableFeatured);
+  const [
+    enableDetailsModalState,
+    setEnableDetailsModalState,
+    resetEnableDetailsModal,
+    enableDetailsModalChanged,
+  ] = useDerived(enableDetailsModal);
+  const [
+    enableImageLogosState,
+    setEnableImageLogosState,
+    resetEnableImageLogos,
+    enableImageLogosChanged,
+  ] = useDerived(enableImageLogos);
+  const [
     sourceOrderState,
     setSourceOrderState,
     resetSourceOrder,
     sourceOrderChanged,
   ] = useDerived(sourceOrder);
+  const [
+    enableSourceOrderState,
+    setEnableSourceOrderState,
+    resetEnableSourceOrder,
+    enableSourceOrderChanged,
+  ] = useDerived(enableSourceOrder);
+  const [
+    lastSuccessfulSourceState,
+    setLastSuccessfulSourceState,
+    resetLastSuccessfulSource,
+    lastSuccessfulSourceChanged,
+  ] = useDerived(lastSuccessfulSource);
+  const [
+    enableLastSuccessfulSourceState,
+    setEnableLastSuccessfulSourceState,
+    resetEnableLastSuccessfulSource,
+    enableLastSuccessfulSourceChanged,
+  ] = useDerived(enableLastSuccessfulSource);
+  const [
+    disabledSourcesState,
+    setDisabledSourcesState,
+    resetDisabledSources,
+    disabledSourcesChanged,
+  ] = useDerived(disabledSources);
+  const [
+    embedOrderState,
+    setEmbedOrderState,
+    resetEmbedOrder,
+    embedOrderChanged,
+  ] = useDerived(embedOrder);
+  const [
+    enableEmbedOrderState,
+    setEnableEmbedOrderState,
+    resetEnableEmbedOrder,
+    enableEmbedOrderChanged,
+  ] = useDerived(enableEmbedOrder);
+  const [
+    disabledEmbedsState,
+    setDisabledEmbedsState,
+    resetDisabledEmbeds,
+    disabledEmbedsChanged,
+  ] = useDerived(disabledEmbeds);
+  const [proxyTmdbState, setProxyTmdbState, resetProxyTmdb, proxyTmdbChanged] =
+    useDerived(proxyTmdb);
+  const [
+    enableCarouselViewState,
+    setEnableCarouselViewState,
+    resetEnableCarouselView,
+    enableCarouselViewChanged,
+  ] = useDerived(enableCarouselView);
+  const [
+    forceCompactEpisodeViewState,
+    setForceCompactEpisodeViewState,
+    resetForceCompactEpisodeView,
+    forceCompactEpisodeViewChanged,
+  ] = useDerived(forceCompactEpisodeView);
+  const [
+    enableLowPerformanceModeState,
+    setEnableLowPerformanceModeState,
+    resetEnableLowPerformanceMode,
+    enableLowPerformanceModeChanged,
+  ] = useDerived(enableLowPerformanceMode);
+  const [
+    enableNativeSubtitlesState,
+    setEnableNativeSubtitlesState,
+    resetEnableNativeSubtitles,
+    enableNativeSubtitlesChanged,
+  ] = useDerived(enableNativeSubtitles);
+  const [
+    enableHoldToBoostState,
+    setEnableHoldToBoostState,
+    resetEnableHoldToBoost,
+    enableHoldToBoostChanged,
+  ] = useDerived(enableHoldToBoost);
+  const [
+    homeSectionOrderState,
+    setHomeSectionOrderState,
+    resetHomeSectionOrder,
+    homeSectionOrderChanged,
+  ] = useDerived(homeSectionOrder);
+  const [
+    manualSourceSelectionState,
+    setManualSourceSelectionState,
+    resetManualSourceSelection,
+    manualSourceSelectionChanged,
+  ] = useDerived(manualSourceSelection);
+  const [
+    enableDoubleClickToSeekState,
+    setEnableDoubleClickToSeekState,
+    resetEnableDoubleClickToSeek,
+    enableDoubleClickToSeekChanged,
+  ] = useDerived(enableDoubleClickToSeek);
 
   function reset() {
     resetTheme();
@@ -106,11 +260,34 @@ export function useSettingsState(
     resetSubStyling();
     resetProxyUrls();
     resetBackendUrl();
+    resetFebboxKey();
+    resetRealDebridKey();
     resetDeviceName();
     resetProfile();
     resetEnableThumbnails();
     resetEnableAutoplay();
+    resetEnableSkipCredits();
+    resetEnableDiscover();
+    resetEnableFeatured();
+    resetEnableDetailsModal();
+    resetEnableImageLogos();
     resetSourceOrder();
+    resetEnableSourceOrder();
+    resetLastSuccessfulSource();
+    resetEnableLastSuccessfulSource();
+    resetDisabledSources();
+    resetEmbedOrder();
+    resetEnableEmbedOrder();
+    resetDisabledEmbeds();
+    resetProxyTmdb();
+    resetEnableCarouselView();
+    resetForceCompactEpisodeView();
+    resetEnableLowPerformanceMode();
+    resetEnableNativeSubtitles();
+    resetEnableHoldToBoost();
+    resetHomeSectionOrder();
+    resetManualSourceSelection();
+    resetEnableDoubleClickToSeek();
   }
 
   const changed =
@@ -120,10 +297,33 @@ export function useSettingsState(
     deviceNameChanged ||
     backendUrlChanged ||
     proxyUrlsChanged ||
+    febboxKeyChanged ||
+    realDebridKeyChanged ||
     profileChanged ||
     enableThumbnailsChanged ||
     enableAutoplayChanged ||
-    sourceOrderChanged;
+    enableSkipCreditsChanged ||
+    enableDiscoverChanged ||
+    enableFeaturedChanged ||
+    enableDetailsModalChanged ||
+    enableImageLogosChanged ||
+    sourceOrderChanged ||
+    enableSourceOrderChanged ||
+    lastSuccessfulSourceChanged ||
+    enableLastSuccessfulSourceChanged ||
+    disabledSourcesChanged ||
+    embedOrderChanged ||
+    enableEmbedOrderChanged ||
+    disabledEmbedsChanged ||
+    proxyTmdbChanged ||
+    enableCarouselViewChanged ||
+    forceCompactEpisodeViewChanged ||
+    enableLowPerformanceModeChanged ||
+    enableNativeSubtitlesChanged ||
+    enableHoldToBoostChanged ||
+    homeSectionOrderChanged ||
+    manualSourceSelectionChanged ||
+    enableDoubleClickToSeekChanged;
 
   return {
     reset,
@@ -158,6 +358,16 @@ export function useSettingsState(
       set: setBackendUrl,
       changed: backendUrlChanged,
     },
+    febboxKey: {
+      state: febboxKeyState,
+      set: setFebboxKey,
+      changed: febboxKeyChanged,
+    },
+    realDebridKey: {
+      state: realDebridKeyState,
+      set: setRealDebridKey,
+      changed: realDebridKeyChanged,
+    },
     profile: {
       state: profileState,
       set: setProfileState,
@@ -173,10 +383,115 @@ export function useSettingsState(
       set: setEnableAutoplayState,
       changed: enableAutoplayChanged,
     },
+    enableSkipCredits: {
+      state: enableSkipCreditsState,
+      set: setEnableSkipCreditsState,
+      changed: enableSkipCreditsChanged,
+    },
+    enableDiscover: {
+      state: enableDiscoverState,
+      set: setEnableDiscoverState,
+      changed: enableDiscoverChanged,
+    },
+    enableFeatured: {
+      state: enableFeaturedState,
+      set: setEnableFeaturedState,
+      changed: enableFeaturedChanged,
+    },
+    enableDetailsModal: {
+      state: enableDetailsModalState,
+      set: setEnableDetailsModalState,
+      changed: enableDetailsModalChanged,
+    },
+    enableImageLogos: {
+      state: enableImageLogosState,
+      set: setEnableImageLogosState,
+      changed: enableImageLogosChanged,
+    },
     sourceOrder: {
       state: sourceOrderState,
       set: setSourceOrderState,
       changed: sourceOrderChanged,
+    },
+    enableSourceOrder: {
+      state: enableSourceOrderState,
+      set: setEnableSourceOrderState,
+      changed: enableSourceOrderChanged,
+    },
+    lastSuccessfulSource: {
+      state: lastSuccessfulSourceState,
+      set: setLastSuccessfulSourceState,
+      changed: lastSuccessfulSourceChanged,
+    },
+    enableLastSuccessfulSource: {
+      state: enableLastSuccessfulSourceState,
+      set: setEnableLastSuccessfulSourceState,
+      changed: enableLastSuccessfulSourceChanged,
+    },
+    proxyTmdb: {
+      state: proxyTmdbState,
+      set: setProxyTmdbState,
+      changed: proxyTmdbChanged,
+    },
+    disabledSources: {
+      state: disabledSourcesState,
+      set: setDisabledSourcesState,
+      changed: disabledSourcesChanged,
+    },
+    embedOrder: {
+      state: embedOrderState,
+      set: setEmbedOrderState,
+      changed: embedOrderChanged,
+    },
+    enableEmbedOrder: {
+      state: enableEmbedOrderState,
+      set: setEnableEmbedOrderState,
+      changed: enableEmbedOrderChanged,
+    },
+    disabledEmbeds: {
+      state: disabledEmbedsState,
+      set: setDisabledEmbedsState,
+      changed: disabledEmbedsChanged,
+    },
+    enableCarouselView: {
+      state: enableCarouselViewState,
+      set: setEnableCarouselViewState,
+      changed: enableCarouselViewChanged,
+    },
+    forceCompactEpisodeView: {
+      state: forceCompactEpisodeViewState,
+      set: setForceCompactEpisodeViewState,
+      changed: forceCompactEpisodeViewChanged,
+    },
+    enableLowPerformanceMode: {
+      state: enableLowPerformanceModeState,
+      set: setEnableLowPerformanceModeState,
+      changed: enableLowPerformanceModeChanged,
+    },
+    enableNativeSubtitles: {
+      state: enableNativeSubtitlesState,
+      set: setEnableNativeSubtitlesState,
+      changed: enableNativeSubtitlesChanged,
+    },
+    enableHoldToBoost: {
+      state: enableHoldToBoostState,
+      set: setEnableHoldToBoostState,
+      changed: enableHoldToBoostChanged,
+    },
+    homeSectionOrder: {
+      state: homeSectionOrderState,
+      set: setHomeSectionOrderState,
+      changed: homeSectionOrderChanged,
+    },
+    manualSourceSelection: {
+      state: manualSourceSelectionState,
+      set: setManualSourceSelectionState,
+      changed: manualSourceSelectionChanged,
+    },
+    enableDoubleClickToSeek: {
+      state: enableDoubleClickToSeekState,
+      set: setEnableDoubleClickToSeekState,
+      changed: enableDoubleClickToSeekChanged,
     },
   };
 }

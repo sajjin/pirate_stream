@@ -1,5 +1,7 @@
 import c from "classnames";
 import { ReactNode, useEffect, useRef } from "react";
+
+import { usePreferencesStore } from "../../stores/preferences";
 import "./Flare.css";
 
 export interface FlareProps {
@@ -8,6 +10,8 @@ export interface FlareProps {
   flareSize?: number;
   cssColorVar?: string;
   enabled?: boolean;
+  gradientOpacity?: number;
+  gradientSpread?: number;
 }
 
 const SIZE_DEFAULT = 200;
@@ -35,11 +39,18 @@ function Child(props: { className?: string; children?: ReactNode }) {
 }
 
 function Light(props: FlareProps) {
+  const { enableLowPerformanceMode } = usePreferencesStore();
+
   const outerRef = useRef<HTMLDivElement>(null);
   const size = props.flareSize ?? SIZE_DEFAULT;
   const cssVar = props.cssColorVar ?? CSS_VAR_DEFAULT;
+  const opacity = props.gradientOpacity ?? 1;
+  const spread = props.gradientSpread ?? 70;
 
   useEffect(() => {
+    // Only add mouse listener if not in low performance mode
+    if (enableLowPerformanceMode) return;
+
     function mouseMove(e: MouseEvent) {
       if (!outerRef.current) return;
       const rect = outerRef.current.getBoundingClientRect();
@@ -56,7 +67,12 @@ function Light(props: FlareProps) {
     document.addEventListener("mousemove", mouseMove);
 
     return () => document.removeEventListener("mousemove", mouseMove);
-  }, [size]);
+  }, [size, enableLowPerformanceMode]);
+
+  // Disable flare effect when low performance mode is enabled
+  if (enableLowPerformanceMode) {
+    return null;
+  }
 
   return (
     <div
@@ -69,7 +85,7 @@ function Light(props: FlareProps) {
         },
       )}
       style={{
-        backgroundImage: `radial-gradient(circle at center, rgba(var(${cssVar}) / 1), rgba(var(${cssVar}) / 0) 70%)`,
+        backgroundImage: `radial-gradient(circle at center, rgba(var(${cssVar}) / ${opacity}), rgba(var(${cssVar}) / 0) ${spread}%)`,
         backgroundPosition: `var(--bg-x) var(--bg-y)`,
         backgroundRepeat: "no-repeat",
         backgroundSize: `${size.toFixed(0)}px ${size.toFixed(0)}px`,
@@ -85,7 +101,7 @@ function Light(props: FlareProps) {
         <div
           className="absolute inset-0 opacity-10"
           style={{
-            background: `radial-gradient(circle at center, rgba(var(${cssVar}) / 1), rgba(var(${cssVar}) / 0) 70%)`,
+            backgroundImage: `radial-gradient(circle at center, rgba(var(${cssVar}) / ${opacity}), rgba(var(${cssVar}) / 0) ${spread}%)`,
             backgroundPosition: `var(--bg-x) var(--bg-y)`,
             backgroundRepeat: "no-repeat",
             backgroundSize: `${size.toFixed(0)}px ${size.toFixed(0)}px`,
