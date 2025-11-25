@@ -1,8 +1,4 @@
-import {
-  FullScraperEvents,
-  RunOutput,
-  ScrapeMedia,
-} from "@movie-web/providers";
+import { FullScraperEvents, RunOutput, ScrapeMedia } from "@p-stream/providers";
 import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { isExtensionActiveCached } from "@/backend/extension/messaging";
@@ -158,15 +154,58 @@ export function useScrape() {
   } = useBaseScrape();
 
   const preferredSourceOrder = usePreferencesStore((s) => s.sourceOrder);
+  const enableSourceOrder = usePreferencesStore((s) => s.enableSourceOrder);
+  const lastSuccessfulSource = usePreferencesStore(
+    (s) => s.lastSuccessfulSource,
+  );
+  const enableLastSuccessfulSource = usePreferencesStore(
+    (s) => s.enableLastSuccessfulSource,
+  );
+  const disabledSources = usePreferencesStore((s) => s.disabledSources);
+  const preferredEmbedOrder = usePreferencesStore((s) => s.embedOrder);
+  const enableEmbedOrder = usePreferencesStore((s) => s.enableEmbedOrder);
+  const disabledEmbeds = usePreferencesStore((s) => s.disabledEmbeds);
 
   const startScraping = useCallback(
     async (media: ScrapeMedia) => {
+      // Create source order that prioritizes last successful source
+      let filteredSourceOrder = enableSourceOrder
+        ? preferredSourceOrder.filter((id) => !disabledSources.includes(id))
+        : undefined;
+
+      // If we have a last successful source and the feature is enabled, prioritize it
+      if (enableLastSuccessfulSource && lastSuccessfulSource) {
+        // Get all available sources (either from custom order or default)
+        const availableSources = filteredSourceOrder || [];
+
+        // If the last successful source is not disabled and exists in available sources,
+        // move it to the front
+        if (
+          !disabledSources.includes(lastSuccessfulSource) &&
+          availableSources.includes(lastSuccessfulSource)
+        ) {
+          filteredSourceOrder = [
+            lastSuccessfulSource,
+            ...availableSources.filter((id) => id !== lastSuccessfulSource),
+          ];
+        }
+      }
+
+      // Filter out disabled embeds from the embed order
+      const filteredEmbedOrder = enableEmbedOrder
+        ? preferredEmbedOrder.filter((id) => !disabledEmbeds.includes(id))
+        : undefined;
+
       const providerApiUrl = getLoadbalancedProviderApiUrl();
       if (providerApiUrl && !isExtensionActiveCached()) {
         startScrape();
         const baseUrlMaker = makeProviderUrl(providerApiUrl);
         const conn = await connectServerSideEvents<RunOutput | "">(
-          baseUrlMaker.scrapeAll(media),
+          baseUrlMaker.scrapeAll(
+            media,
+            filteredSourceOrder,
+            filteredEmbedOrder,
+          ),
           ["completed", "noOutput"],
         );
         conn.on("init", initEvent);
@@ -184,7 +223,10 @@ export function useScrape() {
       const providers = getProviders();
       const output = await providers.runAll({
         media,
-        sourceOrder: preferredSourceOrder,
+        // Only pass sourceOrder if enableSourceOrder is true, and filter out disabled sources
+        sourceOrder: filteredSourceOrder,
+        // Only pass embedOrder if enableEmbedOrder is true
+        embedOrder: filteredEmbedOrder,
         events: {
           init: initEvent,
           start: startEvent,
@@ -204,6 +246,13 @@ export function useScrape() {
       getResult,
       startScrape,
       preferredSourceOrder,
+      enableSourceOrder,
+      lastSuccessfulSource,
+      enableLastSuccessfulSource,
+      disabledSources,
+      preferredEmbedOrder,
+      enableEmbedOrder,
+      disabledEmbeds,
     ],
   );
 

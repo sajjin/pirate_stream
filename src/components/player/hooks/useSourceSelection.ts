@@ -2,7 +2,7 @@ import {
   EmbedOutput,
   NotFoundError,
   SourcererOutput,
-} from "@movie-web/providers";
+} from "@p-stream/providers";
 import { useAsyncFn } from "react-use";
 
 import { isExtensionActiveCached } from "@/backend/extension/messaging";
@@ -22,6 +22,21 @@ import { convertRunoutputToSource } from "@/components/player/utils/convertRunou
 import { useOverlayRouter } from "@/hooks/useOverlayRouter";
 import { metaToScrapeMedia } from "@/stores/player/slices/source";
 import { usePlayerStore } from "@/stores/player/store";
+import { usePreferencesStore } from "@/stores/preferences";
+import { useProgressStore } from "@/stores/progress";
+
+function getSavedProgress(items: Record<string, any>, meta: any): number {
+  const item = items[meta?.tmdbId ?? ""];
+  if (!item || !meta) return 0;
+  if (meta.type === "movie") {
+    if (!item.progress) return 0;
+    return item.progress.watched;
+  }
+
+  const ep = item.episodes[meta.episode?.tmdbId ?? ""];
+  if (!ep) return 0;
+  return ep.progress.watched;
+}
 
 export function useEmbedScraping(
   routerId: string,
@@ -32,10 +47,17 @@ export function useEmbedScraping(
   const setSource = usePlayerStore((s) => s.setSource);
   const setCaption = usePlayerStore((s) => s.setCaption);
   const setSourceId = usePlayerStore((s) => s.setSourceId);
-  const progress = usePlayerStore((s) => s.progress.time);
+  const setEmbedId = usePlayerStore((s) => (s as any).setEmbedId);
   const meta = usePlayerStore((s) => s.meta);
+  const progressItems = useProgressStore((s) => s.items);
   const router = useOverlayRouter(routerId);
   const { report } = useReportProviders();
+  const setLastSuccessfulSource = usePreferencesStore(
+    (s) => s.setLastSuccessfulSource,
+  );
+  const enableLastSuccessfulSource = usePreferencesStore(
+    (s) => s.enableLastSuccessfulSource,
+  );
 
   const [request, run] = useAsyncFn(async () => {
     const providerApiUrl = getLoadbalancedProviderApiUrl();
@@ -75,14 +97,28 @@ export function useEmbedScraping(
     ]);
     if (isExtensionActiveCached()) await prepareStream(result.stream[0]);
     setSourceId(sourceId);
+    setEmbedId(embedId);
     setCaption(null);
     setSource(
       convertRunoutputToSource({ stream: result.stream[0] }),
       convertProviderCaption(result.stream[0].captions),
-      progress,
+      getSavedProgress(progressItems, meta),
     );
+    // Save the last successful source when manually selected
+    if (enableLastSuccessfulSource) {
+      setLastSuccessfulSource(sourceId);
+    }
     router.close();
-  }, [embedId, sourceId, meta, router, report, setCaption]);
+  }, [
+    embedId,
+    sourceId,
+    meta,
+    router,
+    report,
+    setCaption,
+    enableLastSuccessfulSource,
+    setLastSuccessfulSource,
+  ]);
 
   return {
     run,
@@ -96,12 +132,20 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
   const setSource = usePlayerStore((s) => s.setSource);
   const setCaption = usePlayerStore((s) => s.setCaption);
   const setSourceId = usePlayerStore((s) => s.setSourceId);
-  const progress = usePlayerStore((s) => s.progress.time);
+  const setEmbedId = usePlayerStore((s) => (s as any).setEmbedId);
+  const progressItems = useProgressStore((s) => s.items);
   const router = useOverlayRouter(routerId);
   const { report } = useReportProviders();
+  const setLastSuccessfulSource = usePreferencesStore(
+    (s) => s.setLastSuccessfulSource,
+  );
+  const enableLastSuccessfulSource = usePreferencesStore(
+    (s) => s.enableLastSuccessfulSource,
+  );
 
   const [request, run] = useAsyncFn(async () => {
     if (!sourceId || !meta) return null;
+    setEmbedId(null);
     const scrapeMedia = metaToScrapeMedia(meta);
     const providerApiUrl = getLoadbalancedProviderApiUrl();
 
@@ -135,13 +179,18 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
 
     if (result.stream) {
       if (isExtensionActiveCached()) await prepareStream(result.stream[0]);
+      setEmbedId(null);
       setCaption(null);
       setSource(
         convertRunoutputToSource({ stream: result.stream[0] }),
         convertProviderCaption(result.stream[0].captions),
-        progress,
+        getSavedProgress(progressItems, meta),
       );
       setSourceId(sourceId);
+      // Save the last successful source when manually selected
+      if (enableLastSuccessfulSource) {
+        setLastSuccessfulSource(sourceId);
+      }
       router.close();
       return null;
     }
@@ -190,17 +239,29 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
         ),
       ]);
       setSourceId(sourceId);
+      setEmbedId(result.embeds[0].embedId);
       setCaption(null);
       if (isExtensionActiveCached()) await prepareStream(embedResult.stream[0]);
       setSource(
         convertRunoutputToSource({ stream: embedResult.stream[0] }),
         convertProviderCaption(embedResult.stream[0].captions),
-        progress,
+        getSavedProgress(progressItems, meta),
       );
+      // Save the last successful source when manually selected
+      if (enableLastSuccessfulSource) {
+        setLastSuccessfulSource(sourceId);
+      }
       router.close();
     }
     return result.embeds;
-  }, [sourceId, meta, router, setCaption]);
+  }, [
+    sourceId,
+    meta,
+    router,
+    setCaption,
+    enableLastSuccessfulSource,
+    setLastSuccessfulSource,
+  ]);
 
   return {
     run,

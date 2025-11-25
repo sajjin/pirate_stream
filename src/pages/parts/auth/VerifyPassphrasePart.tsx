@@ -17,6 +17,7 @@ import { useBackendUrl } from "@/hooks/auth/useBackendUrl";
 import { AccountProfile } from "@/pages/parts/auth/AccountCreatePart";
 import { useBookmarkStore } from "@/stores/bookmarks";
 import { useLanguageStore } from "@/stores/language";
+import { usePreferencesStore } from "@/stores/preferences";
 import { useProgressStore } from "@/stores/progress";
 import { useSubtitleStore } from "@/stores/subtitles";
 import { useThemeStore } from "@/stores/theme";
@@ -39,6 +40,33 @@ export function VerifyPassphrase(props: VerifyPassphraseProps) {
     (store) => store.lastSelectedLanguage,
   );
   const applicationTheme = useThemeStore((store) => store.theme);
+
+  const preferences = usePreferencesStore((store) => ({
+    enableThumbnails: store.enableThumbnails,
+    enableAutoplay: store.enableAutoplay,
+    enableSkipCredits: store.enableSkipCredits,
+    enableDiscover: store.enableDiscover,
+    enableFeatured: store.enableFeatured,
+    enableDetailsModal: store.enableDetailsModal,
+    enableImageLogos: store.enableImageLogos,
+    enableCarouselView: store.enableCarouselView,
+    forceCompactEpisodeView: store.forceCompactEpisodeView,
+    sourceOrder: store.sourceOrder,
+    enableSourceOrder: store.enableSourceOrder,
+    disabledSources: store.disabledSources,
+    embedOrder: store.embedOrder,
+    enableEmbedOrder: store.enableEmbedOrder,
+    disabledEmbeds: store.disabledEmbeds,
+    proxyTmdb: store.proxyTmdb,
+    febboxKey: store.febboxKey,
+    realDebridKey: store.realDebridKey,
+    enableLowPerformanceMode: store.enableLowPerformanceMode,
+    enableNativeSubtitles: store.enableNativeSubtitles,
+    enableHoldToBoost: store.enableHoldToBoost,
+    homeSectionOrder: store.homeSectionOrder,
+    enableDoubleClickToSeek: store.enableDoubleClickToSeek,
+    manualSourceSelection: store.manualSourceSelection,
+  }));
 
   const backendUrl = useBackendUrl();
   const { t } = useTranslation();
@@ -80,6 +108,7 @@ export function VerifyPassphrase(props: VerifyPassphraseProps) {
         defaultSubtitleLanguage: defaultSubtitleLanguage ?? undefined,
         applicationTheme: applicationTheme ?? undefined,
         proxyUrls: undefined,
+        ...preferences,
       });
 
       await restore(account);

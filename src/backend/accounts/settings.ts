@@ -8,6 +8,32 @@ export interface SettingsInput {
   applicationTheme?: string | null;
   defaultSubtitleLanguage?: string;
   proxyUrls?: string[] | null;
+  febboxKey?: string | null;
+  realDebridKey?: string | null;
+  enableThumbnails?: boolean;
+  enableAutoplay?: boolean;
+  enableSkipCredits?: boolean;
+  enableDiscover?: boolean;
+  enableFeatured?: boolean;
+  enableDetailsModal?: boolean;
+  enableImageLogos?: boolean;
+  enableCarouselView?: boolean;
+  forceCompactEpisodeView?: boolean;
+  sourceOrder?: string[] | null;
+  enableSourceOrder?: boolean;
+  lastSuccessfulSource?: string | null;
+  enableLastSuccessfulSource?: boolean;
+  disabledSources?: string[] | null;
+  embedOrder?: string[] | null;
+  enableEmbedOrder?: boolean;
+  disabledEmbeds?: string[] | null;
+  proxyTmdb?: boolean;
+  enableLowPerformanceMode?: boolean;
+  enableNativeSubtitles?: boolean;
+  enableHoldToBoost?: boolean;
+  homeSectionOrder?: string[] | null;
+  manualSourceSelection?: boolean;
+  enableDoubleClickToSeek?: boolean;
 }
 
 export interface SettingsResponse {
@@ -15,6 +41,32 @@ export interface SettingsResponse {
   applicationLanguage?: string | null;
   defaultSubtitleLanguage?: string | null;
   proxyUrls?: string[] | null;
+  febboxKey?: string | null;
+  realDebridKey?: string | null;
+  enableThumbnails?: boolean;
+  enableAutoplay?: boolean;
+  enableSkipCredits?: boolean;
+  enableDiscover?: boolean;
+  enableFeatured?: boolean;
+  enableDetailsModal?: boolean;
+  enableImageLogos?: boolean;
+  enableCarouselView?: boolean;
+  forceCompactEpisodeView?: boolean;
+  sourceOrder?: string[] | null;
+  enableSourceOrder?: boolean;
+  lastSuccessfulSource?: string | null;
+  enableLastSuccessfulSource?: boolean;
+  disabledSources?: string[] | null;
+  embedOrder?: string[] | null;
+  enableEmbedOrder?: boolean;
+  disabledEmbeds?: string[] | null;
+  proxyTmdb?: boolean;
+  enableLowPerformanceMode?: boolean;
+  enableNativeSubtitles?: boolean;
+  enableHoldToBoost?: boolean;
+  homeSectionOrder?: string[] | null;
+  manualSourceSelection?: boolean;
+  enableDoubleClickToSeek?: boolean;
 }
 
 export function updateSettings(

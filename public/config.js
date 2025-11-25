@@ -3,8 +3,6 @@ window.__CONFIG__ = {
   // If not specified, the onboarding will not allow a "default setup". The user will have to use the extension or set up a proxy themselves
   VITE_CORS_PROXY_URL: "",
 
-  VITE_BACKEND_URL: "",
-
   // The READ API key to access TMDB
   VITE_TMDB_READ_API_KEY: "",
 
@@ -18,5 +16,5 @@ window.__CONFIG__ = {
   VITE_BACKEND_URL: null,
 
   // A comma separated list of disallowed IDs in the case of a DMCA claim - in the format "series-<id>" and "movie-<id>"
-  VITE_DISALLOWED_IDS: ""
+  VITE_DISALLOWED_IDS: "",
 };
