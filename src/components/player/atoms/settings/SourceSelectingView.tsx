@@ -11,6 +11,7 @@ import { Menu } from "@/components/player/internals/ContextMenu";
 import { SelectableLink } from "@/components/player/internals/ContextMenu/Links";
 import { useOverlayRouter } from "@/hooks/useOverlayRouter";
 import { usePlayerStore } from "@/stores/player/store";
+import { usePreferencesStore } from "@/stores/preferences";
 
 export interface SourceSelectionViewProps {
   id: string;
@@ -29,6 +30,7 @@ export function EmbedOption(props: {
   routerId: string;
 }) {
   const { t } = useTranslation();
+  const currentEmbedId = usePlayerStore((s) => s.embedId);
   const unknownEmbedName = t("player.menus.sources.unknownOption");
 
   const embedName = useMemo(() => {
@@ -45,7 +47,12 @@ export function EmbedOption(props: {
   );
 
   return (
-    <SelectableLink loading={loading} error={errored} onClick={run}>
+    <SelectableLink
+      loading={loading}
+      error={errored}
+      onClick={run}
+      selected={props.embedId === currentEmbedId}
+    >
       <span className="flex flex-col">
         <span>{embedName}</span>
       </span>
@@ -135,16 +142,90 @@ export function SourceSelectionView({
   const router = useOverlayRouter(id);
   const metaType = usePlayerStore((s) => s.meta?.type);
   const currentSourceId = usePlayerStore((s) => s.sourceId);
+  const preferredSourceOrder = usePreferencesStore((s) => s.sourceOrder);
+  const enableSourceOrder = usePreferencesStore((s) => s.enableSourceOrder);
+  const lastSuccessfulSource = usePreferencesStore(
+    (s) => s.lastSuccessfulSource,
+  );
+  const enableLastSuccessfulSource = usePreferencesStore(
+    (s) => s.enableLastSuccessfulSource,
+  );
+  const disabledSources = usePreferencesStore((s) => s.disabledSources);
+
   const sources = useMemo(() => {
     if (!metaType) return [];
-    return getCachedMetadata()
+    const allSources = getCachedMetadata()
       .filter((v) => v.type === "source")
-      .filter((v) => v.mediaTypes?.includes(metaType));
-  }, [metaType]);
+      .filter((v) => v.mediaTypes?.includes(metaType))
+      .filter((v) => !disabledSources.includes(v.id));
+
+    if (!enableSourceOrder || preferredSourceOrder.length === 0) {
+      // Even without custom source order, prioritize last successful source if enabled
+      if (enableLastSuccessfulSource && lastSuccessfulSource) {
+        const lastSourceIndex = allSources.findIndex(
+          (s) => s.id === lastSuccessfulSource,
+        );
+        if (lastSourceIndex !== -1) {
+          const lastSource = allSources.splice(lastSourceIndex, 1)[0];
+          return [lastSource, ...allSources];
+        }
+      }
+      return allSources;
+    }
+
+    // Sort sources according to preferred order, but prioritize last successful source
+    const orderedSources = [];
+    const remainingSources = [...allSources];
+
+    // First, add the last successful source if it exists, is available, and the feature is enabled
+    if (enableLastSuccessfulSource && lastSuccessfulSource) {
+      const lastSourceIndex = remainingSources.findIndex(
+        (s) => s.id === lastSuccessfulSource,
+      );
+      if (lastSourceIndex !== -1) {
+        orderedSources.push(remainingSources[lastSourceIndex]);
+        remainingSources.splice(lastSourceIndex, 1);
+      }
+    }
+
+    // Add sources in preferred order
+    for (const sourceId of preferredSourceOrder) {
+      const sourceIndex = remainingSources.findIndex((s) => s.id === sourceId);
+      if (sourceIndex !== -1) {
+        orderedSources.push(remainingSources[sourceIndex]);
+        remainingSources.splice(sourceIndex, 1);
+      }
+    }
+
+    // Add remaining sources that weren't in the preferred order
+    orderedSources.push(...remainingSources);
+
+    return orderedSources;
+  }, [
+    metaType,
+    preferredSourceOrder,
+    enableSourceOrder,
+    disabledSources,
+    lastSuccessfulSource,
+    enableLastSuccessfulSource,
+  ]);
 
   return (
     <>
-      <Menu.BackLink onClick={() => router.navigate("/")}>
+      <Menu.BackLink
+        onClick={() => router.navigate("/")}
+        rightSide={
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href = "/settings#source-order";
+            }}
+            className="-mr-2 -my-1 px-2 p-[0.4em] rounded tabbable hover:bg-video-context-light hover:bg-opacity-10"
+          >
+            {t("player.menus.sources.editOrder")}
+          </button>
+        }
+      >
         {t("player.menus.sources.title")}
       </Menu.BackLink>
       <Menu.Section className="pb-4">

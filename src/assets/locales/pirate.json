@@ -84,7 +84,7 @@
     },
     "links": {
       "discord": "Discord",
-      "dmca": "DMCA",
+      "legal": "Legal / DMCA",
       "github": "GitHub"
     },
     "tagline": "Watch yer favorite shows and movies with this open source streaming ship."
@@ -93,7 +93,7 @@
     "name": "Pirata Amnis",
     "pages": {
       "about": "About",
-      "dmca": "DMCA",
+      "legal": "Legal / DMCA",
       "login": "Login",
       "onboarding": "Setup",
       "pagetitle": "{{title}} - Pirata Amnis",
@@ -145,8 +145,8 @@
   "media": {
     "episodeDisplay": "S{{season}} E{{episode}}",
     "types": {
-      "movie": "Film",
-      "show": "Show"
+      "movie": "Pirate Tale",
+      "show": "Sea Saga"
     }
   },
   "navigation": {
@@ -156,7 +156,7 @@
     "menu": {
       "about": "About us",
       "logout": "Abandon ship",
-      "register": "Sync to the sudo-cloud",
+      "register": "Send it to the Cloud, matey!",
       "settings": "Settings",
       "support": "Support"
     }
@@ -327,7 +327,7 @@
         "text": "Could nah load API metadata, please check yer internet connection.",
         "title": "Failed t' load API metadata"
       },
-      "dmca": {
+      "legal": {
         "badge": "Removed",
         "text": "This media be no longer available due t' a takedown notice or copyright claim.",
         "title": "Media has been scuttled"
@@ -352,7 +352,6 @@
       }
     },
     "nextEpisode": {
-      "cancel": "Cancel",
       "next": "Next episode"
     },
     "playbackError": {
@@ -396,9 +395,8 @@
     }
   },
   "screens": {
-    "dmca": {
-      "text": "Ahoy t' Pirata Amnis's DMCA contact page! We respect intellectual property rights 'n wants t' address any copyright concerns swiftly. If ye believe yer copyrighted work has been improperly used on our platform, please send a detailed DMCA notice t' the email below. Please include a description o' the copyrighted material, yer contact details, 'n a statement o' good faith belief. We be committed t' resolvin' these matters promptly 'n appreciate yer cooperation in keepin' Pirata Amnis a galleon that respects creativity 'n copyrights.",
-      "title": "DMCA"
+    "legal": {
+      "title": "Legal / DMCA"
     },
     "loadingApp": "Loadin' application",
     "loadingUser": "Loadin' yer pirate profile",
@@ -430,7 +428,12 @@
           "text": "This action be irreversible. All booty will be deleted and nothin' can be recovered.",
           "title": "Abandon ship for all eternity"
         },
-        "title": "Actions"
+        "title": "Actions",
+        "logoutAllDevices": {
+          "title": "Abandon Ships",
+          "text": "Surrender all ships and abandon all booty.",
+          "button": "Log Out of All Devices"
+        }
       },
       "devices": {
         "deviceNameLabel": "Ship name",
@@ -448,7 +451,7 @@
       "register": {
         "cta": "Get started",
         "text": "Instantly share yer watch progress between devices and keep 'em synced.",
-        "title": "Sync to the sudo-cloud"
+        "title": "Sync to the Cloud"
       },
       "title": "Treasure Chest"
     },

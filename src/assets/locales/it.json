@@ -94,9 +94,10 @@
     },
     "links": {
       "discord": "Discord",
-      "dmca": "DMCA",
+      "legal": "Legal / DMCA",
       "github": "GitHub",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "funding": "Supportaci"
     },
     "tagline": "Guarda i tuoi preferiti programmi televisivi e film gratis senza publicità! (っ'ヮ'c)"
   },
@@ -104,14 +105,15 @@
     "name": "Pirata Amnis",
     "pages": {
       "about": "Su Pirata Amnis",
-      "dmca": "DMCA",
+      "legal": "Legal / DMCA",
       "login": "Accedi",
       "onboarding": "Configura",
       "pagetitle": "{{title}} - Pirata Amnis",
       "register": "Registrati",
       "settings": "Impostazioni",
       "discover": "Scopri",
-      "support": "Supporto"
+      "support": "Supporto",
+      "migration": "migrare l'account"
     }
   },
   "home": {
@@ -172,7 +174,16 @@
       "420": {
         "default": "Cosa ti piacerebbe guardare questo 20/4?",
         "extra": ["Buon 20/4 🥳!"]
+      },
+      "69": {
+        "extra": ["Buon 69 giorno😘!"],
+        "default": "Pronto per qualcosa di piccante?"
       }
+    },
+    "mediaCard": {
+      "moreInfo": "maggiori informazioni",
+      "copyLink": "Copia Link",
+      "close": "Chiudi"
     }
   },
   "media": {
@@ -181,7 +192,9 @@
       "movie": "Film",
       "show": "Serie"
     },
-    "unreleased": "Non publicato"
+    "unreleased": "Non publicato",
+    "episodeShort": "E",
+    "seasonShort": "S"
   },
   "navigation": {
     "banner": {
@@ -190,7 +203,7 @@
     "menu": {
       "about": "Su di Pirata Amnis",
       "logout": "Esci",
-      "register": "Sincronizza al sudo-cloud",
+      "register": "Sincronizza al Cloud",
       "settings": "Impostazioni",
       "support": "Supporto",
       "discover": "Scopri"
@@ -370,7 +383,7 @@
         "text": "Impossibile caricare i metadati dell'API, controlla la tua connessione Internet.",
         "title": "Impossibile caricare i metadati dell'API"
       },
-      "dmca": {
+      "legal": {
         "badge": "Rimosso",
         "text": "Questo media non è più disponibile a causa di un avviso di rimozione o di un reclamo sul copyright. 😨",
         "title": "Il media è stato rimosso"
@@ -395,7 +408,6 @@
       }
     },
     "nextEpisode": {
-      "cancel": "Cancella",
       "next": "Prossimo",
       "replay": "Riguarda",
       "nextSeason": "Prossimo"
@@ -449,9 +461,8 @@
     }
   },
   "screens": {
-    "dmca": {
-      "text": "Benvenuto nella pagina dei contatti DMCA di Pirata Amnis. Se ritieni che la tua opera protetta da copyright sia stata utilizzata in modo improprio sulla nostra piattaforma (😢), invia una notifica DMCA dettagliata a: <bold>{{dmca}}</bold> di seguito. Si prega di includere una descrizione del materiale protetto da copyright, i dettagli di contatto e una dichiarazione di buona fede. Ci impegniamo a risolvere tempestivamente queste questioni e apprezziamo la tua collaborazione.",
-      "title": "DMCA :("
+    "legal": {
+      "title": "Legal / DMCA :("
     },
     "loadingApp": "Caricamento dell'applicazione",
     "loadingUser": "Caricamento del tuo profilo",
@@ -484,7 +495,12 @@
           "text": "Questa azione è irreversibile. Tutti i dati verranno cancellati e nulla potrà essere recuperato.",
           "title": "Elimina l'account"
         },
-        "title": "Azioni"
+        "title": "Azioni",
+        "logoutAllDevices": {
+          "title": "Termina tutte le sessioni",
+          "text": "Questo ti disconnetterà da tutti i dispositivi collegati al tuo account.",
+          "button": "Esci da tutti i dispositivi"
+        }
       },
       "devices": {
         "deviceNameLabel": "Nome dispositivo",
@@ -502,7 +518,7 @@
       "register": {
         "cta": "Inizia",
         "text": "Condividi i progressi dei tuoi film e serie tra dispositivi e mantienili sincronizzati. ( ̧⸝⸝⍢⸝⸝)ෆ",
-        "title": "Sincronizza col sudo-cloud"
+        "title": "Sincronizza col Cloud"
       },
       "title": "Account",
       "admin": {
@@ -616,7 +632,48 @@
     "message": "Pirata Amnis.lol sta riscontrando problemi con alcuni provider, se non riesci a trovare o riprodurre uno show, cambia la fonte. È previsto che questo errore persista durante i tempi indicati di seguito.",
     "badge": "Problemi",
     "goHome": "Vai alla pagina iniziale",
-    "timeFrame": "<bold>31 Marzo 5:00 - 11:00 </bold>",
     "title": "Problemi col fornitore"
+  },
+  "details": {
+    "resume": "Riprendere",
+    "play": "Guardare",
+    "releaseDate": "Data di rilascio:",
+    "imdb": "Guarda su IMDb",
+    "episodes": "Episodi",
+    "endsAt": "Termina a {{time}}",
+    "language": "Lingua:",
+    "episode": "Episodio",
+    "runtime": "Dura:",
+    "tmdb": "Guarda su TMDB",
+    "season": "Stagione",
+    "airs": "In onda"
+  },
+  "migration": {
+    "start": {
+      "options": {
+        "direct": {
+          "quality": "Più Semplice e veloce"
+        },
+        "download": {
+          "title": "Scaricare data"
+        },
+        "upload": {
+          "title": "Caricare dati",
+          "action": "Carica dati"
+        }
+      },
+      "title": "Migrare i dati"
+    },
+    "direct": {
+      "toggleLable": "Ti serve il ReCaptcha?",
+      "button": {
+        "home": "Vai a casa",
+        "login": "Continua ad accedere"
+      }
+    },
+    "download": {
+      "title": "Caricare il data"
+    },
+    "loginRequired": "Dovete essere loggato per migrare i dati! Per favore torna indietro e accedi per continuare."
   }
 }

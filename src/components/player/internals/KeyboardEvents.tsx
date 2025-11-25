@@ -3,8 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useCaptions } from "@/components/player/hooks/useCaptions";
 import { useVolume } from "@/components/player/hooks/useVolume";
 import { useOverlayRouter } from "@/hooks/useOverlayRouter";
+import { useOverlayStack } from "@/stores/interface/overlayStack";
 import { usePlayerStore } from "@/stores/player/store";
+import { usePreferencesStore } from "@/stores/preferences";
+import { useSubtitleStore } from "@/stores/subtitles";
 import { useEmpheralVolumeStore } from "@/stores/volume";
+import { useWatchPartyStore } from "@/stores/watchParty";
 
 export function KeyboardEvents() {
   const router = useOverlayRouter("");
@@ -13,13 +17,35 @@ export function KeyboardEvents() {
   const { isSeeking } = usePlayerStore((s) => s.interface);
   const mediaPlaying = usePlayerStore((s) => s.mediaPlaying);
   const time = usePlayerStore((s) => s.progress.time);
+  const duration = usePlayerStore((s) => s.progress.duration);
   const { setVolume, toggleMute } = useVolume();
+  const isInWatchParty = useWatchPartyStore((s) => s.enabled);
 
   const { toggleLastUsed } = useCaptions();
   const setShowVolume = useEmpheralVolumeStore((s) => s.setShowVolume);
+  const setDelay = useSubtitleStore((s) => s.setDelay);
+  const delay = useSubtitleStore((s) => s.delay);
+  const setShowDelayIndicator = useSubtitleStore(
+    (s) => s.setShowDelayIndicator,
+  );
+  const enableHoldToBoost = usePreferencesStore((s) => s.enableHoldToBoost);
 
   const [isRolling, setIsRolling] = useState(false);
   const volumeDebounce = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const subtitleDebounce = useRef<ReturnType<typeof setTimeout> | undefined>();
+
+  // Speed boost
+  const setSpeedBoosted = usePlayerStore((s) => s.setSpeedBoosted);
+  const setShowSpeedIndicator = usePlayerStore((s) => s.setShowSpeedIndicator);
+  const speedIndicatorTimeoutRef = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >();
+  const boostTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const isPendingBoostRef = useRef<boolean>(false);
+  const previousRateRef = useRef<number>(1);
+  const isSpaceHeldRef = useRef<boolean>(false);
+
+  const setCurrentOverlay = useOverlayStack((s) => s.setCurrentOverlay);
 
   const dataRef = useRef({
     setShowVolume,
@@ -33,8 +59,23 @@ export function KeyboardEvents() {
     isSeeking,
     isRolling,
     time,
+    duration,
     router,
+    setDelay,
+    delay,
+    setShowDelayIndicator,
+    setCurrentOverlay,
+    isInWatchParty,
+    previousRateRef,
+    isSpaceHeldRef,
+    setSpeedBoosted,
+    setShowSpeedIndicator,
+    speedIndicatorTimeoutRef,
+    boostTimeoutRef,
+    isPendingBoostRef,
+    enableHoldToBoost,
   });
+
   useEffect(() => {
     dataRef.current = {
       setShowVolume,
@@ -48,7 +89,21 @@ export function KeyboardEvents() {
       isSeeking,
       isRolling,
       time,
+      duration,
       router,
+      setDelay,
+      delay,
+      setShowDelayIndicator,
+      setCurrentOverlay,
+      isInWatchParty,
+      previousRateRef,
+      isSpaceHeldRef,
+      setSpeedBoosted,
+      setShowSpeedIndicator,
+      speedIndicatorTimeoutRef,
+      boostTimeoutRef,
+      isPendingBoostRef,
+      enableHoldToBoost,
     };
   }, [
     setShowVolume,
@@ -62,11 +117,20 @@ export function KeyboardEvents() {
     isSeeking,
     isRolling,
     time,
+    duration,
     router,
+    setDelay,
+    delay,
+    setShowDelayIndicator,
+    setCurrentOverlay,
+    isInWatchParty,
+    setSpeedBoosted,
+    setShowSpeedIndicator,
+    enableHoldToBoost,
   ]);
 
   useEffect(() => {
-    const keyEventHandler = (evt: KeyboardEvent) => {
+    const keydownEventHandler = (evt: KeyboardEvent) => {
       if (evt.target && (evt.target as HTMLInputElement).nodeName === "INPUT")
         return;
 
@@ -76,10 +140,12 @@ export function KeyboardEvents() {
       // Volume
       if (["ArrowUp", "ArrowDown", "m", "M"].includes(k)) {
         dataRef.current.setShowVolume(true);
+        dataRef.current.setCurrentOverlay("volume");
 
         if (volumeDebounce.current) clearTimeout(volumeDebounce.current);
         volumeDebounce.current = setTimeout(() => {
           dataRef.current.setShowVolume(false);
+          dataRef.current.setCurrentOverlay(null);
         }, 3e3);
       }
       if (k === "ArrowUp")
@@ -92,14 +158,106 @@ export function KeyboardEvents() {
         );
       if (keyL === "m") dataRef.current.toggleMute();
 
-      // Video playback speed
-      if (k === ">" || k === "<") {
+      // Video playback speed - disabled in watch party
+      if ((k === ">" || k === "<") && !dataRef.current.isInWatchParty) {
         const options = [0.25, 0.5, 1, 1.5, 2];
         let idx = options.indexOf(dataRef.current.mediaPlaying?.playbackRate);
         if (idx === -1) idx = options.indexOf(1);
         const nextIdx = idx + (k === ">" ? 1 : -1);
         const next = options[nextIdx];
         if (next) dataRef.current.display?.setPlaybackRate(next);
+      }
+
+      // Handle spacebar press for play/pause and hold for 2x speed - disabled in watch party or when hold to boost is disabled
+      if (
+        k === " " &&
+        !dataRef.current.isInWatchParty &&
+        dataRef.current.enableHoldToBoost
+      ) {
+        // Skip if it's a repeated event
+        if (evt.repeat) {
+          return;
+        }
+
+        // Skip if a button is targeted
+        if (
+          evt.target &&
+          (evt.target as HTMLInputElement).nodeName === "BUTTON"
+        ) {
+          return;
+        }
+
+        // Prevent the default spacebar behavior
+        evt.preventDefault();
+
+        // If already paused, play the video and return
+        if (dataRef.current.mediaPlaying.isPaused) {
+          dataRef.current.display?.play();
+          return;
+        }
+
+        // If we're already holding space, don't trigger boost again
+        if (dataRef.current.isSpaceHeldRef.current) {
+          return;
+        }
+
+        // Save current rate
+        dataRef.current.previousRateRef.current =
+          dataRef.current.mediaPlaying.playbackRate;
+
+        // Set pending boost flag
+        dataRef.current.isPendingBoostRef.current = true;
+
+        // Add delay before boosting speed
+        if (dataRef.current.boostTimeoutRef.current) {
+          clearTimeout(dataRef.current.boostTimeoutRef.current);
+        }
+
+        dataRef.current.boostTimeoutRef.current = setTimeout(() => {
+          // Only apply boost if the key is still held down
+          if (dataRef.current.isPendingBoostRef.current) {
+            dataRef.current.isSpaceHeldRef.current = true;
+            dataRef.current.isPendingBoostRef.current = false;
+
+            // Show speed indicator
+            dataRef.current.setSpeedBoosted(true);
+            dataRef.current.setShowSpeedIndicator(true);
+            dataRef.current.setCurrentOverlay("speed");
+
+            // Clear any existing timeout
+            if (dataRef.current.speedIndicatorTimeoutRef.current) {
+              clearTimeout(dataRef.current.speedIndicatorTimeoutRef.current);
+            }
+
+            dataRef.current.display?.setPlaybackRate(2);
+          }
+        }, 300); // 300ms delay before boost takes effect
+      }
+
+      // Handle spacebar press for simple play/pause when hold to boost is disabled or in watch party mode
+      if (
+        k === " " &&
+        (!dataRef.current.enableHoldToBoost || dataRef.current.isInWatchParty)
+      ) {
+        // Skip if it's a repeated event
+        if (evt.repeat) {
+          return;
+        }
+
+        // Skip if a button is targeted
+        if (
+          evt.target &&
+          (evt.target as HTMLInputElement).nodeName === "BUTTON"
+        ) {
+          return;
+        }
+
+        // Prevent the default spacebar behavior
+        evt.preventDefault();
+
+        // Simple play/pause toggle
+        const action = dataRef.current.mediaPlaying.isPaused ? "play" : "pause";
+        dataRef.current.display?.[action]();
       }
 
       // Video progress
@@ -116,9 +274,24 @@ export function KeyboardEvents() {
       if (k === "," && dataRef.current.mediaPlaying?.isPaused)
         dataRef.current.display?.setTime(dataRef.current.time - 1);
 
+      // Skip to percentage with number keys (0-9)
+      if (
+        /^[0-9]$/.test(k) &&
+        dataRef.current.duration > 0 &&
+        !evt.ctrlKey &&
+        !evt.metaKey
+      ) {
+        const percentage = parseInt(k, 10) * 10; // 0 = 0%, 1 = 10%, 2 = 20%, ..., 9 = 90%
+        const targetTime = (dataRef.current.duration * percentage) / 100;
+        dataRef.current.display?.setTime(targetTime);
+      }
+
       // Utils
       if (keyL === "f") dataRef.current.display?.toggleFullscreen();
-      if (k === " " || keyL === "k") {
+
+      // Remove duplicate spacebar handler that was conflicting
+      // with our improved implementation
+      if (keyL === "k" && !dataRef.current.isSpaceHeldRef.current) {
         if (
           evt.target &&
           (evt.target as HTMLInputElement).nodeName === "BUTTON"
@@ -148,11 +321,72 @@ export function KeyboardEvents() {
           dataRef.current.setIsRolling(false);
         }, 1e3);
       }
+
+      // Subtitle sync
+      if (k === "[" || k === "]") {
+        const change = k === "[" ? -0.5 : 0.5;
+        dataRef.current.setDelay(dataRef.current.delay + change);
+        dataRef.current.setShowDelayIndicator(true);
+        dataRef.current.setCurrentOverlay("subtitle");
+
+        if (subtitleDebounce.current) clearTimeout(subtitleDebounce.current);
+        subtitleDebounce.current = setTimeout(() => {
+          dataRef.current.setShowDelayIndicator(false);
+          dataRef.current.setCurrentOverlay(null);
+        }, 3000);
+      }
     };
-    window.addEventListener("keydown", keyEventHandler);
+
+    const keyupEventHandler = (evt: KeyboardEvent) => {
+      const k = evt.key;
+
+      // Handle spacebar release - only handle speed boost logic when not in watch party and hold to boost is enabled
+      if (
+        k === " " &&
+        !dataRef.current.isInWatchParty &&
+        dataRef.current.enableHoldToBoost
+      ) {
+        // If we haven't applied the boost yet but were about to, cancel it
+        if (dataRef.current.isPendingBoostRef.current) {
+          dataRef.current.isPendingBoostRef.current = false;
+          if (dataRef.current.boostTimeoutRef.current) {
+            clearTimeout(dataRef.current.boostTimeoutRef.current);
+          }
+
+          // The space key was released quickly, so trigger play/pause
+          const action = dataRef.current.mediaPlaying.isPaused
+            ? "play"
+            : "pause";
+          dataRef.current.display?.[action]();
+        } else if (dataRef.current.isSpaceHeldRef.current) {
+          // We were in boost mode, restore previous rate
+          dataRef.current.display?.setPlaybackRate(
+            dataRef.current.previousRateRef.current,
+          );
+          dataRef.current.isSpaceHeldRef.current = false;
+
+          // Update UI state
+          dataRef.current.setSpeedBoosted(false);
+
+          // Set a timeout to hide the speed indicator
+          if (dataRef.current.speedIndicatorTimeoutRef.current) {
+            clearTimeout(dataRef.current.speedIndicatorTimeoutRef.current);
+          }
+
+          dataRef.current.speedIndicatorTimeoutRef.current = setTimeout(() => {
+            dataRef.current.setShowSpeedIndicator(false);
+            dataRef.current.setCurrentOverlay(null);
+          }, 1500);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", keydownEventHandler);
+    window.addEventListener("keyup", keyupEventHandler);
 
     return () => {
-      window.removeEventListener("keydown", keyEventHandler);
+      window.removeEventListener("keydown", keydownEventHandler);
+      window.removeEventListener("keyup", keyupEventHandler);
     };
   }, []);
 

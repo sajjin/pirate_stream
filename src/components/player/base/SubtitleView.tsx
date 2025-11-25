@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import { useMemo } from "react";
 
 import {
@@ -9,10 +8,11 @@ import {
 } from "@/components/player/utils/captions";
 import { Transition } from "@/components/utils/Transition";
 import { usePlayerStore } from "@/stores/player/store";
+import { usePreferencesStore } from "@/stores/preferences";
 import { SubtitleStyling, useSubtitleStore } from "@/stores/subtitles";
 
 const wordOverrides: Record<string, string> = {
-  i: "I",
+  // Example: i: "I", but in polish "i" is "and" so this is disabled.
 };
 
 export function CaptionCue({
@@ -48,18 +48,59 @@ export function CaptionCue({
     return html;
   }, [text, overrideCasing]);
 
+  const getTextEffectStyles = () => {
+    switch (styling.fontStyle) {
+      case "raised":
+        return {
+          textShadow: "0 2px 0 rgba(0,0,0,0.8), 0 1.5px 1.5px rgba(0,0,0,0.9)",
+        };
+      case "depressed":
+        return {
+          textShadow:
+            "0 -2px 0 rgba(0,0,0,0.8), 0 -1.5px 1.5px rgba(0,0,0,0.9)",
+        };
+      case "Border": {
+        const thickness = Math.max(
+          0.5,
+          Math.min(5, styling.borderThickness || 1),
+        );
+        const shadowColor = "rgba(0,0,0,0.8)";
+        return {
+          textShadow: [
+            `${thickness}px ${thickness}px 0 ${shadowColor}`,
+            `-${thickness}px ${thickness}px 0 ${shadowColor}`,
+            `${thickness}px -${thickness}px 0 ${shadowColor}`,
+            `-${thickness}px -${thickness}px 0 ${shadowColor}`,
+            `${thickness}px 0 0 ${shadowColor}`,
+            `-${thickness}px 0 0 ${shadowColor}`,
+            `0 ${thickness}px 0 ${shadowColor}`,
+            `0 -${thickness}px 0 ${shadowColor}`,
+          ].join(", "),
+        };
+      }
+      case "dropShadow":
+        return { textShadow: "2.5px 2.5px 4.5px rgba(0,0,0,0.9)" };
+      case "default":
+      default:
+        return { textShadow: "0 2px 4px rgba(0,0,0,0.5)" }; // Default is a light drop shadow
+    }
+  };
+
+  const textEffectStyles = getTextEffectStyles();
+
   return (
     <p
-      className="pointer-events-none mb-1 select-none rounded px-4 py-1 text-center leading-normal [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]"
+      className="mb-1 rounded px-4 py-1 text-center leading-normal"
       style={{
         color: styling.color,
         fontSize: `${(1.5 * styling.size).toFixed(2)}em`,
         backgroundColor: `rgba(0,0,0,${styling.backgroundOpacity.toFixed(2)})`,
         backdropFilter:
-          styling.backgroundBlur !== 0
+          styling.backgroundBlurEnabled && styling.backgroundBlur !== 0
             ? `blur(${Math.floor(styling.backgroundBlur * 64)}px)`
             : "none",
         fontWeight: styling.bold ? "bold" : "normal",
+        ...textEffectStyles,
       }}
     >
       <span
@@ -111,23 +152,27 @@ export function SubtitleRenderer() {
 
 export function SubtitleView(props: { controlsShown: boolean }) {
   const caption = usePlayerStore((s) => s.caption.selected);
-  const captionAsTrack = usePlayerStore((s) => s.caption.asTrack);
+  const source = usePlayerStore((s) => s.source);
   const display = usePlayerStore((s) => s.display);
   const isCasting = display?.getType() === "casting";
+  const styling = useSubtitleStore((s) => s.styling);
+  const enableNativeSubtitles = usePreferencesStore(
+    (s) => s.enableNativeSubtitles,
+  );
 
-  if (captionAsTrack || !caption || isCasting) return null;
+  // Hide custom captions when native subtitles are enabled
+  const shouldUseNativeTrack = enableNativeSubtitles && source !== null;
+  if (shouldUseNativeTrack || !caption || isCasting) return null;
 
   return (
-    <Transition
-      className="absolute inset-0 pointer-events-none"
-      animation="slide-up"
-      show
-    >
+    <Transition animation="slide-up" show>
       <div
-        className={classNames([
-          "text-white absolute flex w-full flex-col items-center transition-[bottom]",
-          props.controlsShown ? "bottom-24" : "bottom-12",
-        ])}
+        className="text-white absolute w-full flex flex-col items-center transition-[bottom]"
+        style={{
+          bottom: props.controlsShown
+            ? "6rem"
+            : `${styling.verticalPosition}rem`,
+        }}
       >
         <SubtitleRenderer />
       </div>
