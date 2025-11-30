@@ -6,11 +6,9 @@ import { NoUserAvatar, UserAvatar } from "@/components/Avatar";
 import { IconPatch } from "@/components/buttons/IconPatch";
 import { Icons } from "@/components/Icon";
 import { LinksDropdown } from "@/components/LinksDropdown";
-import { useNotifications } from "@/components/overlays/notificationsModal";
 import { Lightbar } from "@/components/utils/Lightbar";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { BlurEllipsis } from "@/pages/layouts/SubPageLayout";
-import { conf } from "@/setup/config";
 import { useBannerSize } from "@/stores/banner";
 import { usePreferencesStore } from "@/stores/preferences";
 
@@ -28,7 +26,6 @@ export function Navigation(props: NavigationProps) {
   const navigate = useNavigate();
   const { loggedIn } = useAuth();
   const [scrollPosition, setScrollPosition] = useState(0);
-  const { openNotifications, getUnreadCount } = useNotifications();
 
   useEffect(() => {
     const handleScroll = () => {
