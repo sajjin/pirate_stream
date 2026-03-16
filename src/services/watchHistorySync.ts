@@ -153,7 +153,9 @@ export const watchHistorySync = {
         query: queries.listContinueWatching
       });
   
-      const watchHistory = (result as any).data?.listContinueWatchings?.items || [];
+      const watchHistory = ((result as any).data?.listContinueWatchings?.items || []).filter(
+        (item: any) => !(item.season === '__MY_LIST__' && item.episode === '__MY_LIST__')
+      );
       
       // Group by imdbID to handle series episodes
       const groupedHistory = watchHistory.reduce((acc: { [key: string]: any }, item: any) => {

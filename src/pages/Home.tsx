@@ -41,7 +41,8 @@ const HomePage: React.FC = () => {
       const storedResults = Array.isArray(storedState.searchResults) ? storedState.searchResults : [];
       setMovies(storedResults.filter((item: SearchResult) => item.Type === 'movie'));
       setShows(storedResults.filter((item: SearchResult) => item.Type === 'series'));
-      setMyList(myListService.load());
+      const syncedMyList = await myListService.load();
+      setMyList(syncedMyList);
     };
 
     loadPageData();

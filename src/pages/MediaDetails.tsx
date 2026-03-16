@@ -146,9 +146,13 @@ const MediaDetailsPage: React.FC = () => {
       return;
     }
 
-    setIsInList(myListService.isInList(imdbID));
-    fetchMediaDetails();
-    refreshEpisodeTracking();
+    const loadAll = async () => {
+      setIsInList(await myListService.isInList(imdbID));
+      await fetchMediaDetails();
+      await refreshEpisodeTracking();
+    };
+
+    loadAll();
   }, [imdbID, normalizedType]);
 
   useEffect(() => {
@@ -289,9 +293,9 @@ const MediaDetailsPage: React.FC = () => {
     }
   };
 
-  const toggleMyList = () => {
+  const toggleMyList = async () => {
     if (isInList) {
-      myListService.remove(imdbID);
+      await myListService.remove(imdbID);
       setIsInList(false);
       return;
     }
@@ -305,7 +309,7 @@ const MediaDetailsPage: React.FC = () => {
       tmdbId: details.tmdbId
     };
 
-    myListService.add(item);
+    await myListService.add(item);
     setIsInList(true);
   };
 
