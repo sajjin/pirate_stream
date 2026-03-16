@@ -7,6 +7,8 @@ interface EpisodesGridProps {
   currentEpisode: string | undefined;
   currentSeason: string | undefined;
   onEpisodeSelect: (episode: Episode) => void;
+  watchedEpisodes?: Set<string>;
+  lastWatchedEpisodeKey?: string;
 }
 
 export const EpisodesGrid: React.FC<EpisodesGridProps> = ({
@@ -15,12 +17,17 @@ export const EpisodesGrid: React.FC<EpisodesGridProps> = ({
   currentEpisode,
   currentSeason,
   onEpisodeSelect,
+  watchedEpisodes,
+  lastWatchedEpisodeKey,
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {season?.episodes.map((episode) => {
         const isCurrentEpisode = currentEpisode === episode.Episode && 
                                 currentSeason === selectedSeason;
+        const episodeKey = `${selectedSeason}-${episode.Episode}`;
+        const isWatched = watchedEpisodes?.has(episodeKey);
+        const isLastWatched = lastWatchedEpisodeKey === episodeKey;
         
         return (
           <div
@@ -52,6 +59,20 @@ export const EpisodesGrid: React.FC<EpisodesGridProps> = ({
                 <p className="text-zinc-500 group-hover:text-zinc-400 transition-colors">
                   {episode.Released}
                 </p>
+                {(isWatched || isLastWatched) && (
+                  <div className="mt-2 flex gap-2 flex-wrap">
+                    {isWatched && (
+                      <span className="inline-block px-2 py-1 bg-emerald-500 bg-opacity-20 text-emerald-300 text-xs rounded-full">
+                        Watched
+                      </span>
+                    )}
+                    {isLastWatched && (
+                      <span className="inline-block px-2 py-1 bg-amber-500 bg-opacity-20 text-amber-300 text-xs rounded-full">
+                        Last watched
+                      </span>
+                    )}
+                  </div>
+                )}
                 <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <span className="inline-block px-2 py-1 bg-blue-500 bg-opacity-20 text-blue-400 text-sm rounded-full">
                     Watch Now
