@@ -2,9 +2,9 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-zinc-900 text-zinc-400 py-6 mt-auto">
+    <footer className="w-full text-zinc-300 py-6 mt-auto">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="frost-panel rounded-2xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Data Sources */}
           <div>
             <h3 className="text-white font-semibold mb-3">Data Sources</h3>
@@ -14,7 +14,7 @@ const Footer = () => {
                   href="https://www.themoviedb.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-cyan-300 transition-colors"
                 >
                   TMDB
                 </a>
@@ -24,7 +24,7 @@ const Footer = () => {
                   href="https://www.omdbapi.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-cyan-300 transition-colors"
                 >
                   OMDb API
                 </a>
@@ -39,7 +39,7 @@ const Footer = () => {
               <li>
                 <a 
                   href="#"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-cyan-300 transition-colors"
                 >
                   Terms of Service
                 </a>
@@ -47,7 +47,7 @@ const Footer = () => {
               <li>
                 <a 
                   href="#"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-cyan-300 transition-colors"
                 >
                   Privacy Policy
                 </a>
@@ -62,7 +62,7 @@ const Footer = () => {
               <li>
                 <a 
                   href="#"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-cyan-300 transition-colors"
                 >
                   API Documentation
                 </a>
@@ -70,7 +70,7 @@ const Footer = () => {
               <li>
                 <a 
                   href="#"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-cyan-300 transition-colors"
                 >
                   Support
                 </a>
@@ -93,7 +93,7 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-6 border-t border-zinc-800 text-center text-sm">
+        <div className="mt-8 pt-6 border-t border-zinc-700/70 text-center text-sm text-zinc-400">
           <p>
             © {new Date().getFullYear()} Pirata Amnis. All rights reserved.
           </p>

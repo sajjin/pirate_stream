@@ -1,14 +1,10 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
 import AuthPage from './pages/AuthPages';
 import HomePage from './pages/Home';
-import { Amplify } from 'aws-amplify';
+import MediaDetailsPage from './pages/MediaDetails';
 import './config';
-import config from './amplifyconfiguration.json';
 import { authPersistence } from './auth/authPersistence';
-
-Amplify.configure(config);
 
 
 const App: React.FC = () => {
@@ -39,11 +35,11 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-900">
-        <Header />
-        <div className="pt-[120px]">
+        <div>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/watch/:type/:imdbID" element={<MediaDetailsPage />} />
           </Routes>
         </div>
       </div>
