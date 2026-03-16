@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
-import { Clapperboard, UserCircle } from 'lucide-react';
+import { Clapperboard, Home, UserCircle } from 'lucide-react';
 import { authPersistence } from '../auth/authPersistence';
 
 
@@ -148,6 +148,17 @@ useEffect(() => {
 
   return (
     <div className="fixed top-0 left-0 w-full top-nav shadow-2xl z-40">
+      <div className="absolute top-0 left-4 py-2">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg btn-ghost text-sm"
+          aria-label="Go home"
+        >
+          <Home className="w-4 h-4" />
+          Home
+        </button>
+      </div>
+
       {/* Auth buttons container */}
       <div className="absolute top-0 right-4 py-2">
         {user ? (

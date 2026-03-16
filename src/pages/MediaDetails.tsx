@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/footer';
 import VideoSourceSelector, { VIDEO_SOURCES } from '../components/VideoSourceSelector';
@@ -43,6 +43,7 @@ const parseEpisodeKey = (value: string): { season: string; episode: string } | n
 const MediaDetailsPage: React.FC = () => {
   const { imdbID = '', type = 'movie' } = useParams<{ imdbID: string; type: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const state = (location.state || {}) as MediaState;
   const normalizedType: 'movie' | 'series' = type === 'series' ? 'series' : 'movie';
 
@@ -149,6 +150,18 @@ const MediaDetailsPage: React.FC = () => {
     fetchMediaDetails();
     refreshEpisodeTracking();
   }, [imdbID, normalizedType]);
+
+  useEffect(() => {
+    const handleBrowserBack = () => {
+      navigate('/', { replace: true });
+    };
+
+    window.addEventListener('popstate', handleBrowserBack);
+
+    return () => {
+      window.removeEventListener('popstate', handleBrowserBack);
+    };
+  }, [navigate]);
 
   const persistWatchEntry = async (videoInfo: VideoInfo) => {
     try {
