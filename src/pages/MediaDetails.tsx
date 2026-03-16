@@ -297,15 +297,15 @@ const MediaDetailsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="app-shell text-white">
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 pt-28 md:pt-32 pb-16">
-        <section className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 mb-8 items-start">
+        <section className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 mb-8 items-start frost-panel rounded-2xl p-5 md:p-7">
           <img
             src={details.poster || FALLBACK_POSTER}
             alt={details.title}
-            className="w-full max-w-[220px] rounded-xl object-cover"
+            className="w-full max-w-[220px] rounded-xl object-cover media-card"
             onError={(e) => {
               (e.target as HTMLImageElement).src = FALLBACK_POSTER;
             }}
@@ -313,11 +313,11 @@ const MediaDetailsPage: React.FC = () => {
 
           <div>
             <div className="flex flex-wrap items-center gap-3 mb-3">
-              <h1 className="text-3xl md:text-4xl font-bold">{details.title}</h1>
-              <span className="text-zinc-400">{details.year}</span>
+              <h1 className="text-3xl md:text-4xl font-bold section-title">{details.title}</h1>
+              <span className="chip-label text-sm">{details.year}</span>
             </div>
 
-            <p className="text-zinc-300 leading-relaxed mb-4">
+            <p className="muted-copy leading-relaxed mb-4">
               {isLoadingDetails ? 'Loading description...' : details.overview}
             </p>
 
@@ -325,7 +325,7 @@ const MediaDetailsPage: React.FC = () => {
               <button
                 onClick={toggleMyList}
                 className={`px-4 py-2 rounded-lg transition-colors ${
-                  isInList ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
+                  isInList ? 'btn-danger' : 'btn-primary'
                 }`}
               >
                 {isInList ? 'Remove from My List' : 'Add to My List'}
@@ -334,14 +334,14 @@ const MediaDetailsPage: React.FC = () => {
               {normalizedType === 'movie' ? (
                 <button
                   onClick={handlePlayMovie}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors"
+                  className="px-4 py-2 rounded-lg btn-ghost transition-colors"
                 >
                   Play Movie
                 </button>
               ) : (
                 <button
                   onClick={handleResumeSeries}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors"
+                  className="px-4 py-2 rounded-lg btn-ghost transition-colors"
                 >
                   {lastWatchedEpisodeKey ? 'Resume Last Watched' : 'Start Series'}
                 </button>
@@ -368,7 +368,7 @@ const MediaDetailsPage: React.FC = () => {
             </div>
 
             {normalizedType === 'series' && lastWatchedEpisodeKey && (
-              <p className="mt-4 text-sm text-zinc-400">Last watched episode: {lastWatchedEpisodeKey}</p>
+              <p className="mt-4 text-sm muted-copy">Last watched episode: {lastWatchedEpisodeKey}</p>
             )}
           </div>
         </section>
@@ -401,7 +401,7 @@ const MediaDetailsPage: React.FC = () => {
               <select
                 value={selectedSeason}
                 onChange={(event) => setSelectedSeason(event.target.value)}
-                className="px-4 py-2 rounded-lg bg-zinc-700 text-white border border-zinc-600"
+                className="px-4 py-2 rounded-lg frost-panel text-white border border-zinc-600"
               >
                 {seasons.map((season) => (
                   <option key={season.seasonNumber} value={season.seasonNumber}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, signOut } from 'aws-amplify/auth';
-import { UserCircle } from 'lucide-react';
+import { Clapperboard, UserCircle } from 'lucide-react';
 import { authPersistence } from '../auth/authPersistence';
 
 
@@ -13,7 +13,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   onSearch
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');``
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
@@ -147,14 +147,14 @@ useEffect(() => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-zinc-800 shadow-lg z-40">
+    <div className="fixed top-0 left-0 w-full top-nav shadow-2xl z-40">
       {/* Auth buttons container */}
       <div className="absolute top-0 right-4 py-2">
         {user ? (
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity text-zinc-100"
             >
               <UserCircle size={32} className="text-white" />
             </button>
@@ -162,14 +162,14 @@ useEffect(() => {
             {showDropdown && (
               <div 
                 ref={dropdownRef}
-                className="absolute right-0 mt-2 w-48 bg-zinc-800 rounded-lg shadow-lg py-1 z-50"
+                className="absolute right-0 mt-2 w-56 frost-panel rounded-lg shadow-lg py-1 z-50"
               >
-                <div className="px-4 py-2 border-b border-zinc-700">
+                <div className="px-4 py-2 border-b border-zinc-700/70">
                 <p className="text-sm text-white">{user.signInDetails?.loginId}</p>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-700 transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-red-300 hover:bg-red-900/40 transition-colors"
                 >
                   Sign Out
                 </button>
@@ -180,13 +180,13 @@ useEffect(() => {
           <div className="flex gap-2">
             <button
               onClick={() => navigate('/auth')}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="px-4 py-2 rounded-lg btn-primary transition-colors"
             >
               Sign In
             </button>
             <button
               onClick={() => navigate('/auth')}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="px-4 py-2 rounded-lg btn-ghost transition-colors"
             >
               Sign Up
             </button>
@@ -195,7 +195,17 @@ useEffect(() => {
       </div>
   
       {/* Search bar container */}
-      <div className="max-w-6xl mx-auto p-4 mt-12">
+      <div className="max-w-6xl mx-auto p-4 mt-4 md:mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-zinc-100 hover:text-white transition-colors"
+            aria-label="Go to home"
+          >
+            <Clapperboard className="w-5 h-5 text-cyan-300" />
+            <span className="font-semibold tracking-wide">Pirate Stream</span>
+          </button>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
@@ -203,12 +213,12 @@ useEffect(() => {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && searchIMDb()}
             placeholder="Enter movie or show name"
-            className="px-4 py-2 rounded-lg bg-white text-black flex-1 min-w-[200px]"
+            className="px-4 py-2 rounded-xl frost-panel text-zinc-100 placeholder-zinc-400 flex-1 min-w-[200px] outline-none"
           />
           <button
             onClick={searchIMDb}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap disabled:opacity-50"
+            className="px-4 py-2 btn-primary rounded-xl transition-colors whitespace-nowrap disabled:opacity-50"
           >
             {loading ? 'Loading...' : 'Search'}
           </button>

@@ -105,7 +105,7 @@ const HomePage: React.FC = () => {
 
     return (
       <section className="mb-8 px-4">
-        <h2 className="text-2xl font-bold mb-4">{title}</h2>
+        <h2 className="text-2xl font-bold mb-4 section-title">{title}</h2>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {items.map((item) => {
             const isHistory = type === 'history';
@@ -116,10 +116,10 @@ const HomePage: React.FC = () => {
             return (
               <div
                 key={`${type}-${imdbID}`}
-                className="relative w-32 md:w-44 shrink-0 cursor-pointer"
+                className="relative w-32 md:w-44 shrink-0 cursor-pointer transition-transform duration-300"
                 onClick={() => onItemClick(item, type)}
               >
-                <div className="relative pb-[150%] rounded-lg overflow-hidden bg-zinc-800">
+                <div className="relative pb-[150%] rounded-xl overflow-hidden media-card transition-all duration-300">
                   <img
                     src={poster && poster !== 'N/A' ? poster : TMDB_FALLBACK}
                     alt={titleText}
@@ -128,7 +128,7 @@ const HomePage: React.FC = () => {
                       (e.target as HTMLImageElement).src = TMDB_FALLBACK;
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-2">
                     <p className="text-xs md:text-sm font-semibold line-clamp-2">{titleText}</p>
                     {isHistory && (item as VideoInfo).season && (item as VideoInfo).episode && (
@@ -145,7 +145,7 @@ const HomePage: React.FC = () => {
                       e.stopPropagation();
                       onDeleteItem(item as VideoInfo);
                     }}
-                    className="absolute top-2 right-2 p-2 rounded-full bg-black/80 hover:bg-red-600 transition-colors"
+                    className="absolute top-2 right-2 p-2 rounded-full btn-danger transition-colors"
                     aria-label="Delete from history"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -160,14 +160,22 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="app-shell text-white">
       <Header onSearch={handleSearch} />
 
-      <main className="max-w-7xl mx-auto pt-28 md:pt-32">
-        <h1 className="text-4xl font-bold mb-8 px-4">Home</h1>
+      <main className="max-w-7xl mx-auto pt-28 md:pt-32 pb-10">
+        <div className="px-4 mb-8">
+          <div className="frost-panel rounded-2xl p-6 md:p-8">
+            <div className="chip-label inline-flex mb-4 text-xs uppercase tracking-[0.18em]">Streaming Dashboard</div>
+            <h1 className="text-4xl md:text-5xl font-bold section-title">Home</h1>
+            <p className="muted-copy mt-3 max-w-2xl">
+              Track episodes, jump back into what you watched, and keep your personal list all in one place.
+            </p>
+          </div>
+        </div>
 
         {!hasAnyContent && (
-          <div className="flex flex-col items-center justify-center h-64 text-zinc-500 px-4">
+          <div className="frost-panel rounded-2xl flex flex-col items-center justify-center h-64 text-zinc-400 px-4 mx-4">
             <p className="text-xl mb-4">No content yet</p>
             <p className="text-sm">Search for movies and TV shows to get started.</p>
           </div>
