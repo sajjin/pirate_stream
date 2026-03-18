@@ -89,6 +89,18 @@ const mutations = {
 };
 
 export const watchHistorySync = {
+  isSameEntry(item: any, videoInfo: VideoInfo): boolean {
+    const seasonMatch = (item.season || null) === (videoInfo.season || null);
+    const episodeMatch = (item.episode || null) === (videoInfo.episode || null);
+
+    return (
+      item.imdbID === videoInfo.imdbID &&
+      item.type === (videoInfo.type || 'movie') &&
+      seasonMatch &&
+      episodeMatch
+    );
+  },
+
   async fetchPosterFromTMDB(imdbID: string, type: string): Promise<string | null> {
     try {
       const response = await fetch(
@@ -110,9 +122,26 @@ export const watchHistorySync = {
     }
   },
 
-  async saveProgress(videoInfo: VideoInfo): Promise<void> {
+  async saveProgress(videoInfo: VideoInfo, watchedSeconds?: number): Promise<void> {
     try {
       const user = await getCurrentUser();
+      const timestamp = Date.now();
+
+      const listResult = await client.graphql({
+        query: queries.listContinueWatching
+      });
+
+      const existingItems = ((listResult as any).data?.listContinueWatchings?.items || []).filter(
+        (item: any) => item && item.userId === user.userId
+      );
+
+      const existing = existingItems.find((item: any) => this.isSameEntry(item, videoInfo));
+      const normalizedProgress =
+        typeof watchedSeconds === 'number'
+          ? watchedSeconds
+          : typeof videoInfo.progress === 'number'
+            ? videoInfo.progress
+            : 0;
 
       // Prepare the input data
       const input = {
@@ -123,14 +152,21 @@ export const watchHistorySync = {
         season: videoInfo.season || null,
         episode: videoInfo.episode || null,
         episodeTitle: videoInfo.episodeTitle || null,
-        progress: videoInfo.progress || 0,
-        timestamp: Date.now(),
+        progress: normalizedProgress,
+        timestamp,
         poster: videoInfo.poster || null,
         tmdbId: videoInfo.tmdbId || null
       };
 
+      if (existing?.id) {
+        await client.graphql({
+          query: mutations.updateContinueWatching,
+          variables: { input: { id: existing.id, ...input } }
+        });
+        return;
+      }
 
-      const result = await client.graphql({
+      await client.graphql({
         query: mutations.createContinueWatching,
         variables: { input }
       });
@@ -144,6 +180,32 @@ export const watchHistorySync = {
         }
       }
       throw error;
+    }
+  },
+
+  async getProgressForVideo(videoInfo: VideoInfo): Promise<{ progressSeconds: number; lastPlayedAt?: number } | null> {
+    try {
+      const user = await getCurrentUser();
+      const result = await client.graphql({
+        query: queries.listContinueWatching
+      });
+
+      const items = ((result as any).data?.listContinueWatchings?.items || []).filter(
+        (item: any) => item && item.userId === user.userId
+      );
+
+      const matched = items.find((item: any) => this.isSameEntry(item, videoInfo));
+      if (!matched) {
+        return null;
+      }
+
+      return {
+        progressSeconds: Number(matched.progress || 0),
+        lastPlayedAt: matched.timestamp ? Number(matched.timestamp) : undefined
+      };
+    } catch (error) {
+      console.error('Error loading progress for video:', error);
+      return null;
     }
   },
 

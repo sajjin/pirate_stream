@@ -7,7 +7,7 @@ import { MoviePlayer } from '../components/videoplayer/MoviePlayer';
 import { TVShowPlayer } from '../components/videoplayer/TVShowPlayer';
 import { EpisodesGrid } from '../components/EpisodesGrid';
 import { Episode, SearchResult, Season, VideoInfo } from '../types';
-import { fetchEpisodeRuntime, fetchSeasonData } from '../components/videoplayer/videoHandlers';
+import { fetchEpisodeRuntime, fetchMovieRuntime, fetchSeasonData } from '../components/videoplayer/videoHandlers';
 import { watchHistorySync } from '../services/watchHistorySync';
 import { myListService } from '../services/myListService';
 
@@ -40,6 +40,58 @@ const parseEpisodeKey = (value: string): { season: string; episode: string } | n
   return { season, episode };
 };
 
+const formatLastPlayedLabel = (timestamp?: number) => {
+  if (!timestamp) {
+    return 'Not played yet';
+  }
+
+  return new Date(timestamp).toLocaleString();
+};
+
+const formatRuntimeLabel = (seconds: number) => {
+  const clampedSeconds = Math.max(0, seconds);
+  const hours = Math.floor(clampedSeconds / 3600);
+  const minutes = Math.floor((clampedSeconds % 3600) / 60);
+  const remainingSeconds = clampedSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${remainingSeconds}s`;
+  }
+
+  return `${minutes}m ${remainingSeconds}s`;
+};
+
+const getVideoTrackingKey = (video: VideoInfo | null) => {
+  if (!video) {
+    return '';
+  }
+
+  if (video.type === 'series') {
+    return `${video.imdbID}::${video.type}::${video.season || '0'}::${video.episode || '0'}`;
+  }
+
+  return `${video.imdbID}::${video.type}`;
+};
+
+const PLAY_SIGNAL_PATTERN = /\b(play|playing|resume|resumed|start|started|timeupdate|progress)\b/i;
+const PAUSE_SIGNAL_PATTERN = /\b(pause|paused|stop|stopped|ended|idle)\b/i;
+
+const stringifyMessagePayload = (payload: unknown): string => {
+  if (typeof payload === 'string') {
+    return payload.toLowerCase();
+  }
+
+  if (payload && typeof payload === 'object') {
+    try {
+      return JSON.stringify(payload).toLowerCase();
+    } catch {
+      return '';
+    }
+  }
+
+  return '';
+};
+
 const MediaDetailsPage: React.FC = () => {
   const { imdbID = '', type = 'movie' } = useParams<{ imdbID: string; type: string }>();
   const location = useLocation();
@@ -63,6 +115,21 @@ const MediaDetailsPage: React.FC = () => {
   const [watchedEpisodeKeys, setWatchedEpisodeKeys] = useState<Set<string>>(new Set());
   const [lastWatchedEpisodeKey, setLastWatchedEpisodeKey] = useState<string | undefined>(undefined);
   const [isInList, setIsInList] = useState(false);
+  const [playbackSeconds, setPlaybackSeconds] = useState(0);
+  const [lastPlayedAt, setLastPlayedAt] = useState<number | undefined>(undefined);
+  const [isTabActive, setIsTabActive] = useState(document.visibilityState === 'visible' && document.hasFocus());
+  const [isPlayerPlaying, setIsPlayerPlaying] = useState(false);
+  const [hasPlaybackSignal, setHasPlaybackSignal] = useState(false);
+  const [manualPlaying, setManualPlaying] = useState(false);
+  const [isProgressHydrated, setIsProgressHydrated] = useState(false);
+  const [extensionBridgeActive, setExtensionBridgeActive] = useState(false);
+  const [extensionAudible, setExtensionAudible] = useState(false);
+
+  const trackingKey = getVideoTrackingKey(currentVideo);
+  const isUsingExtensionClock = extensionBridgeActive;
+  const isPlaybackClockRunning =
+    isTabActive &&
+    (isUsingExtensionClock ? extensionAudible : hasPlaybackSignal ? isPlayerPlaying : manualPlaying);
 
   const selectedSeasonData = useMemo(
     () => seasons.find((season) => season.seasonNumber === selectedSeason),
@@ -167,27 +234,31 @@ const MediaDetailsPage: React.FC = () => {
     };
   }, [navigate]);
 
-  const persistWatchEntry = async (videoInfo: VideoInfo) => {
+  const persistTrackedProgress = async (videoInfo: VideoInfo, watchedSeconds: number) => {
     try {
-      await watchHistorySync.saveProgress(videoInfo);
+      await watchHistorySync.saveProgress(videoInfo, watchedSeconds);
+      setLastPlayedAt(Date.now());
     } catch (error) {
-      console.error('Failed to update watch history:', error);
+      console.error('Failed to persist tracked progress:', error);
     }
   };
 
   const handlePlayMovie = async () => {
+    const runtime = details.tmdbId ? await fetchMovieRuntime(details.tmdbId) : 0;
+
     const videoInfo: VideoInfo = {
       imdbID,
       title: details.title,
       type: 'movie',
       tmdbId: details.tmdbId,
       poster: details.poster,
+      runtime,
       timestamp: Date.now(),
       url: VIDEO_SOURCES[currentSource].getUrl(imdbID)
     };
 
     setCurrentVideo(videoInfo);
-    await persistWatchEntry(videoInfo);
+    setManualPlaying(true);
   };
 
   const handleEpisodeSelect = async (episode: Episode) => {
@@ -210,7 +281,7 @@ const MediaDetailsPage: React.FC = () => {
     };
 
     setCurrentVideo(videoInfo);
-    await persistWatchEntry(videoInfo);
+    setManualPlaying(true);
 
     const episodeKey = `${selectedSeason}-${episode.Episode}`;
     setWatchedEpisodeKeys((prev) => new Set(prev).add(episodeKey));
@@ -313,6 +384,241 @@ const MediaDetailsPage: React.FC = () => {
     setIsInList(true);
   };
 
+  useEffect(() => {
+    const updateActiveState = () => {
+      setIsTabActive(document.visibilityState === 'visible' && document.hasFocus());
+    };
+
+    document.addEventListener('visibilitychange', updateActiveState);
+    window.addEventListener('focus', updateActiveState);
+    window.addEventListener('blur', updateActiveState);
+
+    return () => {
+      document.removeEventListener('visibilitychange', updateActiveState);
+      window.removeEventListener('focus', updateActiveState);
+      window.removeEventListener('blur', updateActiveState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!currentVideo) {
+      return;
+    }
+
+    const currentVideoOrigin = (() => {
+      try {
+        return new URL(currentVideo.url || '').origin;
+      } catch {
+        return '';
+      }
+    })();
+
+    const handleMessage = (event: MessageEvent) => {
+      if (!currentVideoOrigin) {
+        return;
+      }
+
+      const isLikelyPlayerOrigin =
+        event.origin === currentVideoOrigin ||
+        event.origin.endsWith('.vidsrc.xyz') ||
+        event.origin.endsWith('.multiembed.mov');
+
+      if (!isLikelyPlayerOrigin) {
+        return;
+      }
+
+      const payloadText = stringifyMessagePayload(event.data);
+      if (!payloadText) {
+        return;
+      }
+
+      const hasPlaySignal = PLAY_SIGNAL_PATTERN.test(payloadText);
+      const hasPauseSignal = PAUSE_SIGNAL_PATTERN.test(payloadText);
+
+      if (!hasPlaySignal && !hasPauseSignal) {
+        return;
+      }
+
+      setHasPlaybackSignal(true);
+
+      if (hasPauseSignal && !hasPlaySignal) {
+        setIsPlayerPlaying(false);
+        return;
+      }
+
+      if (hasPlaySignal) {
+        setIsPlayerPlaying(true);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [currentVideo?.url]);
+
+  useEffect(() => {
+    if (!currentVideo) {
+      setIsPlayerPlaying(false);
+      setHasPlaybackSignal(false);
+      setManualPlaying(false);
+      setIsProgressHydrated(false);
+      setExtensionBridgeActive(false);
+      setExtensionAudible(false);
+      return;
+    }
+
+    setIsPlayerPlaying(false);
+    setHasPlaybackSignal(false);
+    setManualPlaying(true);
+    setIsProgressHydrated(false);
+    setExtensionBridgeActive(false);
+    setExtensionAudible(false);
+  }, [currentVideo?.imdbID, currentVideo?.type, currentVideo?.season, currentVideo?.episode, currentVideo?.url]);
+
+  useEffect(() => {
+    if (!currentVideo) {
+      return;
+    }
+
+    let isSubscribed = true;
+    setIsProgressHydrated(false);
+
+    const hydrateProgress = async () => {
+      const existing = await watchHistorySync.getProgressForVideo(currentVideo);
+      if (!isSubscribed) {
+        return;
+      }
+
+      const savedSeconds = Math.max(0, Number(existing?.progressSeconds || 0));
+      setPlaybackSeconds(savedSeconds);
+      setLastPlayedAt(existing?.lastPlayedAt);
+      setIsProgressHydrated(true);
+    };
+
+    hydrateProgress();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [currentVideo?.imdbID, currentVideo?.type, currentVideo?.season, currentVideo?.episode]);
+
+  useEffect(() => {
+    if (!currentVideo || !trackingKey || !isProgressHydrated) {
+      return;
+    }
+
+    window.postMessage(
+      {
+        type: 'PS_TRACK_START',
+        key: trackingKey,
+        initialSeconds: playbackSeconds
+      },
+      '*'
+    );
+
+    return () => {
+      window.postMessage(
+        {
+          type: 'PS_TRACK_STOP',
+          key: trackingKey
+        },
+        '*'
+      );
+    };
+  }, [trackingKey, currentVideo?.url, isProgressHydrated]);
+
+  useEffect(() => {
+    const handleExtensionMessage = (event: MessageEvent) => {
+      if (event.source !== window) {
+        return;
+      }
+
+      const data = event.data;
+      if (!data || typeof data !== 'object') {
+        return;
+      }
+
+      if (data.type !== 'PS_EXTENSION_AUDIO_RUNTIME_UPDATE') {
+        return;
+      }
+
+      const messageKey = typeof data.key === 'string' ? data.key : '';
+      if (!messageKey || messageKey !== trackingKey) {
+        return;
+      }
+
+      setExtensionBridgeActive(true);
+      setExtensionAudible(Boolean(data.audible));
+
+      const extensionSeconds = Number(data.seconds || 0);
+      if (Number.isFinite(extensionSeconds) && extensionSeconds >= 0) {
+        setPlaybackSeconds(extensionSeconds);
+      }
+    };
+
+    window.addEventListener('message', handleExtensionMessage);
+
+    return () => {
+      window.removeEventListener('message', handleExtensionMessage);
+    };
+  }, [trackingKey]);
+
+  useEffect(() => {
+    if (!currentVideo || !isPlaybackClockRunning || isUsingExtensionClock) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setPlaybackSeconds((prev) => prev + 1);
+    }, 1000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [currentVideo, isPlaybackClockRunning, isUsingExtensionClock]);
+
+  useEffect(() => {
+    if (!currentVideo) {
+      return;
+    }
+
+    if (playbackSeconds <= 0) {
+      return;
+    }
+
+    if (playbackSeconds % 10 !== 0) {
+      return;
+    }
+
+    persistTrackedProgress(currentVideo, playbackSeconds);
+  }, [playbackSeconds, currentVideo]);
+
+  useEffect(() => {
+    if (!currentVideo) {
+      return;
+    }
+
+    if (!isPlaybackClockRunning) {
+      if (playbackSeconds <= 0) {
+        return;
+      }
+
+      persistTrackedProgress(currentVideo, playbackSeconds);
+    }
+  }, [isPlaybackClockRunning, currentVideo, playbackSeconds]);
+
+  useEffect(() => {
+    return () => {
+      if (!currentVideo || playbackSeconds <= 0) {
+        return;
+      }
+
+      persistTrackedProgress(currentVideo, playbackSeconds);
+    };
+  }, [currentVideo, playbackSeconds]);
+
   return (
     <div className="app-shell text-white">
       <Header />
@@ -392,6 +698,34 @@ const MediaDetailsPage: React.FC = () => {
 
         {currentVideo && (
           <section className="mb-8">
+            <div className="mb-3 px-1 text-sm muted-copy">
+              <p>
+                Last played: {formatLastPlayedLabel(lastPlayedAt)}
+              </p>
+              <p>
+                Watched in this tab: {formatRuntimeLabel(playbackSeconds)}
+                {currentVideo.runtime ? ` / Runtime: ${currentVideo.runtime}m` : ''}
+              </p>
+              {!isTabActive && <p>Playback tracking paused because tab is not active.</p>}
+              {isUsingExtensionClock && isTabActive && !extensionAudible && (
+                <p>Playback tracking paused because tab audio is not active.</p>
+              )}
+              {!isUsingExtensionClock && isTabActive && !isPlayerPlaying && hasPlaybackSignal && (
+                <p>Playback tracking paused because player is paused.</p>
+              )}
+              {!isUsingExtensionClock && !hasPlaybackSignal && (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <p>Source did not send play/pause events. Use manual tracking:</p>
+                  <button
+                    onClick={() => setManualPlaying((prev) => !prev)}
+                    className="px-3 py-1 rounded-md btn-ghost transition-colors"
+                  >
+                    {manualPlaying ? 'Pause Tracking' : 'Start Tracking'}
+                  </button>
+                </div>
+              )}
+              {isUsingExtensionClock && <p>Tracking source: Chrome audio extension</p>}
+            </div>
             {currentVideo.type === 'movie' ? (
               <MoviePlayer title={currentVideo.title} url={currentVideo.url || ''} />
             ) : (

@@ -15,6 +15,19 @@ export const fetchEpisodeRuntime = async (tmdbId: number, season: string, episod
   }
 };
 
+export const fetchMovieRuntime = async (tmdbId: number) => {
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}`
+    );
+    const data = await response.json();
+    return data.runtime || 0;
+  } catch (error) {
+    console.error('Error fetching movie runtime:', error);
+    return 0;
+  }
+};
+
 export const fetchSeasonData = async (tmdbId: number) => {
   try {
     const response = await fetch(
