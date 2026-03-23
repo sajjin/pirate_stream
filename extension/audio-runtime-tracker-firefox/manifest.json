@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Pirate Stream Audio Runtime Tracker",
+  "description": "Tracks audible playback runtime for the active tab and reports it to Pirate Stream pages.",
+  "version": "1.0.0",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://pirata-amnis.com/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/*",
+        "https://pirata-amnis.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "Audio Runtime Tracker",
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "pirate-stream-audio-tracker@sajjin.local",
+      "strict_min_version": "109.0"
+    }
+  }
+}
