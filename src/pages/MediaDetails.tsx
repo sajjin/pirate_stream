@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/footer';
@@ -116,11 +116,6 @@ const MediaDetailsPage: React.FC = () => {
   const [lastWatchedEpisodeKey, setLastWatchedEpisodeKey] = useState<string | undefined>(undefined);
   const [isInList, setIsInList] = useState(false);
   const [playbackSeconds, setPlaybackSeconds] = useState(0);
-  const playbackSecondsRef = useRef(0);
-  const autoAdvancedRef = useRef(false);
-  const hasHeardAudioRef = useRef(false);
-  const [tempSeconds, setTempSeconds] = useState(0);
-  const [usesTempTimer, setUsesTempTimer] = useState(false);
   const [lastPlayedAt, setLastPlayedAt] = useState<number | undefined>(undefined);
   const [isTabActive, setIsTabActive] = useState(document.visibilityState === 'visible' && document.hasFocus());
   const [isPlayerPlaying, setIsPlayerPlaying] = useState(false);
@@ -469,7 +464,6 @@ const MediaDetailsPage: React.FC = () => {
       setHasPlaybackSignal(false);
       setManualPlaying(false);
       setIsProgressHydrated(false);
-      setPlaybackSeconds(0);
       setExtensionBridgeActive(false);
       setExtensionAudible(false);
       return;
@@ -479,7 +473,6 @@ const MediaDetailsPage: React.FC = () => {
     setHasPlaybackSignal(false);
     setManualPlaying(true);
     setIsProgressHydrated(false);
-    setPlaybackSeconds(0);
     setExtensionBridgeActive(false);
     setExtensionAudible(false);
   }, [currentVideo?.imdbID, currentVideo?.type, currentVideo?.season, currentVideo?.episode, currentVideo?.url]);
@@ -520,8 +513,7 @@ const MediaDetailsPage: React.FC = () => {
       {
         type: 'PS_TRACK_START',
         key: trackingKey,
-        initialSeconds: playbackSeconds,
-        runtimeSeconds: (currentVideo.runtime || 0) * 60
+        initialSeconds: playbackSeconds
       },
       '*'
     );
@@ -559,16 +551,10 @@ const MediaDetailsPage: React.FC = () => {
 
       setExtensionBridgeActive(true);
       setExtensionAudible(Boolean(data.audible));
-      setUsesTempTimer(Boolean(data.usesTempTimer));
-      setTempSeconds(Number(data.tempSeconds || 0));
 
       const extensionSeconds = Number(data.seconds || 0);
       if (Number.isFinite(extensionSeconds) && extensionSeconds >= 0) {
-        // Clamp to runtime to prevent display overage
-        const cappedSeconds = currentVideo?.runtime
-          ? Math.min(extensionSeconds, currentVideo.runtime * 60)
-          : extensionSeconds;
-        setPlaybackSeconds(cappedSeconds);
+        setPlaybackSeconds(extensionSeconds);
       }
     };
 
@@ -577,75 +563,7 @@ const MediaDetailsPage: React.FC = () => {
     return () => {
       window.removeEventListener('message', handleExtensionMessage);
     };
-  }, [trackingKey, currentVideo?.runtime]);
-
-  // Reset the auto-advance guard AND playback seconds ref whenever the episode changes,
-  // so the auto-advance effect won't see stale seconds from the previous episode.
-  useEffect(() => {
-    autoAdvancedRef.current = false;
-    playbackSecondsRef.current = 0;
-    hasHeardAudioRef.current = false;
-    setTempSeconds(0);
-    setUsesTempTimer(false);
-  }, [currentVideo?.imdbID, currentVideo?.season, currentVideo?.episode]);
-
-  const clickPageCenter = async (times: number) => {
-    for (let i = 0; i < times; i++) {
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      
-      const element = document.elementFromPoint(centerX, centerY);
-      if (element) {
-        element.dispatchEvent(new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        }));
-      }
-      
-      // Small delay between clicks
-      if (i < times - 1) {
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-    }
-  };
-
-  // Auto-advance to next episode when extension goes silent after 90% of runtime
-  useEffect(() => {
-    // Track that audio was detected at least once for this episode
-    if (extensionBridgeActive && extensionAudible) {
-      hasHeardAudioRef.current = true;
-    }
-
-    if (
-      !currentVideo ||
-      currentVideo.type !== 'series' ||
-      !extensionBridgeActive ||
-      extensionAudible ||
-      !hasHeardAudioRef.current ||
-      autoAdvancedRef.current
-    ) {
-      return;
-    }
-
-    const runtimeSeconds = (currentVideo.runtime || 0) * 60;
-    // Use tempSeconds if we've switched to the session timer, otherwise use the main timer
-    const checkSeconds = usesTempTimer ? tempSeconds : playbackSecondsRef.current;
-    
-    if (runtimeSeconds <= 0 || checkSeconds < runtimeSeconds * 0.9) {
-      return;
-    }
-
-    autoAdvancedRef.current = true;
-    
-    // Determine click count based on source: Source 1 (index 0) = 2 clicks, Source 2 (index 1) = 1 click
-    const clickCount = currentSource === 0 ? 2 : 1;
-    
-    // Click and then advance
-    clickPageCenter(clickCount).then(() => {
-      handleLoadNextEpisode();
-    });
-  }, [extensionAudible, extensionBridgeActive, currentVideo, seasons, usesTempTimer, tempSeconds, currentSource]);
+  }, [trackingKey]);
 
   useEffect(() => {
     if (!currentVideo || !isPlaybackClockRunning || isUsingExtensionClock) {
@@ -662,11 +580,7 @@ const MediaDetailsPage: React.FC = () => {
   }, [currentVideo, isPlaybackClockRunning, isUsingExtensionClock]);
 
   useEffect(() => {
-    playbackSecondsRef.current = playbackSeconds;
-  }, [playbackSeconds]);
-
-  useEffect(() => {
-    if (!currentVideo || !isProgressHydrated) {
+    if (!currentVideo) {
       return;
     }
 
@@ -679,7 +593,7 @@ const MediaDetailsPage: React.FC = () => {
     }
 
     persistTrackedProgress(currentVideo, playbackSeconds);
-  }, [playbackSeconds, currentVideo, isProgressHydrated]);
+  }, [playbackSeconds, currentVideo]);
 
   useEffect(() => {
     if (!currentVideo) {
@@ -687,23 +601,23 @@ const MediaDetailsPage: React.FC = () => {
     }
 
     if (!isPlaybackClockRunning) {
-      if (playbackSecondsRef.current <= 0) {
+      if (playbackSeconds <= 0) {
         return;
       }
 
-      persistTrackedProgress(currentVideo, playbackSecondsRef.current);
+      persistTrackedProgress(currentVideo, playbackSeconds);
     }
-  }, [isPlaybackClockRunning, currentVideo]);
+  }, [isPlaybackClockRunning, currentVideo, playbackSeconds]);
 
   useEffect(() => {
     return () => {
-      if (!currentVideo || playbackSecondsRef.current <= 0) {
+      if (!currentVideo || playbackSeconds <= 0) {
         return;
       }
 
-      persistTrackedProgress(currentVideo, playbackSecondsRef.current);
+      persistTrackedProgress(currentVideo, playbackSeconds);
     };
-  }, [currentVideo]);
+  }, [currentVideo, playbackSeconds]);
 
   return (
     <div className="app-shell text-white">
@@ -789,13 +703,7 @@ const MediaDetailsPage: React.FC = () => {
                 Last played: {formatLastPlayedLabel(lastPlayedAt)}
               </p>
               <p>
-                Watched in this tab: {formatRuntimeLabel(
-                  usesTempTimer
-                    ? tempSeconds
-                    : currentVideo.runtime
-                      ? Math.min(playbackSeconds, currentVideo.runtime * 60)
-                      : playbackSeconds
-                )}
+                Watched in this tab: {formatRuntimeLabel(playbackSeconds)}
                 {currentVideo.runtime ? ` / Runtime: ${currentVideo.runtime}m` : ''}
               </p>
               {!isTabActive && <p>Playback tracking paused because tab is not active.</p>}

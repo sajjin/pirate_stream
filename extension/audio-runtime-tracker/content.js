@@ -1,56 +1,22 @@
-function getRuntimeSafe() {
-  try {
-    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.id) {
-      return null;
-    }
-    return chrome.runtime;
-  } catch {
-    return null;
-  }
-}
-
 function sendToBackground(payload) {
-  const runtime = getRuntimeSafe();
-  if (!runtime) {
-    stopPolling();
-    return;
-  }
+  chrome.runtime.sendMessage(payload, (response) => {
+    if (!response) {
+      return;
+    }
 
-  try {
-    runtime.sendMessage(payload, (response) => {
-      try {
-        if (chrome.runtime.lastError) {
-          stopPolling();
-          return;
-        }
-      } catch {
-        stopPolling();
-        return;
-      }
-
-      if (!response) {
-        return;
-      }
-
-      if (response.type === 'PS_AUDIO_RUNTIME_UPDATE') {
-        window.postMessage(
-          {
-            type: 'PS_EXTENSION_AUDIO_RUNTIME_UPDATE',
-            key: response.key,
-            seconds: response.seconds,
-            tempSeconds: response.tempSeconds,
-            usesTempTimer: response.usesTempTimer,
-            audible: response.audible,
-            active: response.active
-          },
-          '*'
-        );
-      }
-    });
-  } catch {
-    // Extension was likely reloaded; suppress noisy errors in existing page contexts.
-    stopPolling();
-  }
+    if (response.type === 'PS_AUDIO_RUNTIME_UPDATE') {
+      window.postMessage(
+        {
+          type: 'PS_EXTENSION_AUDIO_RUNTIME_UPDATE',
+          key: response.key,
+          seconds: response.seconds,
+          audible: response.audible,
+          active: response.active
+        },
+        '*'
+      );
+    }
+  });
 }
 
 let activeTrackingKey = '';
@@ -79,55 +45,6 @@ function startPolling(key) {
   stopPolling();
   pollAudioRuntime();
   pollIntervalId = setInterval(pollAudioRuntime, 1000);
-}
-
-function postSeekResult(key, success, seconds) {
-  if (window.top === window) {
-    return;
-  }
-
-  window.top.postMessage(
-    {
-      type: 'PS_IFRAME_SEEK_RESULT',
-      key,
-      success,
-      seconds
-    },
-    '*'
-  );
-}
-
-function attemptDirectSeek(seconds) {
-  const normalizedSeconds = Math.max(0, Number(seconds || 0));
-  const videos = Array.from(document.querySelectorAll('video'));
-  let sought = false;
-
-  videos.forEach((video) => {
-    try {
-      video.currentTime = normalizedSeconds;
-      sought = true;
-    } catch {
-      // Ignore provider-specific seek failures.
-    }
-  });
-
-  if (sought) {
-    return true;
-  }
-
-  try {
-    if (typeof window.jwplayer === 'function') {
-      const player = window.jwplayer();
-      if (player && typeof player.seek === 'function') {
-        player.seek(normalizedSeconds);
-        return true;
-      }
-    }
-  } catch {
-    // Ignore missing/unsupported API.
-  }
-
-  return false;
 }
 
 window.addEventListener('message', (event) => {
@@ -161,53 +78,33 @@ window.addEventListener('message', (event) => {
 
   if (data.type === 'PS_TRACK_GET') {
     sendToBackground({ type: 'PS_TRACK_GET' });
-    return;
-  }
-
-  if (data.type === 'PS_IFRAME_SEEK_REQUEST') {
-    const key = typeof data.key === 'string' ? data.key : '';
-    const seconds = Number(data.seconds || 0);
-    const didSeek = attemptDirectSeek(seconds);
-    postSeekResult(key, didSeek, seconds);
   }
 });
 
-const runtime = getRuntimeSafe();
-if (runtime) {
-  try {
-    runtime.onMessage.addListener((message) => {
-      if (message && message.type === 'PS_TRACK_GET') {
-        if (activeTrackingKey) {
-          pollAudioRuntime();
-        } else {
-          sendToBackground({ type: 'PS_TRACK_GET' });
-        }
-        return;
-      }
-
-      if (!message || message.type !== 'PS_AUDIO_RUNTIME_UPDATE') {
-        return;
-      }
-
-      window.postMessage(
-        {
-          type: 'PS_EXTENSION_AUDIO_RUNTIME_UPDATE',
-          key: message.key,
-          seconds: message.seconds,
-          tempSeconds: message.tempSeconds,
-          usesTempTimer: message.usesTempTimer,
-          audible: message.audible,
-          active: message.active
-        },
-        '*'
-      );
-    });
-  } catch {
-    stopPolling();
+chrome.runtime.onMessage.addListener((message) => {
+  if (message && message.type === 'PS_TRACK_GET') {
+    if (activeTrackingKey) {
+      pollAudioRuntime();
+    } else {
+      sendToBackground({ type: 'PS_TRACK_GET' });
+    }
+    return;
   }
-}
 
-window.addEventListener('pagehide', stopPolling);
-window.addEventListener('beforeunload', stopPolling);
+  if (!message || message.type !== 'PS_AUDIO_RUNTIME_UPDATE') {
+    return;
+  }
+
+  window.postMessage(
+    {
+      type: 'PS_EXTENSION_AUDIO_RUNTIME_UPDATE',
+      key: message.key,
+      seconds: message.seconds,
+      audible: message.audible,
+      active: message.active
+    },
+    '*'
+  );
+});
 
 sendToBackground({ type: 'PS_TRACK_GET' });
