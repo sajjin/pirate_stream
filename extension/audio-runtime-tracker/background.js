@@ -30,8 +30,6 @@ function buildUpdate(current) {
     type: 'PS_AUDIO_RUNTIME_UPDATE',
     key: current.key,
     seconds: current.seconds,
-    tempSeconds: current.tempSeconds || 0,
-    usesTempTimer: current.usesTempTimer || false,
     audible: current.audible,
     active: current.active
   };
@@ -49,8 +47,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       active: false,
       key: '',
       seconds: 0,
-      tempSeconds: 0,
-      usesTempTimer: false,
       audible: false
     };
 
@@ -59,8 +55,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       type: 'PS_AUDIO_RUNTIME_UPDATE',
       key: current.key,
       seconds: current.seconds,
-      tempSeconds: current.tempSeconds || 0,
-      usesTempTimer: current.usesTempTimer || false,
       audible: current.audible,
       active: current.active
     });
@@ -77,18 +71,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'PS_TRACK_START') {
     const key = typeof message.key === 'string' ? message.key : '';
     const initialSeconds = Number(message.initialSeconds || 0);
-    const runtimeSeconds = Number(message.runtimeSeconds || 0);
 
     loadRuntime(key, initialSeconds, (seconds) => {
       tabState[tabId] = {
         active: true,
         key,
         seconds,
-        tempSeconds: 0,
-        runtimeSeconds: runtimeSeconds,
         audible: false,
-        lastTickAt: Date.now(),
-        usesTempTimer: false
+        lastTickAt: Date.now()
       };
 
       sendResponse(buildUpdate(tabState[tabId]));
@@ -132,17 +122,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       live.audible = audible;
 
       if (audible) {
-        // Increment both timers
         live.seconds += elapsedSeconds;
-        live.tempSeconds += elapsedSeconds;
-
-        // If main timer exceeds runtime, switch to using tempSeconds
-        if (live.runtimeSeconds > 0 && live.seconds > live.runtimeSeconds && !live.usesTempTimer) {
-          live.usesTempTimer = true;
-          live.seconds = live.tempSeconds;
-        }
-
-        // Persist the active timer
         if (live.seconds % 5 === 0) {
           persistRuntime(live.key, live.seconds);
         }
