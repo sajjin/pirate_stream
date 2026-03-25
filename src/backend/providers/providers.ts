@@ -1,8 +1,4 @@
-import {
-  makeProviders,
-  makeStandardFetcher,
-  targets,
-} from "@p-stream/providers";
+import { makeProviders, makeStandardFetcher, targets } from "@sajjin/providers";
 
 import { isExtensionActiveCached } from "@/backend/extension/messaging";
 import {

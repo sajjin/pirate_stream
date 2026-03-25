@@ -1,4 +1,4 @@
-import { RunOutput } from "@p-stream/providers";
+import { RunOutput } from "@sajjin/providers";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Navigate,
