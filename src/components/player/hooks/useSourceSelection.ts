@@ -1,8 +1,4 @@
-import {
-  EmbedOutput,
-  NotFoundError,
-  SourcererOutput,
-} from "@p-stream/providers";
+import { EmbedOutput, NotFoundError, SourcererOutput } from "@sajjin/providers";
 import { useAsyncFn } from "react-use";
 
 import { isExtensionActiveCached } from "@/backend/extension/messaging";
